@@ -3,7 +3,7 @@
 NFT artwork created and sold on xDAI using meta transactions, burner wallets, and bridged to Ethereum.
 
 ```
-git clone -b nifty-ink-dev https://github.com/austintgriffith/scaffold-eth.git nifty-ink
+git clone  https://github.com/BuidlGuidl/nifty-ink.git
 ```
 
 Install dependencies:
