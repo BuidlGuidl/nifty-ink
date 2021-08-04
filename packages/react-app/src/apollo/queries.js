@@ -51,13 +51,13 @@ export const TOP_COLLECTORS_QUERY = gql`
       saleCount
       purchaseCount
       address
-      tokens (where : {lastTransferAt_gt: $createdAt}){
+      tokens (first: 999, where : {lastTransferAt_gt: $createdAt}){
         lastTransferAt
       }
-      sales (where : {createdAt_gt: $createdAt}) {
+      sales (first: 999, where : {createdAt_gt: $createdAt}) {
         createdAt
       }
-      purchases (where : {createdAt_gt: $createdAt}) {
+      purchases (first: 999, where : {createdAt_gt: $createdAt}) {
         createdAt
       }
     }

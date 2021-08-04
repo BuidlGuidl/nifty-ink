@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useHistory } from "react-router-dom";
 import { useQuery } from "react-apollo";
 import { TOP_COLLECTORS_QUERY } from "./apollo/queries";
-import { Row, Form, Select } from "antd";
+import { Row, Col, Form, Select, Typography } from "antd";
 import { Loader, Address } from "./components";
 const dayjs = require('dayjs');
 
@@ -19,7 +19,7 @@ export default function Leaderboard(props) {
     let searchParams = useSearchParams();
 
     let [artists, setArtists] = useState([]);
-  
+
     let [orderBy, setOrderBy] = useState(searchParams.get("orderBy") || 'tokenCount');
     let [period, setPeriod] = useState(searchParams.get("period") || 'lastmonth');
     let [createdAt, setCreatedAt] = useState(1596240000);
@@ -73,8 +73,8 @@ export default function Leaderboard(props) {
             filters: lastFilterAt
         }
     });
-    
-    
+
+
     useEffect(() => {
         if (period === "alltime"){
             data ? setArtists(data.users) : console.log("loading");
@@ -82,15 +82,15 @@ export default function Leaderboard(props) {
             data ? artistStats(data.users) : console.log("loading");
         }
     }, [data]);
-    
+
     useEffect(() => {
         if (period === "alltime") {
             setCreatedAt(1596240000);
         } else if (period === "lastmonth") {
-            setCreatedAt(dayjs().subtract(30, 'days').unix()); 
+            setCreatedAt(dayjs().subtract(30, 'days').unix());
         }  else if (period === "lastweek") {
-            setCreatedAt(dayjs().subtract(7, 'days').unix()); 
-            }   
+            setCreatedAt(dayjs().subtract(7, 'days').unix());
+            }
         }
     , [period, setPeriod])
 
@@ -109,16 +109,20 @@ export default function Leaderboard(props) {
 
     if (loading) return <Loader/>;
     if (error) return `Error! ${error.message}`;
-    
+
     return (
         <div style={{maxWidth: 700, margin: "0 auto", textAlign: "left" }}>
-        <Row justify="end" align="center">
+          <Row align="center" gutter={16}>
+            <Col>
+              <Typography.Title level={3}>Collectors</Typography.Title>
+            </Col>
+            <Col>
             <Form
                 layout={"inline"}
-                initialValues={{ orderBy: orderBy }}
+                initialValues={{ orderBy: orderBy, period: period }}
             >
                 <Form.Item name="orderBy">
-                    <Select value={orderBy} style={{ width: 120 }} size="large"
+                    <Select value={orderBy} size="large"
                       onChange={(val) => {
                         searchParams.set("orderBy", val)
                         history.push(`${location.pathname}?${searchParams.toString()}`);
@@ -130,14 +134,9 @@ export default function Leaderboard(props) {
                         <Option value="saleCount">Sale count</Option>
                         <Option value="purchaseCount">Purchase count</Option>
                     </Select>
-                </Form.Item>   
-            </Form>
-            <Form
-                layout={"inline"}
-                initialValues={{ period: period }}
-            >
+                </Form.Item>
                 <Form.Item name="period">
-                    <Select value={period} style={{ width: 120 }} size="large"
+                    <Select value={period} size="large"
                       onChange={(val) => {
                         searchParams.set("period", val)
                         history.push(`${location.pathname}?${searchParams.toString()}`);
@@ -149,14 +148,17 @@ export default function Leaderboard(props) {
                         <Option value="lastmonth">Last 30 days</Option>
                         <Option value="lastweek">Last 7 days</Option>
                     </Select>
-                </Form.Item>   
+                </Form.Item>
             </Form>
+          </Col>
         </Row>
         <Row justify="center">
         <div className="artists-leaderboard">
             <ul>
-               { artists.length > 0 ? artists.map((artist, i) => 
-               <li key={artist.address} className="artists-leadboard-entry">       
+               { artists.length > 0 ? artists.map((artist, i) => {
+                 if(artist[orderBy] > 0) {
+                 return (
+               <li key={artist.address} className="artists-leadboard-entry">
                     <div className="artists-leadboard-entry-rank">
                         <h3>
                             {emojifyTop3(i+1)}
@@ -165,22 +167,24 @@ export default function Leaderboard(props) {
 
                     <div className="artists-leadboard-entry-address">
                         <Link
-                            to={{pathname: "/artist/"+artist.address}}
+                            to={{pathname: "/holdings/"+artist.address}}
                             style={{ color: "black" }}
                         >
                             <Address value={artist.address} ensProvider={props.mainnetProvider} clickable={false} notCopyable={true} />
                         </Link>
-                        
+
                     </div>
                     <div className="artists-leadboard-entry-stats">
-                        <p><span role="img" aria-label="Framed Picture">🖼️</span> Total holdings: {artist.tokenCount}</p> 
-                        <p><span role="img" aria-label="Framed Picture">💰</span> Sale count: {artist.saleCount}</p> 
-                        <p><span role="img" aria-label="Framed Picture">💸</span> Purchase count: {artist.purchaseCount}</p> 
+                        <p><span role="img" aria-label="Framed Picture">🖼️</span> Total holdings: {artist.tokenCount}</p>
+                        <p><span role="img" aria-label="Framed Picture">💰</span> Sale count: {artist.saleCount}</p>
+                        <p><span role="img" aria-label="Framed Picture">💸</span> Purchase count: {artist.purchaseCount}</p>
                     </div>
-                </li> ) : null }
+                </li>)
+              }
+              } ) : null }
             </ul>
        </div>
-        </Row>                   
+        </Row>
             </div>
     )
 }
