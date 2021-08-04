@@ -225,8 +225,8 @@ export default function NftyWallet(props) {
             </NavLink>
           </Menu.Item>
         </Menu.SubMenu>
-        <Menu.Item key="leaderboard">
-        </Menu.Item>
+        {/* <Menu.Item key="leaderboard">
+        </Menu.Item> */}
         <Menu.Item key="help">
           <Button
             style={menuButtonStyle}
