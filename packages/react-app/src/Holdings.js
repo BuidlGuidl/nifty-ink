@@ -57,7 +57,7 @@ export default function Holdings(props) {
 
   const { loading, error, data: dataRaw, fetchMore } = useQuery(HOLDINGS_QUERY, {
     variables: {
-      first: 20,
+      first: 16,
       skip: 0,
       orderBy: 'createdAt',
       orderDirection: 'desc',
@@ -70,7 +70,7 @@ export default function Holdings(props) {
     console.log(skipper.current)
 
     if (
-      Math.round(window.scrollY + window.innerHeight) >=
+      Math.round((window.scrollY + window.innerHeight) * 1.1) >=
       Math.round(document.body.scrollHeight)
     ) {
       fetchMore({
