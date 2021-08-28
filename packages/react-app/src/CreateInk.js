@@ -440,14 +440,14 @@ if (props.mode === "edit") {
 
       <div style={{marginTop: 16}}>
         <Tooltip title="save to local storage">
-          <Button 
+          <Button
           disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
           onClick={() => {
             if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
             saveDrawing(drawingCanvas.current, true)
           }}><SaveOutlined /> {`${!drawingSaved?'SAVE *':'SAVED'}`}</Button>
         </Tooltip>
-        <Button 
+        <Button
           disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
           onClick={() => {
             if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
@@ -465,12 +465,12 @@ if (props.mode === "edit") {
           okText="Yes"
           cancelText="No"
         >
-        <Button 
+        <Button
           disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
         ><ClearOutlined /> CLEAR</Button>
         </Popconfirm>
-        <Button 
-          disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length} 
+        <Button
+          disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
           onClick={() => {
           if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
           drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(),false)//LZ.decompress(props.drawing), false)
@@ -510,8 +510,6 @@ if (props.mode === "edit") {
     <PickerDisplay
     color={color}
     onChangeComplete={updateColor}
-    colors={recentColors.slice(-18)}
-    presetColors={recentColors.slice(-18)}
     />
     <Button onClick={() => {
       setPicker(picker + 1)

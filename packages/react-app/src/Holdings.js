@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useLazyQuery } from "react-apollo";
 import { HOLDINGS_QUERY, HOLDINGS_MAIN_QUERY, HOLDINGS_MAIN_INKS_QUERY } from "./apollo/queries";
 import ApolloClient, { InMemoryCache } from 'apollo-boost';
@@ -29,20 +29,23 @@ export default function Holdings(props) {
 
   const [ens, setEns] = useState()
 
-  useEffect(()=> {
-    const getEns = async () => {
-    let _ens = await props.mainnetProvider.lookupAddress(address)
-    setEns(_ens)
-  }
-    getEns()
-  },[address])
-
   const [holdings, setHoldings] = useState() // Array with the token id's currently held
   const [tokens, setTokens] = useState({}); // Object holding information about relevant tokens
   const [myCreationOnly, setmyCreationOnly] = useState(true);
 
   const [blockNumber, setBlockNumber] = useState(0)
   const [data, setData] = useState() // Data filtered for latest block update that we have seen
+  const skipper = useRef(0)
+
+    useEffect(()=> {
+      const getEns = async () => {
+      let _ens = await props.mainnetProvider.lookupAddress(address)
+      setEns(_ens)
+    }
+      getEns()
+      setHoldings()
+      setTokens({})
+    },[address])
 
   const { loading: loadingMain, error: errorMain, data: dataMain } = useQuery(HOLDINGS_MAIN_QUERY, {
     variables: { owner: address },
@@ -52,10 +55,42 @@ export default function Holdings(props) {
 
   const [mainInksQuery, { loading: loadingMainInks, error: errorMainInks, data: dataMainInks }] = useLazyQuery(HOLDINGS_MAIN_INKS_QUERY)
 
-  const { loading, error, data: dataRaw } = useQuery(HOLDINGS_QUERY, {
-    variables: { owner: address.toLowerCase() },
+  const { loading, error, data: dataRaw, fetchMore } = useQuery(HOLDINGS_QUERY, {
+    variables: {
+      first: 20,
+      skip: 0,
+      orderBy: 'createdAt',
+      orderDirection: 'desc',
+      owner: address.toLowerCase() },
     pollInterval: 4000
   });
+
+  const onLoadMore = useCallback(() => {
+
+    console.log(skipper.current)
+
+    if (
+      Math.round(window.scrollY + window.innerHeight) >=
+      Math.round(document.body.scrollHeight)
+    ) {
+      fetchMore({
+        variables: {
+          skip: skipper.current
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return fetchMoreResult;
+        }
+      });
+    }
+  }, [fetchMore, (data && data.tokens.length)]);
+
+  useEffect(() => {
+  window.addEventListener("scroll", onLoadMore);
+  return () => {
+    window.removeEventListener("scroll", onLoadMore);
+  };
+}, [onLoadMore]);
 
   const getMetadata = async (jsonURL) => {
 
@@ -84,7 +119,7 @@ export default function Holdings(props) {
   const getTokens = async (_data) => {
 
     let chunkedData = []
-    let size = 25
+    let size = 10
     for (let i = 0; i < _data.length; i += size) {
         let chunk = _data.slice(i, i + size)
         chunkedData.push(chunk)
@@ -92,7 +127,11 @@ export default function Holdings(props) {
 
     for (const _dataChunk in chunkedData) {
       try {
+        console.log(`running chunk ${_dataChunk}`)
         await Promise.all(chunkedData[_dataChunk].map(async (token) => {
+          if(!tokens[token.id]) {
+            skipper.current = skipper.current + 1
+          }
           if (isBlocklisted(token.ink.jsonUrl)) return;
           let _token = token;
           _token.network = 'xDai'
@@ -105,10 +144,9 @@ export default function Holdings(props) {
       } catch (e) {
         console.log(e)
       }
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, 100));
     }
 
-    updateHoldings((data && data.tokens)?data.tokens:[], (dataMain && dataMain.tokens)?dataMain.tokens:[])
   };
 
   const getMainInks = async (_data) => {
@@ -132,13 +170,17 @@ export default function Holdings(props) {
       _newToken[_token.id] = _token
       setTokens((tokens) => ({...tokens, ..._newToken}));
     });
-    updateHoldings((data && data.tokens)?data.tokens:[], (dataMain && dataMain.tokens)?dataMain.tokens:[])
   };
 
-  const updateHoldings = (_tokens, _mainTokens) => {
-    let tokenList = _tokens.map(i => i.id)
-    let mainTokenList = _mainTokens.map(i => i.id)
-    setHoldings([...tokenList, ...mainTokenList])
+  useEffect(()=> {
+    if(tokens) updateHoldings()
+  },[tokens])
+
+  const updateHoldings = () => {
+    if(Object.keys(tokens).length > 0) {
+      let tokenList = Object.keys(tokens)
+      setHoldings(tokenList)
+  }
   }
 
   const handleFilter = () => {
@@ -179,6 +221,7 @@ export default function Holdings(props) {
 
   useEffect(() => {
     data ? getTokens(data.tokens) : console.log("loading tokens");
+    if(data) console.log(data.tokens)
   }, [data]);
 
   useEffect(() => {
@@ -203,6 +246,7 @@ export default function Holdings(props) {
       const newAddress = ethers.utils.getAddress(values["address"]);
       setData();
       setHoldings()
+      setTokens({})
       history.push("/holdings/"+newAddress);
     } catch (e) {
       console.log("not an address");
@@ -253,23 +297,10 @@ export default function Holdings(props) {
       className="holdings_blockie"
     />
     <h2 style={{ margin: 10 }}>{ens ? ens : address.slice(0, 6)}</h2>
-      <Row>
-        <Col span={12}>
-          <p style={{ margin: 0 }}>
-            <b>All Holdings:</b> {holdings ? holdings.length : 0}
+      <Row justify="centre">
+          <p style={{ margin: "auto" }}>
+            <b>All Holdings:</b> {(dataMain && data && data.user) ? (dataMain.tokens.length + parseInt(data.user.tokenCount)) : 0}
           </p>
-        </Col>
-        <Col span={12}>
-          <p style={{ margin: 0 }}>
-            <b>{`${props.address == address ? 'My' : "Holder's"} inks: `}</b>
-            {(holdings && tokens)
-              ? holdings.filter(
-                  (id) =>
-                    id in tokens && tokens[id].ink.artist.address === address.toLowerCase()
-                ).length
-              : 0}
-          </p>
-        </Col>
       </Row>
 
       <Divider />
@@ -283,7 +314,7 @@ export default function Holdings(props) {
       <div className="inks-grid">
         <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
           {holdings
-            ? holdings.filter((id) => id in tokens).map((id) => (
+            ? holdings.sort(function(a, b){return b-a}).filter((id) => id in tokens).map((id) => (
                 <li
                   key={id}
                   style={{

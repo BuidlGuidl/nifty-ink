@@ -130,7 +130,7 @@ export default function Leaderboard(props) {
                         setOrderBy(val)
                         }
                       }>
-                        <Option value="tokenCount">Holdings</Option>
+                        <Option value="tokenCount">Collected</Option>
                         <Option value="saleCount">Sale count</Option>
                         <Option value="purchaseCount">Purchase count</Option>
                     </Select>
@@ -156,7 +156,7 @@ export default function Leaderboard(props) {
         <div className="artists-leaderboard">
             <ul>
                { artists.length > 0 ? artists.map((artist, i) => {
-                 if(artist[orderBy] > 0) {
+                 if(artist[orderBy] > 0 && artist.address !== "0x000000000000000000000000000000000000dead") {
                  return (
                <li key={artist.address} className="artists-leadboard-entry">
                     <div className="artists-leadboard-entry-rank">
@@ -175,7 +175,7 @@ export default function Leaderboard(props) {
 
                     </div>
                     <div className="artists-leadboard-entry-stats">
-                        <p><span role="img" aria-label="Framed Picture">🖼️</span> Total holdings: {artist.tokenCount}</p>
+                        <p><span role="img" aria-label="Framed Picture">🖼️</span> Total collected: {artist.tokenCount}</p>
                         <p><span role="img" aria-label="Framed Picture">💰</span> Sale count: {artist.saleCount}</p>
                         <p><span role="img" aria-label="Framed Picture">💸</span> Purchase count: {artist.purchaseCount}</p>
                     </div>

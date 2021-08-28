@@ -204,7 +204,7 @@ export default function NftyWallet(props) {
           </NavLink>
         </Menu.Item>
         <Menu.SubMenu key="leaderboard"
-          title={<span>
+          title={<span style={{fontSize:menuFontSize}}>
             <span style={{ padding: 8 }} role="img" aria-label="Trophy">
             🏆
             </span>
@@ -213,6 +213,9 @@ export default function NftyWallet(props) {
           <Menu.Item key="artist-leaderboard">
             <NavLink to={"/leaderboard/artists"}>
               <span>
+                <span style={{ padding: 8 }} role="img" aria-label="artist">
+                👩‍🎨
+                </span>
                 artists
               </span>
             </NavLink>
@@ -220,13 +223,14 @@ export default function NftyWallet(props) {
           <Menu.Item key="collector-leaderboard">
             <NavLink to={"/leaderboard/collectors"}>
               <span>
+                <span style={{ padding: 8 }} role="img" aria-label="artist">
+                🕶
+                </span>
                 collectors
               </span>
             </NavLink>
           </Menu.Item>
         </Menu.SubMenu>
-        {/* <Menu.Item key="leaderboard">
-        </Menu.Item> */}
         <Menu.Item key="help">
           <Button
             style={menuButtonStyle}
@@ -240,7 +244,7 @@ export default function NftyWallet(props) {
             >
               💡
             </span>
-            Help
+            help
           </Button>
         </Menu.Item>
         <Menu.Item key="chat">
@@ -258,7 +262,7 @@ export default function NftyWallet(props) {
             >
               💬
             </span>
-            Chat
+            chat
           </Button>
         </Menu.Item>
         <Menu.Item key="about">
@@ -278,7 +282,7 @@ export default function NftyWallet(props) {
             >
               🧐
             </span>
-            About
+            about
           </Button>
         </Menu.Item>
       </Menu>

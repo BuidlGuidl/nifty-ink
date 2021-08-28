@@ -99,7 +99,8 @@ export default function ForSale(props) {
   ,[likesData])
 
   const getMetadata = async (jsonURL) => {
-    const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
+    //const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
+    const response = await fetch("http://ipfs.nifty.ink:8080/ipfs/" + jsonURL);
     const data = await response.json();
     return data;
   };
@@ -259,8 +260,8 @@ export default function ForSale(props) {
                 style={{ color: "black" }}
               >
                   <img
-                    src={inks[ink].metadata.image}
-                    alt={inks[ink].metadata.name}
+                    src={inks[ink].metadata.image.replace('https://ipfs.io/ipfs/','http://ipfs.nifty.ink:8080/ipfs/')}
+                    alt={inks[ink].metadata.name.replace('https://ipfs.io/ipfs/','http://ipfs.nifty.ink:8080/ipfs/')}
                     width={layout=="cards"?"180":"150"}
                     style={layout=="cards"?{
                       border: "1px solid #e5e5e6",

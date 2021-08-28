@@ -5,6 +5,7 @@ import { TOP_ARTISTS_QUERY } from "./apollo/queries";
 import { Row, Col, Form, Select, Typography } from "antd";
 import { Loader, Address } from "./components";
 import LeaderboardCollectors from "./LeaderboardCollectors";
+import { ethers } from "ethers"
 const dayjs = require('dayjs');
 
 const { Option } = Select;
@@ -109,6 +110,8 @@ export default function Leaderboard(props) {
     if (loading) return <Loader/>;
     if (error) return `Error! ${error.message}`;
 
+    console.log(artists)
+
     return (
           <div style={{maxWidth: 700, margin: "0 auto", textAlign: "left" }}>
               <Row align="center" gutter={16}>
@@ -172,7 +175,7 @@ export default function Leaderboard(props) {
 
                               </div>
                               <div className="artists-leadboard-entry-stats">
-                                  <p><span role="img" aria-label="Dollar Sign">💲</span> Earnings: ${(parseInt(artist.earnings) / 1e18).toFixed(2)}</p>
+                                  <p><span role="img" aria-label="Dollar Sign">💲</span> Earnings: ${(Number(artist.earnings) / 1e18).toFixed(2)}</p>
                                   <p><span role="img" aria-label="Framed Picture">🖼️</span> Total Inks: {artist.inkCount}</p>
                                   <p><span role="img" aria-label="Thumbs Up">👍</span> Total likes: {artist.likeCount}</p>
                               </div>

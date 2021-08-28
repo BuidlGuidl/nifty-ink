@@ -116,12 +116,15 @@ query likes($inks: [BigInt], $liker: String) {
 }`
 
 export const HOLDINGS_QUERY = gql`
-  query tokens($owner: Bytes!) {
+  query tokens($first: Int, $skip: Int, $owner: Bytes!) {
     metaData(id: "blockNumber") {
       id
       value
     }
-    tokens(first: 999, where: { owner: $owner }, orderBy: createdAt, orderDirection: desc) {
+    user(id: $owner) {
+      tokenCount
+    }
+    tokens(first: $first, skip: $skip, where: { owner: $owner }, orderBy: createdAt, orderDirection: desc) {
       owner { id }
       id
       price
