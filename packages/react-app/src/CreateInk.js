@@ -21,6 +21,7 @@ export default function CreateInk(props) {
   const [picker, setPicker] = useLocalStorage("picker", 0)
   const [color, setColor] = useLocalStorage("color", "#666666")
   const [brushRadius, setBrushRadius] = useState(8)
+  const [ recentColors, setRecentColors] = useLocalStorage("recentColors",["rgba(244,67,54,1)", "rgba(233,30,99,1)", "rgba(156,39,176,1)", "rgba(103,58,183,1)", "rgba(63,81,181,1)", "rgba(33,150,243,1)", "rgba(3,169,244,1)", "rgba(0,188,212,1)", "rgba(0,150,136,1)", "rgba(76,175,80,1)", "rgba(139,195,74,1)", "rgba(205,220,57,1)", "rgba(255,235,59,1)", "rgba(255,193,7,1)", "rgba(255,152,0,1)", "rgba(255,87,34,1)", "rgba(121,85,72,1)", "rgba(96,125,139,1)"])
 
   const drawingCanvas = useRef(null);
   const [size, setSize] = useState([0.85 * props.calculatedVmin, 0.85 * props.calculatedVmin])//["70vmin", "70vmin"]) //["50vmin", "50vmin"][750, 500]
@@ -103,6 +104,11 @@ useEffect(() => {
   }
 
   const saveDrawing = (newDrawing, saveOverride) => {
+          if (!recentColors.includes(color)) {
+            setRecentColors(prevItems => [...prevItems, color]);
+          }
+          // console.log(recentColors)
+
           currentLines.current = newDrawing.lines
         //if(!loadedLines || newDrawing.lines.length >= loadedLines) {
           if(saveOverride || newDrawing.lines.length < 100 || newDrawing.lines.length % 10 === 0) {
@@ -434,14 +440,14 @@ if (props.mode === "edit") {
 
       <div style={{marginTop: 16}}>
         <Tooltip title="save to local storage">
-          <Button 
+          <Button
           disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
           onClick={() => {
             if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
             saveDrawing(drawingCanvas.current, true)
           }}><SaveOutlined /> {`${!drawingSaved?'SAVE *':'SAVED'}`}</Button>
         </Tooltip>
-        <Button 
+        <Button
           disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
           onClick={() => {
             if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
@@ -459,12 +465,12 @@ if (props.mode === "edit") {
           okText="Yes"
           cancelText="No"
         >
-        <Button 
+        <Button
           disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
         ><ClearOutlined /> CLEAR</Button>
         </Popconfirm>
-        <Button 
-          disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length} 
+        <Button
+          disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
           onClick={() => {
           if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
           drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(),false)//LZ.decompress(props.drawing), false)

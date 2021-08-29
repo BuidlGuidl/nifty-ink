@@ -100,6 +100,7 @@ export default function ForSale(props) {
 
   const getMetadata = async (jsonURL) => {
     const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
+    //const response = await fetch("http://ipfs.nifty.ink:8080/ipfs/" + jsonURL);
     const data = await response.json();
     return data;
   };
@@ -129,7 +130,7 @@ export default function ForSale(props) {
 
   const onLoadMore = useCallback(() => {
     if (
-      Math.round(window.scrollY + window.innerHeight) >=
+      Math.round((window.scrollY + window.innerHeight) * 1.1) >=
       Math.round(document.body.scrollHeight)
     ) {
       fetchMore({

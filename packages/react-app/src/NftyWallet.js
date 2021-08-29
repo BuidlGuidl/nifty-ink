@@ -11,6 +11,7 @@ import Holdings from "./Holdings.js";
 import AllInks from "./AllInks.js";
 import Artist from "./Artist.js";
 import Leaderboard from "./Leaderboard.js";
+import LeaderboardCollectors from "./LeaderboardCollectors.js";
 import CreateInk from "./CreateInk.js";
 import ViewInk from "./ViewInk.js";
 import Help from "./Help.js";
@@ -202,16 +203,34 @@ export default function NftyWallet(props) {
             <Badge style={badgeStyle} count={displayBalance} showZero />
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="leaderboard">
-          <NavLink to={"/leaderboard"}>
-            <span>
-              <span style={{ padding: 8 }} role="img" aria-label="Trophy">
-              🏆
-              </span>
-              leaderboard
+        <Menu.SubMenu key="leaderboard"
+          title={<span style={{fontSize:menuFontSize}}>
+            <span style={{ padding: 8 }} role="img" aria-label="Trophy">
+            🏆
             </span>
-          </NavLink>
-        </Menu.Item>
+            leaderboard
+          </span>}>
+          <Menu.Item key="artist-leaderboard">
+            <NavLink to={"/leaderboard/artists"}>
+              <span>
+                <span style={{ padding: 8 }} role="img" aria-label="artist">
+                👩‍🎨
+                </span>
+                artists
+              </span>
+            </NavLink>
+          </Menu.Item>
+          <Menu.Item key="collector-leaderboard">
+            <NavLink to={"/leaderboard/collectors"}>
+              <span>
+                <span style={{ padding: 8 }} role="img" aria-label="artist">
+                🕶
+                </span>
+                collectors
+              </span>
+            </NavLink>
+          </Menu.Item>
+        </Menu.SubMenu>
         <Menu.Item key="help">
           <Button
             style={menuButtonStyle}
@@ -225,7 +244,7 @@ export default function NftyWallet(props) {
             >
               💡
             </span>
-            Help
+            help
           </Button>
         </Menu.Item>
         <Menu.Item key="chat">
@@ -243,7 +262,7 @@ export default function NftyWallet(props) {
             >
               💬
             </span>
-            Chat
+            chat
           </Button>
         </Menu.Item>
         <Menu.Item key="about">
@@ -263,7 +282,7 @@ export default function NftyWallet(props) {
             >
               🧐
             </span>
-            About
+            about
           </Button>
         </Menu.Item>
       </Menu>
@@ -310,8 +329,16 @@ export default function NftyWallet(props) {
           <Artist {...props} supabase={supabase} />
         </Route>
 
-        <Route path="/leaderboard">
+        <Route path="/leaderboard/artists">
           <Leaderboard {...props} supabase={supabase} />
+        </Route>
+
+        <Route path="/leaderboard/collectors">
+          <LeaderboardCollectors {...props} supabase={supabase} />
+        </Route>
+
+        <Route path="/leaderboard">
+              <Redirect to="/leaderboard/artists" />
         </Route>
 
         <Route path="/create">

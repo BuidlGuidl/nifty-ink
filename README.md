@@ -1,4 +1,4 @@
-# 🏗 scaffold-eth / Nifty Ink
+# 🎨 Nifty Ink / a 🏗 scaffold-eth fork
 
 NFT artwork created and sold on xDAI using meta transactions, burner wallets, and bridged to Ethereum.
 

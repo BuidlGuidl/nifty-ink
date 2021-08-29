@@ -44,6 +44,26 @@ export const TOP_ARTISTS_QUERY = gql`
   }
 `;
 
+export const TOP_COLLECTORS_QUERY = gql`
+  query users($first: Int, $orderBy: String, $orderDirection: String, $createdAt: Int, $filters: User_filter) {
+    users(first: $first, orderBy: $orderBy, orderDirection: $orderDirection, createdAt: $createdAt) {
+    	tokenCount
+      saleCount
+      purchaseCount
+      address
+      tokens (first: 999, where : {lastTransferAt_gt: $createdAt}){
+        lastTransferAt
+      }
+      sales (first: 999, where : {createdAt_gt: $createdAt}) {
+        createdAt
+      }
+      purchases (first: 999, where : {createdAt_gt: $createdAt}) {
+        createdAt
+      }
+    }
+  }
+`;
+
 export const INKS_QUERY = gql`
   query inks($first: Int, $skip: Int) {
     inks(first: $first, skip: $skip, orderBy: createdAt, orderDirection: desc, where: { burned: false }) {
@@ -96,12 +116,15 @@ query likes($inks: [BigInt], $liker: String) {
 }`
 
 export const HOLDINGS_QUERY = gql`
-  query tokens($owner: Bytes!) {
+  query tokens($first: Int, $skip: Int, $owner: Bytes!) {
     metaData(id: "blockNumber") {
       id
       value
     }
-    tokens(first: 999, where: { owner: $owner }, orderBy: createdAt, orderDirection: desc) {
+    user(id: $owner) {
+      tokenCount
+    }
+    tokens(first: $first, skip: $skip, where: { owner: $owner }, orderBy: createdAt, orderDirection: desc) {
       owner { id }
       id
       price
