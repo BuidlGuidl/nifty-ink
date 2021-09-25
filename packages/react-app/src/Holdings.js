@@ -4,7 +4,7 @@ import { HOLDINGS_QUERY, HOLDINGS_MAIN_QUERY, HOLDINGS_MAIN_INKS_QUERY } from ".
 import ApolloClient, { InMemoryCache } from 'apollo-boost';
 import { isBlocklisted } from "./helpers";
 import { useParams, Link, useHistory } from "react-router-dom";
-import { Row, Col, Divider, Switch, Button, Empty, Popover, notification, Form } from "antd";
+import { Typography, Row, Col, Divider, Switch, Button, Empty, Popover, notification, Form } from "antd";
 import { SendOutlined, RocketOutlined, SearchOutlined } from "@ant-design/icons";
 import { AddressInput, Loader } from "./components";
 import SendInkForm from "./SendInkForm.js";
@@ -12,6 +12,7 @@ import UpgradeInkButton from "./UpgradeInkButton.js";
 import Blockies from "react-blockies";
 import NiftyShop from "./NiftyShop.js"
 import { ethers } from "ethers";
+const { Text } = Typography;
 
 const mainClient = new ApolloClient({
   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT_MAINNET,
@@ -291,18 +292,17 @@ export default function Holdings(props) {
 
   return (
     <div style={{maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-    <Blockies
-      seed={address.toLowerCase()}
-      size={12} scale={6}
-      className="holdings_blockie"
-    />
-    <h2 style={{ margin: 10 }}>{ens ? ens : address.slice(0, 6)}</h2>
+      <Blockies
+        seed={address.toLowerCase()}
+        size={12} scale={6}
+        className="holdings_blockie"
+      />
+      <h2 style={{ margin: 10 }}><Text copyable={{text: ens ? ens : address}}>{ens ? ens : address.slice(0, 6)}</Text></h2>
       <Row justify="centre">
           <p style={{ margin: "auto" }}>
             <b>All Holdings:</b> {(dataMain && data && data.user) ? (dataMain.tokens.length + parseInt(data.user.tokenCount)) : 0}
           </p>
       </Row>
-
       <Divider />
       <Row justify="end" style={{ marginBottom: 20 }}>
         <Col><SearchForm/></Col>
