@@ -20,10 +20,12 @@ export default function CreateInk(props) {
   let history = useHistory();
 
   const [picker, setPicker] = useLocalStorage("picker", 0)
-  const [color, setColor] = useLocalStorage("color", "#666666")
+  const [color, setColor] = useLocalStorage("color", 'rgba(102,102,102,1)')
   const [brushRadius, setBrushRadius] = useState(8)
   const [ recentColors, setRecentColors] = useLocalStorage("recentColors",['rgba(102,102,102,1)'])
   const [colorArray, setColorArray] = useLocalStorage('colorArray', 'twitter')
+
+  const recentColorCount = 24
 
   const colorOptions = {
     block: ['#D9E3F0', '#F47373', '#697689', '#37D67A', '#2CCCE4', '#555555', '#dce775', '#ff8a65', '#ba68c8'],
@@ -32,12 +34,15 @@ export default function CreateInk(props) {
     twitter: ['#FF6900', '#FCB900', '#7BDCB5', '#00D084', '#8ED1FC', '#0693E3', '#ABB8C3', '#EB144C', '#F78DA7', '#9900EF'],
     compact: ['#4D4D4D', '#999999', '#FFFFFF', '#F44E3B', '#FE9200', '#FCDC00', '#DBDF00', '#A4DD00', '#68CCCA', '#73D8FF', '#AEA1FF', '#FDA1FF', '#333333', '#808080', '#cccccc', '#D33115', '#E27300', '#FCC400', '#B0BC00', '#68BC00', '#16A5A5', '#009CE0', '#7B64FF', '#FA28FF', '#000000', '#666666', '#B3B3B3', '#9F0500', '#C45100', '#FB9E00', '#808900', '#194D33', '#0C797D', '#0062B1', '#653294', '#AB149E'],
     sketch: ['#D0021B', '#F5A623', '#F8E71C', '#8B572A', '#7ED321', '#417505', '#BD10E0', '#9013FE', '#4A90E2', '#50E3C2', '#B8E986', '#000000', '#4A4A4A', '#9B9B9B', '#FFFFFF'],
-    niftyone: ['#00171F', '#003459', '#00A7EA', '#007EA7', '#FFFFFF'],
+    niftyone: ['#00171F', '#003459', '#00A7EA', '#FFFFFF', '#007EA7' ],
     niftytwo: ['#306B34', '#1C5253', '#F3FFC6', '#C3EB78', '#B6174B'],
     niftythree: ['#020202', '#0D324D', '#7F5A83', '#A188A6', '#9DA2AB'],
     niftyfour: ['#1F2041', '#FFC857', '#19647E', '#119DA4', '#4B3F72'],
     niftyfive: ['#141414', '#426C8F', '#B8DBD9', '#F4F4F9', '#04724D'],
-    recent: recentColors.slice(-18)
+    niftysix: ['#2274A5', '#E7EB90', '#FADF63', '#E6AF2E', '#632B30'],
+    niftyseven: ['#C05746', '#ADC698', '#D0E3C4', '#FFFFFF', '#503047'],
+    niftyeight: ['#0E7C7B', '#17BEBB', '#D62246', '#D4F4DD', '#4B1D3F'],
+    recent: recentColors.slice(-recentColorCount)
   }
 
   const drawingCanvas = useRef(null);
@@ -123,9 +128,9 @@ useEffect(() => {
   const saveDrawing = (newDrawing, saveOverride) => {
           let colorPlaceholder = drawingCanvas.current.props.brushColor.substring(5).replace(")","").split(",").map(e=>parseFloat(e));
           let opaqueColor = `rgba(${colorPlaceholder[0]},${colorPlaceholder[1]},${colorPlaceholder[2]},1)`
-          if (!recentColors.includes(opaqueColor)) {
+          if (!recentColors.slice(-recentColorCount).includes(opaqueColor)) {
             console.log(opaqueColor, 'adding to recent')
-            setRecentColors(prevItems => [...prevItems, opaqueColor]);
+            setRecentColors(prevItems => [...prevItems.slice(-recentColorCount+1), opaqueColor]);
           }
           // console.log(recentColors)
 
@@ -540,17 +545,23 @@ if (props.mode === "edit") {
       <Option value={'niftytwo'}>Palette #2</Option>
       <Option value={'niftythree'}>Palette #3</Option>
       <Option value={'niftyfour'}>Palette #4</Option>
+      <Option value={'niftyfive'}>Palette #5</Option>
+      <Option value={'niftysix'}>Palette #6</Option>
+      <Option value={'niftyseven'}>Palette #7</Option>
+      <Option value={'niftyeight'}>Palette #8</Option>
     </Select>
     <Button onClick={() => {
       setPicker(picker + 1)
     }}><HighlightOutlined /></Button>
     </Row>
+    <Row style={{backgroundColor:'#F4F4F4', justifyContent: 'center', alignItems: 'middle', padding: 4}}>
     <PickerDisplay
     color={color}
     onChangeComplete={updateColor}
     colors={colorOptions[colorArray]}
     presetColors={colorOptions[colorArray]}
     />
+    </Row>
     </Col>
     </Space>
     </Row>

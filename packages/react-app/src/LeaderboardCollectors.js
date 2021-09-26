@@ -20,7 +20,7 @@ export default function Leaderboard(props) {
 
     let [artists, setArtists] = useState([]);
 
-    let [orderBy, setOrderBy] = useState(searchParams.get("orderBy") || 'tokenCount');
+    let [orderBy, setOrderBy] = useState(searchParams.get("orderBy") || 'collectionCount');
     let [period, setPeriod] = useState(searchParams.get("period") || 'lastmonth');
     let [createdAt, setCreatedAt] = useState(1596240000);
     let [lastFilterAt, setLastFilterAt] = useState({lastTransferAt_gt: 1596240000})
@@ -43,7 +43,8 @@ export default function Leaderboard(props) {
                 address: artist.address,
                 tokenCount: artist.tokens.length,
                 saleCount: artist.sales.length,
-                purchaseCount: artist.purchases.length
+                purchaseCount: artist.purchases.length,
+                collectionCount: artist.collectedTokens.length
             }
         })
 
@@ -57,8 +58,11 @@ export default function Leaderboard(props) {
             case "tokenCount":
                 setArtists(artistsPlaceholder.sort((a, b) => a.tokenCount - b.tokenCount).reverse())
                 break;
+            case "collectionCount":
+                setArtists(artistsPlaceholder.sort((a, b) => a.collectionCount - b.collectionCount).reverse())
+                break;
             default:
-                setArtists(artistsPlaceholder.sort((a, b) => a.tokenCount - b.tokenCount).reverse())
+                setArtists(artistsPlaceholder.sort((a, b) => a.collectionCount - b.collectionCount).reverse())
         }
     }
 
@@ -102,7 +106,9 @@ export default function Leaderboard(props) {
             _lastFilterAt = {lastSaleAt_gt: createdAt}
         } else if (orderBy === "purchaseCount") {
             _lastFilterAt = {lastPurchaseAt_gt: createdAt}
-            }
+          } else if (orderBy === "collectionCount") {
+              _lastFilterAt = {lastTransferAt_gt: createdAt}
+              }
         setLastFilterAt(_lastFilterAt);
     },[createdAt, setCreatedAt, orderBy, setOrderBy])
 
@@ -130,7 +136,7 @@ export default function Leaderboard(props) {
                         setOrderBy(val)
                         }
                       }>
-                        <Option value="tokenCount">Collected</Option>
+                        <Option value="collectionCount">Collected</Option>
                         <Option value="saleCount">Sale count</Option>
                         <Option value="purchaseCount">Purchase count</Option>
                     </Select>
@@ -175,7 +181,7 @@ export default function Leaderboard(props) {
 
                     </div>
                     <div className="artists-leadboard-entry-stats">
-                        <p><span role="img" aria-label="Framed Picture">🖼️</span> Total collected: {artist.tokenCount}</p>
+                        <p><span role="img" aria-label="Framed Picture">🖼️</span> Total collected: {artist.collectionCount}</p>
                         <p><span role="img" aria-label="Framed Picture">💰</span> Sale count: {artist.saleCount}</p>
                         <p><span role="img" aria-label="Framed Picture">💸</span> Purchase count: {artist.purchaseCount}</p>
                     </div>

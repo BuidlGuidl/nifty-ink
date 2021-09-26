@@ -61,6 +61,9 @@ export const TOP_COLLECTORS_QUERY = gql`
       purchases (first: 999, where : {createdAt_gt: $createdAt}) {
         createdAt
       }
+      collectedTokens (first: 999, where : {lastTransferAt_gt: $createdAt}) {
+        createdAt
+      }
     }
   }
 `;
