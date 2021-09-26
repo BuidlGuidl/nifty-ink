@@ -44,7 +44,7 @@ if (process.env.REACT_APP_NETWORK_NAME) {
     console.log("🎉 XDAINETWORK + 🚀 Mainnet Ethereum");
     localProvider = mainnetProvider;
     kovanProvider = new ethers.providers.JsonRpcProvider(
-      "https://rpc.xdaichain.com/"//"https://dai.poa.network"
+      "https://xdai.poanetwork.dev"//"https://rpc.xdaichain.com/"//"https://dai.poa.network"
     );
   } else if (process.env.REACT_APP_NETWORK_NAME === "sokol") {
     console.log("THIS.IS.SOKOL");
