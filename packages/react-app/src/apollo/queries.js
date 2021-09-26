@@ -50,6 +50,7 @@ export const TOP_COLLECTORS_QUERY = gql`
     	tokenCount
       saleCount
       purchaseCount
+      collectionCount
       address
       tokens (first: 999, where : {lastTransferAt_gt: $createdAt}){
         lastTransferAt
@@ -58,6 +59,9 @@ export const TOP_COLLECTORS_QUERY = gql`
         createdAt
       }
       purchases (first: 999, where : {createdAt_gt: $createdAt}) {
+        createdAt
+      }
+      collectedTokens (first: 999, where : {lastTransferAt_gt: $createdAt}) {
         createdAt
       }
     }
