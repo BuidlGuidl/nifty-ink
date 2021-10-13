@@ -97,7 +97,7 @@ export default function Holdings(props) {
 
     // https://dev.to/stereobooster/fetch-with-a-timeout-3d6
     const timeoutableFetch = (url, options = {}) => {
-      let { timeout = 10000, ...rest } = options;
+      let { timeout = 15000, ...rest } = options;
       if (rest.signal) throw new Error("Signal not supported in timeoutable fetch");
       const controller = new AbortController();
       const { signal } = controller;
