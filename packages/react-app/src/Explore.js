@@ -25,6 +25,17 @@ function useSearchParams() {
   return _params
 }
 
+const ipfsGateways = [
+  'https://ipfs.io/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/',
+  'https://ipfs.fleek.co/ipfs/',
+  //'https://gateway.pinata.cloud/ipfs/',
+  'https://gateway.ipfs.io/ipfs/',
+  //'https://hardbin.com/ipfs/',
+  'https://ipfs.adatools.io/ipfs/',
+  //'https://hub.textile.io/ipfs/'
+]
+
 export default function ForSale(props) {
 
   let location = useLocation();
@@ -69,7 +80,7 @@ export default function ForSale(props) {
 
   const { loading, error, data, fetchMore } = useQuery(EXPLORE_QUERY, {
     variables: {
-      first: 48,
+      first: 32,
       skip: 0,
       orderBy: orderBy,
       orderDirection: orderDirection,
@@ -99,9 +110,12 @@ export default function ForSale(props) {
   ,[likesData])
 
   const getMetadata = async (jsonURL) => {
-    const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
-    //const response = await fetch("http://ipfs.nifty.ink:8080/ipfs/" + jsonURL);
+    //const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
+    //const response = await fetch("https://ipfs.nifty.ink:8080/ipfs/" + jsonURL);
+    //const response = await fetch(ipfsGateways[Math.floor(Math.random() * ipfsGateways.length)] + jsonURL);
+    const response = await fetch("https://nifty-ink.mypinata.cloud/ipfs/" + jsonURL);
     const data = await response.json();
+    data.image = data.image.replace('https://ipfs.io/ipfs/','https://nifty-ink.mypinata.cloud/ipfs/')
     return data;
   };
 
