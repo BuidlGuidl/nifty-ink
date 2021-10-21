@@ -46,7 +46,7 @@ export const TOP_ARTISTS_QUERY = gql`
 
 export const TOP_COLLECTORS_QUERY = gql`
   query users($first: Int, $orderBy: String, $orderDirection: String, $createdAt: Int, $filters: User_filter) {
-    users(first: $first, orderBy: $orderBy, orderDirection: $orderDirection, createdAt: $createdAt) {
+    users(first: $first, orderBy: $orderBy, orderDirection: $orderDirection, createdAt: $createdAt, where: { id_not: "0x000000000000000000000000000000000000dead" }) {
     	tokenCount
       saleCount
       purchaseCount
