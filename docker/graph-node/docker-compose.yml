@@ -1,7 +1,7 @@
 version: '3'
 services:
   graph-node:
-    image: graphprotocol/graph-node:v0.21.0
+    image: graphprotocol/graph-node:latest
     ports:
       - '8000:8000'
       - '8001:8001'
@@ -20,7 +20,7 @@ services:
       ethereum: 'xdai:http://host.docker.internal:8546'
       RUST_LOG: info
   ipfs:
-    image: ipfs/go-ipfs:v0.4.23
+    image: ipfs/go-ipfs:latest
     ports:
       - '5001:5001'
     volumes:

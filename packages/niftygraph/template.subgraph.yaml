@@ -1,17 +1,18 @@
+{{#sideChain}}
 specVersion: 0.0.2
 schema:
-  file: ./schema.graphql
+  file: ./src/schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: NiftyInk
     network: xdai
     source:
-      address: "0xa81CF1BC11AeC69A346b8dcAc8B9510a4eeE8A11" # UPDATE THIS!
+      address: "{{inkAddress}}"
       abi: NiftyInk
-      startBlock: 1
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Ink
@@ -23,24 +24,28 @@ dataSources:
       eventHandlers:
         - event: newInk(uint256,indexed address,string,string,uint256)
           handler: handlenewInk
+{{#priceEventHandlers}}
         - event: newInkPrice(string,uint256)
           handler: handleNewInkPrice
-#      callHandlers:
-#        - function: setPrice(string,uint256)
-#          handler: handleSetPrice
-#        - function: setPriceFromSignature(string,uint256,bytes)
-#          handler: handleSetPriceFromSignature
+{{/priceEventHandlers}}
+{{#priceCallHandlers}}
+      callHandlers:
+        - function: setPrice(string,uint256)
+          handler: handleSetPrice
+        - function: setPriceFromSignature(string,uint256,bytes)
+          handler: handleSetPriceFromSignature
+{{/priceCallHandlers}}
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: NiftyToken
     network: xdai
     source:
-      address: "0xEf32020833021C55af9317139d14F1135be59Cd6" # UPDATE THIS!
+      address: "{{tokenAddress}}"
       abi: NiftyToken
-      startBlock: 1
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Ink
@@ -59,47 +64,26 @@ dataSources:
           handler: handleBoughtInk
         - event: mintedInk(uint256,string,address)
           handler: handleMintedInk
+{{#priceEventHandlers}}
         - event: newTokenPrice(uint256,uint256)
           handler: handleNewTokenPrice
-#      callHandlers:
-#        - function: setTokenPrice(uint256,uint256)
-#          handler: handleSetTokenPrice
+{{/priceEventHandlers}}
+{{#priceCallHandlers}}
+      callHandlers:
+        - function: setTokenPrice(uint256,uint256)
+          handler: handleSetTokenPrice
+{{/priceCallHandlers}}
       file: ./src/mapping.ts
-#  - kind: ethereum/contract
-#    name: NiftyMain
-#    network: mainnet
-#    source:
-#      address: "0xc02697c417DdAcfbe5EdbF23eDad956BC883F4fb"
-#      abi: NiftyMain
-#      startBlock: 10609660
-#    mapping:
-#      kind: ethereum/events
-#      apiVersion: 0.0.4
-#      language: wasm/assemblyscript
-#      entities:
-#        - Token
-#        - Transfer
-#      abis:
-#        - name: NiftyMain
-#          file: ./abis/NiftyMain.json
-#        - name: NiftyToken
-#          file: ./abis/NiftyToken.json
-#      eventHandlers:
-#        - event: Transfer(indexed address,indexed address,indexed uint256)
-#          handler: handleTransfer
-#        - event: mintedInk(uint256,string,address)
-#          handler: handleMintedOnMain
-#      file: ./src/mapping.ts
   - kind: ethereum/contract
     name: NiftyMediator
     network: xdai
     source:
-      address: "0xD52d47d3BF22B729876fA7F7Ffdc330572De9799" # UPDATE THIS!
+      address: "{{mediatorAddress}}"
       abi: NiftyMediator
-      startBlock: 1
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Token
@@ -118,12 +102,12 @@ dataSources:
     name: Liker
     network: xdai
     source:
-      address: "0x830d9f5DaDaA63E0668B6AfD1820010349b142D6" # Update this!
+      address: "{{likerAddress}}"
       abi: Liker
-      startBlock: 1
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - InkLookUp
@@ -136,3 +120,35 @@ dataSources:
         - event: liked(uint256,address,uint256,uint256,address)
           handler: handleLikedInk
       file: ./src/mapping.ts
+{{/sideChain}}
+{{#mainChain}}
+specVersion: 0.0.2
+schema:
+  file: ./src/mainnet-schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: NiftyMain
+    network: mainnet
+    source:
+      address: "{{mainTokenAddress}}"
+      abi: NiftyMain
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - Transfer
+      abis:
+        - name: NiftyMain
+          file: ./abis/NiftyMain.json
+        - name: NiftyToken
+          file: ./abis/NiftyToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: mintedInk(uint256,string,address)
+          handler: handleMintedOnMain
+      file: ./src/mainnet-mapping.ts
+{{/mainChain}}
