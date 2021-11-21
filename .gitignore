@@ -12,6 +12,7 @@ packages/buidler/artifacts
 packages/react-app/src/contracts
 packages/buidler/cache
 packages/niftygraph/generated
+packages/niftygraph/subgraph.yaml
 
 docker/*/data
 
