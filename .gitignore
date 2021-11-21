@@ -11,6 +11,7 @@ packages/buidler/mnemonic.txt
 packages/buidler/artifacts
 packages/react-app/src/contracts
 packages/buidler/cache
+packages/niftygraph/generated
 
 docker/*/data
 

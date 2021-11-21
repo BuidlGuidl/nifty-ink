@@ -1,0 +1,24 @@
+enum Network {
+  xdai
+  mainnet
+}
+
+type Token @entity {
+  id: ID!
+  ink: String!
+  jsonUrl: String!
+  owner: Bytes!
+  createdAt: BigInt!
+  network: Network!
+  transfers: [TokenTransfer!] @derivedFrom(field: "token")
+  upgradeTransfer: TokenTransfer
+}
+
+type TokenTransfer @entity {
+  id: ID!
+  token: Token!
+  from: Bytes!
+  to: Bytes!
+  createdAt: BigInt!
+  network: Network!
+}

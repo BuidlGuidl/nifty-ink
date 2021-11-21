@@ -9,10 +9,16 @@
     "deploy-test": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ azf20/nifty-ink-v2",
     "create-local": "graph create --node http://localhost:8020/ azf20/nifty-ink",
     "remove-local": "graph remove --node http://localhost:8020/ azf20/nifty-ink",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 azf20/nifty-ink"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 azf20/nifty-ink",
+    "prepare-local": "mustache config/local.json template.subgraph.yaml > subgraph.yaml",
+    "prepare-xdai": "mustache config/xdai.json template.subgraph.yaml > subgraph.yaml",
+    "prepare-mainnet": "mustache config/mainnet.json template.subgraph.yaml > subgraph.yaml"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.21.0",
-    "@graphprotocol/graph-ts": "0.20.1"
+    "@graphprotocol/graph-cli": "0.23.2",
+    "@graphprotocol/graph-ts": "0.24.0"
+  },
+  "devDependencies": {
+    "mustache": "^3.1.0"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "inkAddress": "0x9f5e23D1e618F47Abc70be140882B1342f3b5A03",
+  "tokenAddress": "0x9cfA36079b46958D5c261963dC4267dc896D7F46",
+  "likerAddress": "0xCFB033bcaF74016047d4c9199b68c4D5eD4bB336",
+  "mediatorAddress": "0x73cA9C4e72fF109259cf7374F038faf950949C51",
+  "startBlock": 1,
+  "priceEventHandlers": true,
+  "sideChain": true
+}
