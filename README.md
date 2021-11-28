@@ -70,7 +70,7 @@ Then deploy the contracts:
 yarn run sidechaindeploy
 ```
 You will need the contract deployment addresses to update the subgraph configuration:
-Go to `packages/niftygraph/subgraph.yaml` and update the addresses for the four datasources to match the addresses from your deployment (NiftyInk, NiftyToken, NiftyMediator, Liker)
+Update `packages/niftygraph/config/local.json` with the deployed addresses on the local chain (for NiftyInk, NiftyToken, Liker, NiftyMediator).
 
 
 *Terminal D:* Run a local graph node <- Requires docker
@@ -81,8 +81,10 @@ docker-compose up
 
 *Terminal E:* Create and deploy the subgraph on your local graph node
 NOTE: if you update the Nifty smart contracts, you will need to update the ABIs in `/packages/niftygraph/abis`
+
 ```
 cd nifty-ink/packages/niftygraph
+yarn prepare-local
 yarn codegen
 yarn build
 yarn create-local
@@ -107,6 +109,46 @@ Imported contracts:
 - SignatureChecker - verifying signatures (IERC1271 compatibility)
 
 Note that some of the contracts in this repo are not the on-chain contracts, those which have been changed have their originals in /v1-contracts (the primary change is to emit an event on setting the price of an ink or a token)
+
+### Subgraphs
+
+Nifty Ink's subgraphs live in `packages/niftygraph`. There are three subgraphs:
+- xDai: this subgraph indexes the deployed contracts on xDai ([deployed here](https://thegraph.com/hosted-service/subgraph/azf20/nifty-ink))
+- mainnet: this subgraph indexes the mainnet Nifty Token contract ([deployed here](https://thegraph.com/hosted-service/subgraph/azf20/nifty-ink-main))
+- local: this subgraph indexes a local hardhat chain with the latest sidechain contracts. Note that this subgraph relies purely on event handlers, unlike the xDai deployment, which relies on callhandlers where some events were omitted in the original contracts
+
+There are three key elements to any subgraph:
+- manifest (subgraph.yaml)
+- schema (schema.graphql)
+- Assemblyscript mapping files
+
+Preparing and deploying a subgraph depends on which one you are deploying. The first step in all cases is a "prepare" step, which takes the `template.subgraph.yaml`, and generates a `subgraph.yaml` file for the relevant subgraph.
+
+xDai subgraph, deployed to thegraph.com's hosted service (requires the deployment key to azf20/nifty-ink):
+```
+yarn prepare-xdai
+yarn codegen
+yarn build
+yarn deploy-xdai
+```
+
+mainnet subgraph, deployed to thegraph.com's hosted service (requires the deployment key to azf20/nifty-ink-main):
+```
+yarn prepare-mainnet
+yarn codegen
+yarn build
+yarn deploy-mainnet
+```
+
+local subgraph, deployed to a local graph-node (requires a local docker image and hardhat blockchain):
+> Before running this process, ensure that ``/packages/niftygraph/config/local.json` has the correct contract addresses specified
+```
+yarn prepare-local
+yarn codegen
+yarn build
+yarn create-local # only required the first time
+yarn deploy-local
+```
 
 ### Actions:
 |Action|Description|Signature supported?|GSN supported?|Payable?|

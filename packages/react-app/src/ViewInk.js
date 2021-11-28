@@ -4,7 +4,7 @@ import { ethers } from "ethers"
 import { Row, Popover, Button, List, Form, Typography, Spin, Space, Descriptions, notification, message, Badge, Skeleton, InputNumber, Input, Tabs } from 'antd';
 import { AddressInput, Address, Loader } from "./components"
 import { SendOutlined, QuestionCircleOutlined, RocketOutlined, StarTwoTone, LikeTwoTone, ShoppingCartOutlined, ShopOutlined, SyncOutlined, LinkOutlined, PlaySquareOutlined } from '@ant-design/icons';
-import { useContractLoader, usePoller } from "./hooks"
+import { useContractLoader, usePoller, useLocalStorage } from "./hooks"
 import { Transactor, getFromIPFS, getSignature, transactionHandler } from "./helpers"
 import SendInkForm from "./SendInkForm.js"
 import LikeButton from "./LikeButton.js"
@@ -61,6 +61,8 @@ export default function ViewInk(props) {
   const [inkTokenTransfers, setInkTokenTransfers] = useState([]);
 
   const [drawing, setDrawing] = useState()
+
+  const [playSpeed, setPlaySpeed] = useLocalStorage('playspeed',7)
 
   const { loading: loadingMain, error: errorMain, data: dataMain } = useQuery(INK_MAIN_QUERY, {
     variables: { inkUrl: hash },
@@ -551,6 +553,23 @@ const clickAndSave = (
             setCanvasState('drawing')
           }}><PlaySquareOutlined /> {canvasState==='ready'?'PLAY':canvasState}</Button>
 
+
+          <div>
+            <Popover content={
+                <InputNumber
+                  min={0}
+                  max={10}
+                  value={playSpeed}
+                  onChange={(value)=> {
+                    setPlaySpeed(value)
+                  }}
+                />
+            } title="Playback speed">
+              <QuestionCircleOutlined />
+              </Popover>
+          </div>
+
+
           {(data&&data.ink&&props.address&&props.address.toLowerCase()==data.ink.artist.id)&&<Button style={{marginTop:4,marginLeft:4}} onClick={() => {
             let _savedData = LZ.compress(drawing)
             props.setDrawing(_savedData)
@@ -586,7 +605,7 @@ const clickAndSave = (
         hideInterface={true}
         //saveData={drawing}
         immediateLoading={drawingSize >= 10000}
-        loadTimeOffset={3}
+        loadTimeOffset={10-playSpeed}
         onChange={()=>{
           try {
           drawnLines.current = drawingCanvas.current.lines.length
