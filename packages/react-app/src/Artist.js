@@ -35,7 +35,7 @@ export default function Artist(props) {
     variables: { address: address }
   });
 
-  const dateRange = 864000;
+  const dateRange = 2592000;
 
   const { data: dataActivity, fetchMore, error: dataError } = useQuery(
     ARTIST_RECENT_ACTIVITY_QUERY,
@@ -358,88 +358,95 @@ export default function Artist(props) {
           <div className="inks-grid">
             <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
               {inks
-                ? inks.map(ink => (
-                    <li
-                      key={ink.id}
-                      style={{
-                        display: "inline-block",
-                        verticalAlign: "top",
-                        margin: 10,
-                        padding: 10,
-                        border: "1px solid #e5e5e6",
-                        borderRadius: "10px",
-                        fontWeight: "bold"
-                      }}
-                    >
-                      <Link
-                        to={{ pathname: "/ink/" + ink.id }}
-                        style={{ color: "black" }}
+                ? inks
+                    .sort((a, b) => b.createdAt - a.createdAt)
+                    .map(ink => (
+                      <li
+                        key={ink.id}
+                        style={{
+                          display: "inline-block",
+                          verticalAlign: "top",
+                          margin: 10,
+                          padding: 10,
+                          border: "1px solid #e5e5e6",
+                          borderRadius: "10px",
+                          fontWeight: "bold"
+                        }}
                       >
-                        <img
-                          src={ink.metadata.image}
-                          alt={ink.metadata.name}
-                          width="150"
-                          style={{
-                            border: "1px solid #e5e5e6",
-                            borderRadius: "10px"
-                          }}
-                        />
-                        <h3
-                          style={{
-                            margin: "10px 0px 5px 0px",
-                            fontWeight: "700"
-                          }}
+                        <Link
+                          to={{ pathname: "/ink/" + ink.id }}
+                          style={{ color: "black" }}
                         >
-                          {ink.metadata.name.length > 18
-                            ? ink.metadata.name.slice(0, 15).concat("...")
-                            : ink.metadata.name}
-                        </h3>
+                          <img
+                            src={ink.metadata.image}
+                            alt={ink.metadata.name}
+                            width="150"
+                            style={{
+                              border: "1px solid #e5e5e6",
+                              borderRadius: "10px"
+                            }}
+                          />
+                          <h3
+                            style={{
+                              margin: "10px 0px 5px 0px",
+                              fontWeight: "700"
+                            }}
+                          >
+                            {ink.metadata.name.length > 18
+                              ? ink.metadata.name.slice(0, 15).concat("...")
+                              : ink.metadata.name}
+                          </h3>
 
-                        <Row
-                          align="middle"
-                          style={{
-                            textAlign: "center",
-                            justifyContent: "center"
-                          }}
-                        >
-                          {ink.bestPrice > 0 ? (
-                            <>
-                              <p
-                                style={{
-                                  color: "#5e5e5e",
-                                  margin: "0"
-                                }}
-                              >
-                                <b>
-                                  {ethers.utils.formatEther(ink.bestPrice)}{" "}
-                                </b>
-                              </p>
+                          <Row
+                            align="middle"
+                            style={{
+                              textAlign: "center",
+                              justifyContent: "center"
+                            }}
+                          >
+                            {ink.bestPrice > 0 ? (
+                              <>
+                                <p
+                                  style={{
+                                    color: "#5e5e5e",
+                                    margin: "0"
+                                  }}
+                                >
+                                  <b>
+                                    {ethers.utils.formatEther(ink.bestPrice)}{" "}
+                                  </b>
+                                </p>
 
-                              <img
-                                src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
-                                alt="xdai"
-                                style={{ marginLeft: 5 }}
-                              />
-                            </>
-                          ) : (
-                            <>
-                              <img
-                                src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
-                                alt="xdai"
-                                style={{ marginLeft: 5, visibility: "hidden" }}
-                              />
-                            </>
-                          )}
-                        </Row>
-                        <Divider style={{ margin: "8px 0px" }} />
-                        <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
-                          {"Edition: " +
-                            ink.count +
-                            (ink.limit > 0 ? "/" + ink.limit : "")}
-                        </p>
-                      </Link>
-                    </li>
-                  ))
+                                <img
+                                  src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
+                                  alt="xdai"
+                                  style={{ marginLeft: 5 }}
+                                />
+                              </>
+                            ) : (
+                              <>
+                                <img
+                                  src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
+                                  alt="xdai"
+                                  style={{
+                                    marginLeft: 5,
+                                    visibility: "hidden"
+                                  }}
+                                />
+                              </>
+                            )}
+                          </Row>
+                          <Divider style={{ margin: "8px 0px" }} />
+                          <p
+                            style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}
+                          >
+                            {"Edition: " +
+                              ink.count +
+                              (ink.limit > 0 ? "/" + ink.limit : "")}
+                          </p>
+                        </Link>
+                      </li>
+                    ))
                 : null}
             </ul>
           </div>
