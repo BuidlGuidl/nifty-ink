@@ -222,8 +222,15 @@ export default function Artist(props) {
 
   useEffect(() => {
     const getMetadata = async jsonURL => {
-      const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
+      //const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
+      const response = await fetch(
+        "https://nifty-ink.mypinata.cloud/ipfs/" + jsonURL
+      );
       const data = await response.json();
+      data.image = data.image.replace(
+        "https://ipfs.io/ipfs/",
+        "https://nifty-ink.mypinata.cloud/ipfs/"
+      );
       return data;
     };
 

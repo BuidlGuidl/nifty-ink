@@ -85,6 +85,7 @@ export const TOP_COLLECTORS_QUERY = gql`
       orderBy: $orderBy
       orderDirection: $orderDirection
       createdAt: $createdAt
+      where: { id_not: "0x000000000000000000000000000000000000dead" }
     ) {
       tokenCount
       saleCount
