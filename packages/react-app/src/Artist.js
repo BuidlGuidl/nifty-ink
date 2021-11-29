@@ -296,8 +296,6 @@ export default function Artist(props) {
       : console.log("loading activity");
   }, [dataActivity]);
 
-  console.log(dataActivity, activity);
-
   const onLoadMore = useCallback(() => {
     let newCutoff = parseInt(activityCreatedAt.current - dateRange);
     fetchMore({
