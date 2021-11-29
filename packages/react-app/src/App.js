@@ -1,25 +1,27 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import ApolloClient, { gql, InMemoryCache } from 'apollo-boost'
-import { ApolloProvider, Query } from 'react-apollo'
+import ApolloClient, { gql, InMemoryCache } from "apollo-boost";
+import { ApolloProvider, Query } from "react-apollo";
 import "antd/dist/antd.css";
 import { Row, Col, Button, Spin } from "antd";
 import { ethers } from "ethers";
 import "./App.css";
 import { useContractLoader } from "./hooks";
 import { Faucet } from "./components";
-import { INFURA_ID } from "./constants"
+import { INFURA_ID } from "./constants";
 
 import NftyWallet from "./NftyWallet.js";
 
 if (!process.env.REACT_APP_GRAPHQL_ENDPOINT) {
-  throw new Error('REACT_APP_GRAPHQL_ENDPOINT environment variable not defined')
+  throw new Error(
+    "REACT_APP_GRAPHQL_ENDPOINT environment variable not defined"
+  );
 }
 
 const client = new ApolloClient({
   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT,
-  cache: new InMemoryCache(),
-})
+  cache: new InMemoryCache()
+});
 
 const INKS_QUERY = gql`
   query inks {
@@ -29,7 +31,7 @@ const INKS_QUERY = gql`
       jsonUrl
     }
   }
-`
+`;
 
 const mainnetProvider = new ethers.providers.InfuraProvider(
   "homestead",
@@ -43,27 +45,21 @@ if (process.env.REACT_APP_NETWORK_NAME) {
   if (process.env.REACT_APP_NETWORK_NAME === "xdai") {
     console.log("🎉 XDAINETWORK + 🚀 Mainnet Ethereum");
     localProvider = mainnetProvider;
-    kovanProvider = new ethers.providers.JsonRpcProvider(
-      "https://xdai.poanetwork.dev"//"https://rpc.xdaichain.com/"//"https://dai.poa.network"
+    kovanProvider = new ethers.providers.StaticJsonRpcProvider(
+      "https://xdai.poanetwork.dev" //"https://rpc.xdaichain.com/"//"https://dai.poa.network"
     );
   } else if (process.env.REACT_APP_NETWORK_NAME === "sokol") {
     console.log("THIS.IS.SOKOL");
     localProvider = new ethers.providers.JsonRpcProvider(
       "https://sokol.poa.network"
     );
-    kovanProvider = new ethers.providers.InfuraProvider(
-      "kovan",
-      INFURA_ID
-    );
+    kovanProvider = new ethers.providers.InfuraProvider("kovan", INFURA_ID);
   } else {
     localProvider = new ethers.providers.InfuraProvider(
       process.env.REACT_APP_NETWORK_NAME,
       INFURA_ID
     );
-    kovanProvider = new ethers.providers.InfuraProvider(
-      "kovan",
-      INFURA_ID
-    );
+    kovanProvider = new ethers.providers.InfuraProvider("kovan", INFURA_ID);
   }
 } else {
   networkBanner = (
@@ -85,7 +81,7 @@ if (process.env.REACT_APP_NETWORK_NAME) {
       {"localhost"}
     </div>
   );
-  localProvider = mainnetProvider;//new ethers.providers.JsonRpcProvider("http://localhost:8545");
+  localProvider = mainnetProvider; //new ethers.providers.JsonRpcProvider("http://localhost:8545");
   kovanProvider = new ethers.providers.JsonRpcProvider("http://localhost:8546"); // yarn run sidechain
 }
 
@@ -103,28 +99,25 @@ function App() {
 
   return (
     <ApolloProvider client={client}>
-    <Router>
-    <div className="App">
-      {networkBanner}
-
-    </div>
-      <Switch>
-        <Route path="/">
-          <NftyWallet
-            address={address}
-            setAddress={setAddress}
-            localProvider={localProvider}
-            injectedProvider={injectedProvider}
-            setInjectedProvider={setInjectedProvider}
-            mainnetProvider={mainnetProvider}
-            price={price}
-            minimized={true}
-            readContracts={readContracts}
-            readKovanContracts={readKovanContracts}
-            gasPrice={gasPrice}
-            kovanProvider={kovanProvider}
-            metaProvider={metaProvider}
-            setMetaProvider={setMetaProvider}
+      <Router>
+        <div className="App">{networkBanner}</div>
+        <Switch>
+          <Route path="/">
+            <NftyWallet
+              address={address}
+              setAddress={setAddress}
+              localProvider={localProvider}
+              injectedProvider={injectedProvider}
+              setInjectedProvider={setInjectedProvider}
+              mainnetProvider={mainnetProvider}
+              price={price}
+              minimized={true}
+              readContracts={readContracts}
+              readKovanContracts={readKovanContracts}
+              gasPrice={gasPrice}
+              kovanProvider={kovanProvider}
+              metaProvider={metaProvider}
+              setMetaProvider={setMetaProvider}
             />
             <div
               style={{
@@ -191,9 +184,9 @@ function App() {
                 )}
               </a>
             </div>
-      </Route>
-      </Switch>
-    </Router>
+          </Route>
+        </Switch>
+      </Router>
     </ApolloProvider>
   );
 }
