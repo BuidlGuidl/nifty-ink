@@ -9,7 +9,6 @@ packages/buidler/mnemonic.txt
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 **/node_modules
 packages/buidler/artifacts
-packages/react-app/src/contracts
 packages/buidler/cache
 packages/niftygraph/generated
 packages/niftygraph/subgraph.yaml

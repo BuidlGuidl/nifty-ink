@@ -1,0 +1,1 @@
+module.exports = ["Liker","NiftyInk","NiftyMediator","NiftyRegistry","NiftyToken","NiftyToken","NiftyMain"]
