@@ -64,7 +64,7 @@ export default function LikeButton(props) {
           }
         }
         return false;
-      }} loading={minting} shape={"circle"} type={props.hasLiked||minting?"primary":"secondary"} style={{ zIndex:99, cursor:"pointer", marginBottom: props.marginBottom || 12, boxShadow: "2px 2px 3px #d0d0d0" }}>
+      }} loading={minting} shape={"circle"} type={props.hasLiked||minting?"primary":"secondary"} style={{ zIndex:90, cursor:"pointer", marginBottom: props.marginBottom || 12, boxShadow: "2px 2px 3px #d0d0d0" }}>
         {minting?"":props.hasLiked?<LikeOutlined />:<LikeTwoTone />}
       </Button>
       </Badge>
