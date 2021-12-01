@@ -1,11 +1,7 @@
 {
   "hosting": {
-    "public": "build",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "public": "./packages/react-app/build",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",
@@ -15,6 +11,6 @@
     "runtime": "nodejs14"
   },
   "functions": {
-    "source": "functions"
+    "source": "./packages/react-app/functions"
   }
 }

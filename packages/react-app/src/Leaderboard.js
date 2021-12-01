@@ -5,184 +5,230 @@ import { TOP_ARTISTS_QUERY } from "./apollo/queries";
 import { Row, Col, Form, Select, Typography } from "antd";
 import { Loader, Address } from "./components";
 import LeaderboardCollectors from "./LeaderboardCollectors";
-import { ethers } from "ethers"
-const dayjs = require('dayjs');
+import { ethers } from "ethers";
+const dayjs = require("dayjs");
 
 const { Option } = Select;
 
 function useSearchParams() {
-    let _params = new URLSearchParams(useLocation().search);
-    return _params;
-  }
+  let _params = new URLSearchParams(useLocation().search);
+  return _params;
+}
 
 export default function Leaderboard(props) {
-    let location = useLocation();
-    let history = useHistory();
-    let searchParams = useSearchParams();
+  let location = useLocation();
+  let history = useHistory();
+  let searchParams = useSearchParams();
 
-    let [artists, setArtists] = useState([]);
+  let [artists, setArtists] = useState([]);
 
-    let [orderBy, setOrderBy] = useState(searchParams.get("orderBy") || 'earnings');
-    let [period, setPeriod] = useState(searchParams.get("period") || 'lastmonth');
-    let [createdAt, setCreatedAt] = useState(1596240000);
-    let [lastFilterAt, setLastFilterAt] = useState({lastSaleAt_gt: 1596240000})
+  let [orderBy, setOrderBy] = useState(
+    searchParams.get("orderBy") || "earnings"
+  );
+  let [period, setPeriod] = useState(searchParams.get("period") || "lastmonth");
+  let [createdAt, setCreatedAt] = useState(1596240000);
+  let [lastFilterAt, setLastFilterAt] = useState({ lastSaleAt_gt: 1596240000 });
 
-    const emojifyTop3 = rank => {
-        if (rank === 1) {
-            return rank + " 🏆";
-        } else if (rank === 2) {
-            return rank + " 🥈";
-        } else if (rank === 3) {
-            return rank + " 🥉";
-        } else {
-            return rank;
-        }
+  const emojifyTop3 = rank => {
+    if (rank === 1) {
+      return rank + " 🏆";
+    } else if (rank === 2) {
+      return rank + " 🥈";
+    } else if (rank === 3) {
+      return rank + " 🥉";
+    } else {
+      return rank;
     }
+  };
 
-    const artistStats = _artists => {
-       let artistsPlaceholder = _artists.map(artist => {
-            return {
-                address: artist.address,
-                earnings: artist.sales.map(e => parseInt(e.price)).reduce((a,b) => a+b, 0),
-                likeCount: artist.likes.length,
-                inkCount: artist.inks.length
-            }
-        })
-
-        switch(orderBy) {
-            case 'earnings':
-                setArtists(artistsPlaceholder.sort((a, b) => a.earnings - b.earnings).reverse())
-                break;
-            case 'likeCount':
-                setArtists(artistsPlaceholder.sort((a, b) => a.likeCount - b.likeCount).reverse())
-                break;
-            case "inkCount":
-                setArtists(artistsPlaceholder.sort((a, b) => a.inkCount - b.inkCount).reverse())
-                break;
-            default:
-                setArtists(artistsPlaceholder.sort((a, b) => a.earnings - b.earnings).reverse())
-        }
-    }
-
-    const { loading, error, data } = useQuery(TOP_ARTISTS_QUERY, {
-        variables: {
-            first: 50,
-            skip: 0,
-            orderBy: orderBy,
-            orderDirection: 'desc',
-            createdAt: createdAt,
-            filters: lastFilterAt
-        }
+  const artistStats = _artists => {
+    let artistsPlaceholder = _artists.map(artist => {
+      return {
+        address: artist.address,
+        earnings: artist.sales
+          .map(e => parseInt(e.price))
+          .reduce((a, b) => a + b, 0),
+        likeCount: artist.likes.length,
+        inkCount: artist.inks.length
+      };
     });
 
+    switch (orderBy) {
+      case "earnings":
+        setArtists(
+          artistsPlaceholder.sort((a, b) => a.earnings - b.earnings).reverse()
+        );
+        break;
+      case "likeCount":
+        setArtists(
+          artistsPlaceholder.sort((a, b) => a.likeCount - b.likeCount).reverse()
+        );
+        break;
+      case "inkCount":
+        setArtists(
+          artistsPlaceholder.sort((a, b) => a.inkCount - b.inkCount).reverse()
+        );
+        break;
+      default:
+        setArtists(
+          artistsPlaceholder.sort((a, b) => a.earnings - b.earnings).reverse()
+        );
+    }
+  };
 
-    useEffect(() => {
-        if (period === "alltime"){
-            data ? setArtists(data.artists) : console.log("loading");
-        } else {
-            data ? artistStats(data.artists) : console.log("loading");
-        }
-    }, [data]);
+  const { loading, error, data } = useQuery(TOP_ARTISTS_QUERY, {
+    variables: {
+      first: 50,
+      skip: 0,
+      orderBy: orderBy,
+      orderDirection: "desc",
+      createdAt: createdAt,
+      filters: lastFilterAt
+    }
+  });
 
-    useEffect(() => {
-        if (period === "alltime") {
-            setCreatedAt(1596240000);
-        } else if (period === "lastmonth") {
-            setCreatedAt(dayjs().subtract(30, 'days').unix());
-        }  else if (period === "lastweek") {
-            setCreatedAt(dayjs().subtract(7, 'days').unix());
-            }
-        }
-    , [period, setPeriod])
+  useEffect(() => {
+    if (period === "alltime") {
+      data ? setArtists(data.artists) : console.log("loading");
+    } else {
+      data ? artistStats(data.artists) : console.log("loading");
+    }
+  }, [data]);
 
-    useEffect(() => {
-        let _lastFilterAt;
-        if (orderBy === "earnings"){
-            _lastFilterAt = {lastSaleAt_gt: createdAt}
-        } else if (orderBy === "likeCount") {
-            _lastFilterAt = {lastLikeAt_gt: createdAt}
-        } else if (orderBy === "inkCount") {
-            _lastFilterAt = {lastInkAt_gt: createdAt}
-            }
-        setLastFilterAt(_lastFilterAt);
-    },[createdAt, setCreatedAt, orderBy, setOrderBy])
+  useEffect(() => {
+    if (period === "alltime") {
+      setCreatedAt(1596240000);
+    } else if (period === "lastmonth") {
+      setCreatedAt(
+        dayjs()
+          .subtract(30, "days")
+          .unix()
+      );
+    } else if (period === "lastweek") {
+      setCreatedAt(
+        dayjs()
+          .subtract(7, "days")
+          .unix()
+      );
+    }
+  }, [period, setPeriod]);
 
-    if (loading) return <Loader/>;
-    if (error) return `Error! ${error.message}`;
+  useEffect(() => {
+    let _lastFilterAt;
+    if (orderBy === "earnings") {
+      _lastFilterAt = { lastSaleAt_gt: createdAt };
+    } else if (orderBy === "likeCount") {
+      _lastFilterAt = { lastLikeAt_gt: createdAt };
+    } else if (orderBy === "inkCount") {
+      _lastFilterAt = { lastInkAt_gt: createdAt };
+    }
+    setLastFilterAt(_lastFilterAt);
+  }, [createdAt, setCreatedAt, orderBy, setOrderBy]);
 
-    console.log(artists)
+  if (loading) return <Loader />;
+  if (error) return `Error! ${error.message}`;
 
-    return (
-          <div style={{maxWidth: 700, margin: "0 auto", textAlign: "left" }}>
-              <Row align="center" gutter={16}>
-                <Col>
-                  <Typography.Title level={3}>Artists</Typography.Title>
-                </Col>
-                <Col>
-                  <Form
-                      layout={"inline"}
-                      initialValues={{ orderBy: orderBy, period: period }}
-                  >
-                      <Form.Item size = "large" name="orderBy">
-                          <Select value={orderBy} size="large"
-                          onChange={(val) => {
-                              searchParams.set("orderBy", val)
-                              history.push(`${location.pathname}?${searchParams.toString()}`);
-                              setArtists([])
-                              setOrderBy(val)
-                              }
-                          }>
-                              <Option value="earnings">Sales</Option>
-                              <Option value="likeCount">Likes</Option>
-                              <Option value="inkCount">Inks count</Option>
-                          </Select>
-                      </Form.Item>
-                      <Form.Item name="period" size="large">
-                          <Select value={period} size="large"
-                          onChange={(val) => {
-                              searchParams.set("period", val)
-                              history.push(`${location.pathname}?${searchParams.toString()}`);
-                              setArtists([])
-                              setPeriod(val)
-                              }
-                          }>
-                              <Option value="alltime">All-time</Option>
-                              <Option value="lastmonth">Last 30 days</Option>
-                              <Option value="lastweek">Last 7 days</Option>
-                          </Select>
-                      </Form.Item>
-                  </Form>
-                </Col>
-              </Row>
-              <Row justify="center">
-                  <div className="artists-leaderboard">
-                      <ul>
-                      { artists.length > 0 ? artists.map((artist, i) =>
-                      <li key={artist.address} className="artists-leadboard-entry">
-                              <div className="artists-leadboard-entry-rank">
-                                  <h3>
-                                      {emojifyTop3(i+1)}
-                                  </h3>
-                              </div>
+  //console.log(artists)
 
-                              <div className="artists-leadboard-entry-address">
-                                  <Link
-                                      to={{pathname: "/artist/"+artist.address}}
-                                      style={{ color: "black" }}
-                                  >
-                                      <Address value={artist.address} ensProvider={props.mainnetProvider} clickable={false} notCopyable={true} />
-                                  </Link>
+  return (
+    <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "left" }}>
+      <Row align="center" gutter={16}>
+        <Col>
+          <Typography.Title level={3}>Artists</Typography.Title>
+        </Col>
+        <Col>
+          <Form
+            layout={"inline"}
+            initialValues={{ orderBy: orderBy, period: period }}
+          >
+            <Form.Item size="large" name="orderBy">
+              <Select
+                value={orderBy}
+                size="large"
+                onChange={val => {
+                  searchParams.set("orderBy", val);
+                  history.push(
+                    `${location.pathname}?${searchParams.toString()}`
+                  );
+                  setArtists([]);
+                  setOrderBy(val);
+                }}
+              >
+                <Option value="earnings">Sales</Option>
+                <Option value="likeCount">Likes</Option>
+                <Option value="inkCount">Inks count</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item name="period" size="large">
+              <Select
+                value={period}
+                size="large"
+                onChange={val => {
+                  searchParams.set("period", val);
+                  history.push(
+                    `${location.pathname}?${searchParams.toString()}`
+                  );
+                  setArtists([]);
+                  setPeriod(val);
+                }}
+              >
+                <Option value="alltime">All-time</Option>
+                <Option value="lastmonth">Last 30 days</Option>
+                <Option value="lastweek">Last 7 days</Option>
+              </Select>
+            </Form.Item>
+          </Form>
+        </Col>
+      </Row>
+      <Row justify="center">
+        <div className="artists-leaderboard">
+          <ul>
+            {artists.length > 0
+              ? artists.map((artist, i) => (
+                  <li key={artist.address} className="artists-leadboard-entry">
+                    <div className="artists-leadboard-entry-rank">
+                      <h3>{emojifyTop3(i + 1)}</h3>
+                    </div>
 
-                              </div>
-                              <div className="artists-leadboard-entry-stats">
-                                  <p><span role="img" aria-label="Dollar Sign">💲</span> Earnings: ${(Number(artist.earnings) / 1e18).toFixed(2)}</p>
-                                  <p><span role="img" aria-label="Framed Picture">🖼️</span> Total Inks: {artist.inkCount}</p>
-                                  <p><span role="img" aria-label="Thumbs Up">👍</span> Total likes: {artist.likeCount}</p>
-                              </div>
-                          </li> ) : null }
-                      </ul>
-                  </div>
-              </Row>
-          </div>
-    )
+                    <div className="artists-leadboard-entry-address">
+                      <Link
+                        to={{ pathname: "/artist/" + artist.address }}
+                        style={{ color: "black" }}
+                      >
+                        <Address
+                          value={artist.address}
+                          ensProvider={props.mainnetProvider}
+                          clickable={false}
+                          notCopyable={true}
+                        />
+                      </Link>
+                    </div>
+                    <div className="artists-leadboard-entry-stats">
+                      <p>
+                        <span role="img" aria-label="Dollar Sign">
+                          💲
+                        </span>{" "}
+                        Earnings: ${(Number(artist.earnings) / 1e18).toFixed(2)}
+                      </p>
+                      <p>
+                        <span role="img" aria-label="Framed Picture">
+                          🖼️
+                        </span>{" "}
+                        Total Inks: {artist.inkCount}
+                      </p>
+                      <p>
+                        <span role="img" aria-label="Thumbs Up">
+                          👍
+                        </span>{" "}
+                        Total likes: {artist.likeCount}
+                      </p>
+                    </div>
+                  </li>
+                ))
+              : null}
+          </ul>
+        </div>
+      </Row>
+    </div>
+  );
 }
