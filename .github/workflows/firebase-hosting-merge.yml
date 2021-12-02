@@ -12,7 +12,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "v16.4.0"
-      - run: yarn install && yarn build
+      - name: Install dependencies
+        run: yarn install
         env:
           REACT_APP_NETWORK_NAME: xdai
           REACT_APP_NETWORK_COLOR: "#f6c343"
@@ -23,7 +24,11 @@ jobs:
           REACT_APP_SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
           REACT_APP_COPY_WORD: "${{ secrets.COPY_WORD }}"
           REACT_APP_PAYMASTER_ADDRESS: "0x4734356359c48ba2Cb50BA048B1404A78678e5C2"
-      - uses: w9jds/firebase-action@master
+      - name: Build
+        run: yarn build
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
         with:
           args: deploy -P dev
+        env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
