@@ -1,0 +1,31 @@
+name: Deploy to Firebase (prod)
+"on": workflow_dispatch
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "v16.4.0"
+      - name: Install dependencies
+        run: yarn install
+      - name: Build
+        run: yarn build
+        env:
+          REACT_APP_NETWORK_NAME: "xdai"
+          REACT_APP_NETWORK_COLOR: "#f6c343"
+          REACT_APP_USE_GSN: true
+          REACT_APP_GRAPHQL_ENDPOINT: "https://api.thegraph.com/subgraphs/name/azf20/nifty-ink-v2"
+          REACT_APP_GRAPHQL_ENDPOINT_MAINNET: "https://api.thegraph.com/subgraphs/name/azf20/nifty-ink-main"
+          REACT_APP_SUPABASE_KEY: "${{ secrets.SUPABASE_KEY }}"
+          REACT_APP_SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
+          REACT_APP_COPY_WORD: "${{ secrets.COPY_WORD }}"
+          REACT_APP_PAYMASTER_ADDRESS: "0x4734356359c48ba2Cb50BA048B1404A78678e5C2"
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy -P prod
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
