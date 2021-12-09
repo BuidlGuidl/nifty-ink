@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useHistory } from "react-router-dom";
 import 'antd/dist/antd.css';
 import "./App.css";
-import { UndoOutlined, ClearOutlined, PlaySquareOutlined, HighlightOutlined, BgColorsOutlined, BorderOutlined, SaveOutlined, InfoCircleOutlined, BookOutlined } from '@ant-design/icons';
+import { UndoOutlined, ClearOutlined, PlaySquareOutlined, HighlightOutlined, BgColorsOutlined, BorderOutlined, SaveOutlined, DownloadOutlined, UploadOutlined, InfoCircleOutlined, BookOutlined } from '@ant-design/icons';
 import { Row, Modal, Column, Button, Input, InputNumber, Form, message, Col, Slider, Space, notification, Popconfirm, Tooltip, Popover, Table, Select } from 'antd';
 import { useLocalStorage } from "./hooks"
 import { addToIPFS, transactionHandler } from "./helpers"
@@ -25,6 +25,7 @@ export default function CreateInk(props) {
   const [ recentColors, setRecentColors] = useLocalStorage("recentColors",['rgba(102,102,102,1)'])
   const [colorArray, setColorArray] = useLocalStorage('colorArray', 'twitter')
   const [_, setDrafts] = useLocalStorage("drafts", []);
+  const [canvasFile, setCanvasFile] = useState(null);
 
   const recentColorCount = 24
 
@@ -127,25 +128,25 @@ useEffect(() => {
   }
 
   const saveDrawing = (newDrawing, saveOverride) => {
-          let colorPlaceholder = drawingCanvas.current.props.brushColor.substring(5).replace(")","").split(",").map(e=>parseFloat(e));
-          let opaqueColor = `rgba(${colorPlaceholder[0]},${colorPlaceholder[1]},${colorPlaceholder[2]},1)`
-          if (!recentColors.slice(-recentColorCount).includes(opaqueColor)) {
-            console.log(opaqueColor, 'adding to recent')
-            setRecentColors(prevItems => [...prevItems.slice(-recentColorCount+1), opaqueColor]);
-          }
-          // console.log(recentColors)
+    let colorPlaceholder = drawingCanvas.current.props.brushColor.substring(5).replace(")","").split(",").map(e=>parseFloat(e));
+    let opaqueColor = `rgba(${colorPlaceholder[0]},${colorPlaceholder[1]},${colorPlaceholder[2]},1)`
+    if (!recentColors.slice(-recentColorCount).includes(opaqueColor)) {
+      console.log(opaqueColor, 'adding to recent')
+      setRecentColors(prevItems => [...prevItems.slice(-recentColorCount+1), opaqueColor]);
+    }
+    // console.log(recentColors)
 
-          currentLines.current = newDrawing.lines
-        //if(!loadedLines || newDrawing.lines.length >= loadedLines) {
-          if(saveOverride || newDrawing.lines.length < 100 || newDrawing.lines.length % 10 === 0) {
-            console.log('saving')
-            let savedData = LZ.compress(newDrawing.getSaveData())
-            props.setDrawing(savedData)
-            setDrawingSaved(true)
-          } else {
-            setDrawingSaved(false)
-          }
-        //}
+    currentLines.current = newDrawing.lines
+    //if(!loadedLines || newDrawing.lines.length >= loadedLines) {
+    if(saveOverride || newDrawing.lines.length < 100 || newDrawing.lines.length % 10 === 0) {
+      console.log('saving')
+      let savedData = LZ.compress(newDrawing.getSaveData())
+      props.setDrawing(savedData)
+      setDrawingSaved(true)
+    } else {
+      setDrawingSaved(false)
+    }
+    //}
   }
 
   useEffect(() => {
@@ -159,29 +160,29 @@ useEffect(() => {
   useEffect(() => {
     const loadPage = async () => {
       console.log('loadpage')
-        if (props.drawing && props.drawing !== "") {
-          console.log('Loading ink')
-          try {
-            let decompressed = LZ.decompress(props.drawing)
-            currentLines.current = JSON.parse(decompressed)['lines']
+      if (props.drawing && props.drawing !== "") {
+        console.log('Loading ink')
+        try {
+          let decompressed = LZ.decompress(props.drawing)
+          currentLines.current = JSON.parse(decompressed)['lines']
 
-            let points = 0
-            for (const line of currentLines.current){
-              points = points + line.points.length
-            }
-
-            console.log('Drawing points', currentLines.current.length, points)
-            setDrawingSize(points)
-            //setLoadedLines(JSON.parse(decompressed)['lines'].length)
-
-            //console.log(decompressed)
-            //drawingCanvas.current.loadSaveData(decompressed, true)
-            setInitialDrawing(decompressed)
-          } catch (e) {
-            console.log(e)
+          let points = 0
+          for (const line of currentLines.current){
+            points = points + line.points.length
           }
+
+          console.log('Drawing points', currentLines.current.length, points)
+          setDrawingSize(points)
+          //setLoadedLines(JSON.parse(decompressed)['lines'].length)
+
+          //console.log(decompressed)
+          //drawingCanvas.current.loadSaveData(decompressed, true)
+          setInitialDrawing(decompressed)
+        } catch (e) {
+          console.log(e)
         }
-        setLoaded(true)
+      }
+      setLoaded(true)
     }
     window.drawingCanvas = drawingCanvas
     loadPage()
@@ -293,7 +294,7 @@ useEffect(() => {
       notification.open({
         message: '📛 Ink upload failed',
         description:
-        `Please wait a moment and try again ${e.message}`,
+            `Please wait a moment and try again ${e.message}`,
       });
 
       return;
@@ -321,103 +322,132 @@ useEffect(() => {
 
     }
 
-};
+  };
 
 
-const onFinishFailed = errorInfo => {
-  console.log('Failed:', errorInfo);
-};
+  const onFinishFailed = errorInfo => {
+    console.log('Failed:', errorInfo);
+  };
 
-const triggerOnChange = (lines) => {
-  let saved = JSON.stringify({
-    lines: lines,
-    width: drawingCanvas.current.props.canvasWidth,
-    height: drawingCanvas.current.props.canvasHeight
-  });
+  const triggerOnChange = (lines) => {
+    let saved = JSON.stringify({
+      lines: lines,
+      width: drawingCanvas.current.props.canvasWidth,
+      height: drawingCanvas.current.props.canvasHeight
+    });
 
-  drawingCanvas.current.loadSaveData(saved, true);
-  //setLoadedLines(lines.length)
-  //setInitialDrawing(saved)
-  drawingCanvas.current.lines = lines;
-  saveDrawing(drawingCanvas.current, true);
-};
+    drawingCanvas.current.loadSaveData(saved, true);
+    //setLoadedLines(lines.length)
+    //setInitialDrawing(saved)
+    drawingCanvas.current.lines = lines;
+    saveDrawing(drawingCanvas.current, true);
+  };
 
-const undo = () => {
-  if (!drawingCanvas.current.lines.length) return;
+  const undo = () => {
+    if (!drawingCanvas.current.lines.length) return;
 
-  if (drawingCanvas.current.lines[drawingCanvas.current.lines.length - 1].ref) {
-    drawingCanvas.current.lines[0].brushColor = drawingCanvas.current.lines[drawingCanvas.current.lines.length - 1].brushColor;
-    let lines = drawingCanvas.current.lines.slice(0, -1);
-    triggerOnChange(lines);
-  } else {
-    let lines = drawingCanvas.current.lines.slice(0, -1);
+    if (drawingCanvas.current.lines[drawingCanvas.current.lines.length - 1].ref) {
+      drawingCanvas.current.lines[0].brushColor = drawingCanvas.current.lines[drawingCanvas.current.lines.length - 1].brushColor;
+      let lines = drawingCanvas.current.lines.slice(0, -1);
+      triggerOnChange(lines);
+    } else {
+      let lines = drawingCanvas.current.lines.slice(0, -1);
+      triggerOnChange(lines);
+    }
+  };
+
+  const downloadCanvas = async () => {
+    const myData = drawingCanvas.current.lines; // I am assuming that "this.state.myData"
+    // is an object and I wrote it to file as
+    // json
+    const fileName = "canvas";
+    const json = JSON.stringify(myData);
+    const blob = new Blob([json],{type:'application/json'});
+    const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  const handleChange = e => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = e => {
+      setCanvasFile(JSON.parse(e.target.result));
+    };
+  };
+
+  const uploadCanvas = (lines) => {
+    alert("Your current drawing will be erased!")
     triggerOnChange(lines);
   }
-};
 
-const fillBackground = (color) => {
-  let width = drawingCanvas.current.props.canvasWidth;
-  let height = drawingCanvas.current.props.canvasHeight;
+  const fillBackground = (color) => {
+    let width = drawingCanvas.current.props.canvasWidth;
+    let height = drawingCanvas.current.props.canvasHeight;
 
-  let bg = {
-    brushColor: color,
-    brushRadius: (width + height) / 2,
-    points: [
-      { x: 0, y: 0 },
-      { x: width, y: height }
-    ],
-    background: true
+    let bg = {
+      brushColor: color,
+      brushRadius: (width + height) / 2,
+      points: [
+        { x: 0, y: 0 },
+        { x: width, y: height }
+      ],
+      background: true
+    };
+
+    let previousBGColor = drawingCanvas.current.lines.filter((l) => l.ref).length
+        ? drawingCanvas.current.lines[0].brushColor
+        : "#FFF";
+
+    let bgRef = {
+      brushColor: previousBGColor,
+      brushRadius: 1,
+      points: [
+        { x: -1, y: -1 },
+        { x: -1, y: -1 }
+      ],
+      ref: true
+    };
+
+    drawingCanvas.current.lines.filter((l) => l.background).length
+        ? drawingCanvas.current.lines.splice(0, 1, bg)
+        : drawingCanvas.current.lines.unshift(bg);
+    drawingCanvas.current.lines.push(bgRef);
+
+    let lines = drawingCanvas.current.lines;
+
+    triggerOnChange(lines);
   };
 
-  let previousBGColor = drawingCanvas.current.lines.filter((l) => l.ref).length
-    ? drawingCanvas.current.lines[0].brushColor
-    : "#FFF";
+  const drawFrame = (color, radius) => {
+    let width = drawingCanvas.current.props.canvasWidth;
+    let height = drawingCanvas.current.props.canvasHeight;
 
-  let bgRef = {
-    brushColor: previousBGColor,
-    brushRadius: 1,
-    points: [
-      { x: -1, y: -1 },
-      { x: -1, y: -1 }
-    ],
-    ref: true
+    drawingCanvas.current.lines.push({
+      brushColor: color,
+      brushRadius: radius,
+      points: [
+        { x: 0, y: 0 },
+        { x: width, y: 0 },
+        { x: width, y: 0 },
+        { x: width, y: height },
+        { x: width, y: height },
+        { x: 0, y: height },
+        { x: 0, y: height },
+        { x: 0, y: 0 }
+      ]
+    });
+
+    let lines = drawingCanvas.current.lines;
+
+    triggerOnChange(lines);
   };
 
-  drawingCanvas.current.lines.filter((l) => l.background).length
-    ? drawingCanvas.current.lines.splice(0, 1, bg)
-    : drawingCanvas.current.lines.unshift(bg);
-  drawingCanvas.current.lines.push(bgRef);
-
-  let lines = drawingCanvas.current.lines;
-
-  triggerOnChange(lines);
-};
-
-const drawFrame = (color, radius) => {
-  let width = drawingCanvas.current.props.canvasWidth;
-  let height = drawingCanvas.current.props.canvasHeight;
-
-  drawingCanvas.current.lines.push({
-    brushColor: color,
-    brushRadius: radius,
-    points: [
-      { x: 0, y: 0 },
-      { x: width, y: 0 },
-      { x: width, y: 0 },
-      { x: width, y: height },
-      { x: width, y: height },
-      { x: 0, y: height },
-      { x: 0, y: height },
-      { x: 0, y: 0 }
-    ]
-  });
-
-  let lines = drawingCanvas.current.lines;
-
-  triggerOnChange(lines);
-};
-
-const saveDraft = () => {
+  const saveDraft = () => {
   let imageData = drawingCanvas.current.canvas.drawing.toDataURL("image/png");
   let savedData = LZ.compress(drawingCanvas.current.getSaveData())
 
@@ -427,243 +457,260 @@ const saveDraft = () => {
 }
 
 let top, bottom, canvas, shortcutsPopover, draftSaver
-if (props.mode === "edit") {
+  if (props.mode === "edit") {
 
-  top = (
-    <div style={{ margin: "0 auto", marginBottom: 16}}>
+    top = (
+        <div style={{ margin: "0 auto", marginBottom: 16}}>
 
 
 
-    <Form
-    layout={'inline'}
-    name="createInk"
-    //initialValues={{ limit: 0 }}
-    onFinish={createInk}
-    onFinishFailed={onFinishFailed}
-    labelAlign = {'middle'}
-    style={{justifyContent: 'center'}}
-    >
+          <Form
+              layout={'inline'}
+              name="createInk"
+              //initialValues={{ limit: 0 }}
+              onFinish={createInk}
+              onFinishFailed={onFinishFailed}
+              labelAlign = {'middle'}
+              style={{justifyContent: 'center'}}
+          >
 
-    <Form.Item >
+            <Form.Item >
 
-    </Form.Item>
+            </Form.Item>
 
-    <Form.Item
-    name="title"
-    rules={[{ required: true, message: 'What is this work of art called?' }]}
-    >
-    <Input placeholder={"name"} style={{fontSize:16}}/>
-    </Form.Item>
+            <Form.Item
+                name="title"
+                rules={[{ required: true, message: 'What is this work of art called?' }]}
+            >
+              <Input placeholder={"name"} style={{fontSize:16}}/>
+            </Form.Item>
 
-    <Form.Item
-    name="limit"
-    rules={[{ required: true, message: 'How many inks can be minted?' }]}
-    >
-    <InputNumber placeholder={"limit"}
-    style={{fontSize:16}}
-    min={0}
-    precision={0}
-    />
-    </Form.Item>
+            <Form.Item
+                name="limit"
+                rules={[{ required: true, message: 'How many inks can be minted?' }]}
+            >
+              <InputNumber placeholder={"limit"}
+                           style={{fontSize:16}}
+                           min={0}
+                           precision={0}
+              />
+            </Form.Item>
 
-    <Form.Item >
-    <Button loading={sending} type="primary" htmlType="submit">
-    Ink!
-    </Button>
-    </Form.Item>
-    </Form>
+            <Form.Item >
+              <Button loading={sending} type="primary" htmlType="submit">
+                Ink!
+              </Button>
+            </Form.Item>
+          </Form>
 
-      <div style={{marginTop: 16}}>
-        <Tooltip title="save to local storage">
-          <Button
-          disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
-          onClick={() => {
-            if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
-            saveDrawing(drawingCanvas.current, true)
-          }}><SaveOutlined /> {`${!drawingSaved?'SAVE *':'SAVED'}`}</Button>
-        </Tooltip>
-        <Button
-          disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
-          onClick={() => {
-            if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
-          undo()
-        }}><UndoOutlined /> UNDO</Button>
-        <Popconfirm
-          title="Are you sure?"
-          onConfirm={() => {
-            if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
-            drawingCanvas.current.clear()
-            //setLoadedLines()
-            props.setDrawing()
-          }}
-          okText="Yes"
-          cancelText="No"
-        >
-        <Button
-        ><ClearOutlined /> CLEAR</Button>
-        </Popconfirm>
-        <Button
-          disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
-          onClick={() => {
-          if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
-          drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(),false)//LZ.decompress(props.drawing), false)
-          setCanvasDisabled(true)
-          }}><PlaySquareOutlined /> PLAY</Button>
-      </div>
-    </div>
+          <div style={{marginTop: 16}}>
+            <Tooltip title="save to local storage">
+              <Button
+                  disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
+                  onClick={() => {
+                    if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
+                    saveDrawing(drawingCanvas.current, true)
+                    console.log('drawing canvas current', drawingCanvas.current)
+                  }}><SaveOutlined /> {`${!drawingSaved?'SAVE *':'SAVED'}`}</Button>
+            </Tooltip>
+            <Button
+                disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
+                onClick={() => {
+                  if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
+                  undo()
+                }}><UndoOutlined /> UNDO</Button>
+            <Popconfirm
+                title="Are you sure?"
+                onConfirm={() => {
+                  if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
+                  drawingCanvas.current.clear()
+                  //setLoadedLines()
+                  props.setDrawing()
+                }}
+                okText="Yes"
+                cancelText="No"
+            >
+              <Button
+              ><ClearOutlined /> CLEAR</Button>
+            </Popconfirm>
+            <Button
+                disabled={canvasDisabled||drawingCanvas.current&&!drawingCanvas.current.lines.length}
+                onClick={() => {
+                  if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
+                  drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(),false)//LZ.decompress(props.drawing), false)
+                  setCanvasDisabled(true)
+                }}><PlaySquareOutlined /> PLAY</Button>
+            <Button
+                disabled={!drawingCanvas.current || drawingCanvas.current && !drawingCanvas.current.lines.length}
+                onClick={async () => {
+                  if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
+                  await downloadCanvas()
+                }}
+            ><DownloadOutlined /> DOWNLOAD</Button>
+          </div>
+          <div style={{marginTop: 16}}>
+            <input type="file" onChange={handleChange} />
+            <Tooltip title="Upload saved drawing">
+              <Button
+                  onClick={async () => {
+                    await uploadCanvas(canvasFile)
+                  }}
+              ><UploadOutlined /> UPLOAD</Button>
+            </Tooltip>
+          </div>
+        </div>
 
-  )
+    )
 
-  shortcutsPopover = (
-    <Table
-      columns={[
-        {title: 'Hotkey', dataIndex: 'shortcut'},
-        {title: 'Action', dataIndex: 'action'}
-      ]}
-      dataSource={[
-        {key: '1', shortcut: 'Ctrl+z', action: "Undo"},
-        {key: '2', shortcut: ']', action: "Increase brush size by 1"},
-        {key: '3', shortcut: 'Shift+]', action: "Increase brush size by 10"},
-        {key: '4', shortcut: '[', action: "Decrease brush size by 1"},
-        {key: '5', shortcut: 'Shift+[', action: "Decrease brush size by 10"},
-        {key: '6', shortcut: '> ', action: "Increase current color opacity by 1%"},
-        {key: '7', shortcut: 'Shift+> ', action: "Increase current color opacity by 10%"},
-        {key: '8', shortcut: '<', action: "Decrease current color opacity by 1%"},
-        {key: '9', shortcut: 'Shift+< ', action: "Decrease current color opacity by 10%"}
-      ]}
-      size="small"
-      pagination={false}
-    />
-  )
+    shortcutsPopover = (
+        <Table
+            columns={[
+              {title: 'Hotkey', dataIndex: 'shortcut'},
+              {title: 'Action', dataIndex: 'action'}
+            ]}
+            dataSource={[
+              {key: '1', shortcut: 'Ctrl+z', action: "Undo"},
+              {key: '2', shortcut: ']', action: "Increase brush size by 1"},
+              {key: '3', shortcut: 'Shift+]', action: "Increase brush size by 10"},
+              {key: '4', shortcut: '[', action: "Decrease brush size by 1"},
+              {key: '5', shortcut: 'Shift+[', action: "Decrease brush size by 10"},
+              {key: '6', shortcut: '> ', action: "Increase current color opacity by 1%"},
+              {key: '7', shortcut: 'Shift+> ', action: "Increase current color opacity by 10%"},
+              {key: '8', shortcut: '<', action: "Decrease current color opacity by 1%"},
+              {key: '9', shortcut: 'Shift+< ', action: "Decrease current color opacity by 10%"}
+            ]}
+            size="small"
+            pagination={false}
+        />
+    )
 
-  bottom = (
-    <>
-    <Row style={{ margin: "0 auto", display: 'inline-flex', justifyContent: 'center', alignItems: 'middle'}}>
-    <Space>
-    <Col>
-    <Row style={{justifyContent: 'center', marginBottom: 10}}>
-    <Select defaultValue={colorArray} style={{width: 200}} onChange={(value)=> {
-      setColorArray(value)
-    }}>
-      <Option value={'recent'}>Recent</Option>
-      <Option value={'sketch'}>Sketch Palette</Option>
-      <Option value={'circle'}>Circle Palette</Option>
-      <Option value={'github'}>Github Palette</Option>
-      <Option value={'twitter'}>Twitter Palette</Option>
-      <Option value={'compact'}>Compact Palette</Option>
-      <Option value={'niftyone'}>Palette #1</Option>
-      <Option value={'niftytwo'}>Palette #2</Option>
-      <Option value={'niftythree'}>Palette #3</Option>
-      <Option value={'niftyfour'}>Palette #4</Option>
-      <Option value={'niftyfive'}>Palette #5</Option>
-      <Option value={'niftysix'}>Palette #6</Option>
-      <Option value={'niftyseven'}>Palette #7</Option>
-      <Option value={'niftyeight'}>Palette #8</Option>
-    </Select>
-    <Button onClick={() => {
-      setPicker(picker + 1)
-    }}><HighlightOutlined /></Button>
-    </Row>
-    <Row style={{backgroundColor:'#F4F4F4', justifyContent: 'center', alignItems: 'middle', padding: 4}}>
-    <PickerDisplay
-    color={color}
-    onChangeComplete={updateColor}
-    colors={colorOptions[colorArray]}
-    presetColors={colorOptions[colorArray]}
-    />
-    </Row>
-    </Col>
-    </Space>
-    </Row>
-    <Row style={{ margin: "0 auto", marginTop:"4vh", justifyContent: 'center', alignItems: 'middle'}}>
-    <AlphaPicker onChangeComplete={updateColor}
-        color={color}/>
-    </Row>
-    <Row style={{ margin: "0 auto", marginTop:"4vh", justifyContent:'center'}}>
-    <Col span={12}>
-          <Slider
-            min={1}
-            max={100}
-            onChange={updateBrushRadius}
-            value={typeof brushRadius === 'number' ? brushRadius : 0}
-          />
-        </Col>
-        <Col span={4}>
-          <InputNumber
-            min={1}
-            max={100}
-            style={{ margin: '0 16px' }}
-            value={brushRadius}
-            onChange={updateBrushRadius}
-          />
-        </Col>
-    </Row>
-    <Row style={{ margin: "0 auto", marginTop:"4vh", justifyContent:'center'}}>
-        <Space>
-        <Col span={4}>
-          <Button
-          onClick={() => fillBackground(color)}
-          ><BgColorsOutlined />Background</Button>
-        </Col>
-        <Col span={4}>
-          <Button
-          onClick={() => drawFrame(color, brushRadius)}
-          ><BorderOutlined />Frame</Button>
-        </Col>
-        </Space>
-    </Row>
-    <Row style={{ width: "40vmin", margin: "0 auto", marginTop:"1vh", justifyContent:'center'}}>
-        <Space>
-        <Col span={4}>
-          <Popover content={shortcutsPopover} title="Keyboard shortcuts" trigger="click">
-            <Button><InfoCircleOutlined />Shortcuts</Button>
-          </Popover>
-        </Col>
-        </Space>
-    </Row>
-    </>
-  )
+    bottom = (
+        <>
+          <Row style={{ margin: "0 auto", display: 'inline-flex', justifyContent: 'center', alignItems: 'middle'}}>
+            <Space>
+              <Col>
+                <Row style={{justifyContent: 'center', marginBottom: 10}}>
+                  <Select defaultValue={colorArray} style={{width: 200}} onChange={(value)=> {
+                    setColorArray(value)
+                  }}>
+                    <Option value={'recent'}>Recent</Option>
+                    <Option value={'sketch'}>Sketch Palette</Option>
+                    <Option value={'circle'}>Circle Palette</Option>
+                    <Option value={'github'}>Github Palette</Option>
+                    <Option value={'twitter'}>Twitter Palette</Option>
+                    <Option value={'compact'}>Compact Palette</Option>
+                    <Option value={'niftyone'}>Palette #1</Option>
+                    <Option value={'niftytwo'}>Palette #2</Option>
+                    <Option value={'niftythree'}>Palette #3</Option>
+                    <Option value={'niftyfour'}>Palette #4</Option>
+                    <Option value={'niftyfive'}>Palette #5</Option>
+                    <Option value={'niftysix'}>Palette #6</Option>
+                    <Option value={'niftyseven'}>Palette #7</Option>
+                    <Option value={'niftyeight'}>Palette #8</Option>
+                  </Select>
+                  <Button onClick={() => {
+                    setPicker(picker + 1)
+                  }}><HighlightOutlined /></Button>
+                </Row>
+                <Row style={{backgroundColor:'#F4F4F4', justifyContent: 'center', alignItems: 'middle', padding: 4}}>
+                  <PickerDisplay
+                      color={color}
+                      onChangeComplete={updateColor}
+                      colors={colorOptions[colorArray]}
+                      presetColors={colorOptions[colorArray]}
+                  />
+                </Row>
+              </Col>
+            </Space>
+          </Row>
+          <Row style={{ margin: "0 auto", marginTop:"4vh", justifyContent: 'center', alignItems: 'middle'}}>
+            <AlphaPicker onChangeComplete={updateColor}
+                         color={color}/>
+          </Row>
+          <Row style={{ margin: "0 auto", marginTop:"4vh", justifyContent:'center'}}>
+            <Col span={12}>
+              <Slider
+                  min={1}
+                  max={100}
+                  onChange={updateBrushRadius}
+                  value={typeof brushRadius === 'number' ? brushRadius : 0}
+              />
+            </Col>
+            <Col span={4}>
+              <InputNumber
+                  min={1}
+                  max={100}
+                  style={{ margin: '0 16px' }}
+                  value={brushRadius}
+                  onChange={updateBrushRadius}
+              />
+            </Col>
+          </Row>
+          <Row style={{ margin: "0 auto", marginTop:"4vh", justifyContent:'center'}}>
+            <Space>
+              <Col span={4}>
+                <Button
+                    onClick={() => fillBackground(color)}
+                ><BgColorsOutlined />Background</Button>
+              </Col>
+              <Col span={4}>
+                <Button
+                    onClick={() => drawFrame(color, brushRadius)}
+                ><BorderOutlined />Frame</Button>
+              </Col>
+            </Space>
+          </Row>
+          <Row style={{ width: "40vmin", margin: "0 auto", marginTop:"1vh", justifyContent:'center'}}>
+            <Space>
+              <Col span={4}>
+                <Popover content={shortcutsPopover} title="Keyboard shortcuts" trigger="click">
+                  <Button><InfoCircleOutlined />Shortcuts</Button>
+                </Popover>
+              </Col>
+            </Space>
+          </Row>
+        </>
+    )
 
-  const saveCanvas = () => {
-    if(canvasDisabled){
-      console.log("Canvas disabled")
-    } else {
-      saveDrawing(drawingCanvas.current, false)
+    const saveCanvas = () => {
+      if(canvasDisabled){
+        console.log("Canvas disabled")
+      } else {
+        saveDrawing(drawingCanvas.current, false)
+      }
     }
-  }
 
-  canvas = (
-    <div
-      style={{ backgroundColor: "#666666", width: size[0], margin: "auto", border: "1px solid #999999", boxShadow: "2px 2px 8px #AAAAAA", cursor:'pointer' }}
-      onMouseUp={saveCanvas}
-      onTouchEnd={saveCanvas}
-    >
+    canvas = (
+        <div
+            style={{ backgroundColor: "#666666", width: size[0], margin: "auto", border: "1px solid #999999", boxShadow: "2px 2px 8px #AAAAAA", cursor:'pointer' }}
+            onMouseUp={saveCanvas}
+            onTouchEnd={saveCanvas}
+        >
           {(!loaded)&&<span>Loading...</span>}
           <CanvasDraw
-          key={props.mode+""+props.canvasKey}
-          ref={drawingCanvas}
-          canvasWidth={size[0]}
-          canvasHeight={size[1]}
-          brushColor={color}
-          lazyRadius={1}
-          brushRadius={brushRadius}
-          disabled={canvasDisabled}
-        //  hideGrid={props.mode !== "edit"}
-        //  hideInterface={props.mode !== "edit"}
-          onChange={()=>{
-            drawnLines.current = drawingCanvas.current.lines
-            if (drawnLines.current.length>=currentLines.current.length && canvasDisabled) {
-              console.log('enabling it!')
-              setCanvasDisabled(false)
-            }
-          }}
-          saveData={initialDrawing}
-          immediateLoading={true}//drawingSize >= 10000}
-          loadTimeOffset={3}
+              key={props.mode+""+props.canvasKey}
+              ref={drawingCanvas}
+              canvasWidth={size[0]}
+              canvasHeight={size[1]}
+              brushColor={color}
+              lazyRadius={1}
+              brushRadius={brushRadius}
+              disabled={canvasDisabled}
+              //  hideGrid={props.mode !== "edit"}
+              //  hideInterface={props.mode !== "edit"}
+              onChange={()=>{
+                drawnLines.current = drawingCanvas.current.lines
+                if (drawnLines.current.length>=currentLines.current.length && canvasDisabled) {
+                  console.log('enabling it!')
+                  setCanvasDisabled(false)
+                }
+              }}
+              saveData={initialDrawing}
+              immediateLoading={true}//drawingSize >= 10000}
+              loadTimeOffset={3}
           />
-    </div>
-  )
-
+        </div>
+    )
   draftSaver = (
     <div>
       <Popconfirm
@@ -688,36 +735,35 @@ if (props.mode === "edit") {
   );
 }
 
-return (
-  <div className="create-ink-container"  /*onClick={
+  return (
+      <div className="create-ink-container"  /*onClick={
     () => {
       if(props.mode=="mint"){
          drawingCanvas.current.loadSaveData(LZ.decompress(props.drawing), false)
       }
     }
   }*/>
-    {
-      <>
-        {portrait&&<div className="title-top">
-          {top}
-        </div>}
-        <div className="canvas">
-          {canvas}
-          {draftSaver}
-        </div>
-        {portrait
-        ? <div className="edit-tools-bottom">
-            {bottom}
-            </div>
-        : <div className="edit-tools">
-            {top}
-            <div className="edit-tools-side">
-              {bottom}
-            </div>
-          </div>
+        {
+          <>
+            {portrait&&<div className="title-top">
+              {top}
+            </div>}
+            <div className="canvas">
+              {canvas}
+            {draftSaver}</div>
+            {portrait
+                ? <div className="edit-tools-bottom">
+                  {bottom}
+                </div>
+                : <div className="edit-tools">
+                  {top}
+                  <div className="edit-tools-side">
+                    {bottom}
+                  </div>
+                </div>
+            }
+          </>
         }
-      </>
-    }
-  </div>
-);
+      </div>
+  );
 }
