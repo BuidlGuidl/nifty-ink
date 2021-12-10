@@ -615,11 +615,6 @@ if (props.mode === "edit") {
     <Row style={{ width: "40vmin", margin: "0 auto", marginTop:"1vh", justifyContent:'center'}}>
         <Space>
         <Col span={4}>
-          <Button
-          onClick={() => history.push("/create/drafts")}
-          ><BookOutlined />Drafts</Button>
-        </Col>
-        <Col span={4}>
           <Popover content={shortcutsPopover} title="Keyboard shortcuts" trigger="click">
             <Button><InfoCircleOutlined />Shortcuts</Button>
           </Popover>
@@ -670,19 +665,26 @@ if (props.mode === "edit") {
   )
 
   draftSaver = (
-    <Popconfirm
-    title="Are you sure?"
-    onConfirm={() => {
-      saveDraft();
-      Modal.success({
-        title: 'Your draft was successfully saved.',
-      });
-    }}
-    okText="Yes"
-    cancelText="No"
-  >
-    <Button style={{ marginTop: "20px" }}>Save as draft</Button>
-  </Popconfirm>
+    <div>
+      <Popconfirm
+        title="Are you sure?"
+        onConfirm={() => {
+          saveDraft();
+          Modal.success({
+            title: 'Your draft was successfully saved.',
+          });
+        }}
+        okText="Yes"
+        cancelText="No"
+    >
+      <Button style={{ marginTop: "20px", marginRight: "20px" }}><SaveOutlined /> Save as draft</Button>
+    </Popconfirm>
+    <Button
+      onClick={() => history.push("/create/drafts")}
+    >
+      <BookOutlined />My Drafts
+    </Button>
+  </div>
   );
 }
 

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
-import { Button,  Row, Divider, Typography } from "antd";
+import React, { useCallback } from 'react';
+import { Button,  Row, Divider, Typography, Popconfirm } from "antd";
 import { useHistory } from "react-router-dom";
 import Blockies from "react-blockies";
 import { DeleteOutlined, HighlightOutlined } from "@ant-design/icons";
@@ -24,10 +24,6 @@ export default function Drafts(props) {
       return filtered;
     });
   }, [setDrafts]);
-
-  useEffect(() => {
-    console.log('drafts', drafts);
-  }, [drafts]);
 
   return (
     <div style={{maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
@@ -69,8 +65,26 @@ export default function Drafts(props) {
                   }}
                 />
                 <Row justify={"center"}>
-                    <Button size="small" type="secondary" style={{margin:8}} onClick={() => goDraft(draft.savedData)}><HighlightOutlined /> Use</Button>
-                    <Button size="small" type="secondary" style={{margin:8}} onClick={() => deleteDraft(i)}><DeleteOutlined/> Delete</Button>
+                  <Popconfirm
+                    title="This will overwrite the current drawing, are you sure?"
+                    onConfirm={() => {
+                      goDraft(draft.savedData);
+                    }}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button size="small" type="secondary" style={{margin:8}}><HighlightOutlined /> Use</Button>
+                  </Popconfirm>
+                  <Popconfirm
+                    title="This will permanently delete this draft, are you sure?"
+                    onConfirm={() => {
+                      deleteDraft(i)
+                    }}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button size="small" type="secondary" style={{margin:8}}><DeleteOutlined/> Delete</Button>
+                  </Popconfirm>
                 </Row>
               </li>
           ))}
