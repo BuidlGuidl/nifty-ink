@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useHistory } from "react-router-dom";
 import 'antd/dist/antd.css';
 import "./App.css";
-import { UndoOutlined, ClearOutlined, PlaySquareOutlined, HighlightOutlined, BgColorsOutlined, BorderOutlined, SaveOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { Row, Column, Button, Input, InputNumber, Form, message, Col, Slider, Space, notification, Popconfirm, Tooltip, Popover, Table, Select } from 'antd';
+import { UndoOutlined, ClearOutlined, PlaySquareOutlined, HighlightOutlined, BgColorsOutlined, BorderOutlined, SaveOutlined, InfoCircleOutlined, BookOutlined } from '@ant-design/icons';
+import { Row, Modal, Column, Button, Input, InputNumber, Form, message, Col, Slider, Space, notification, Popconfirm, Tooltip, Popover, Table, Select } from 'antd';
 import { useLocalStorage } from "./hooks"
 import { addToIPFS, transactionHandler } from "./helpers"
 import CanvasDraw from "react-canvas-draw";
@@ -24,6 +24,7 @@ export default function CreateInk(props) {
   const [brushRadius, setBrushRadius] = useState(8)
   const [ recentColors, setRecentColors] = useLocalStorage("recentColors",['rgba(102,102,102,1)'])
   const [colorArray, setColorArray] = useLocalStorage('colorArray', 'twitter')
+  const [_, setDrafts] = useLocalStorage("drafts", []);
 
   const recentColorCount = 24
 
@@ -416,7 +417,16 @@ const drawFrame = (color, radius) => {
   triggerOnChange(lines);
 };
 
-let top, bottom, canvas, shortcutsPopover
+const saveDraft = () => {
+  let imageData = drawingCanvas.current.canvas.drawing.toDataURL("image/png");
+  let savedData = LZ.compress(drawingCanvas.current.getSaveData())
+
+  setDrafts(drafts => {
+    return [...drafts, { imageData, savedData }]
+  });
+}
+
+let top, bottom, canvas, shortcutsPopover, draftSaver
 if (props.mode === "edit") {
 
   top = (
@@ -653,6 +663,29 @@ if (props.mode === "edit") {
           />
     </div>
   )
+
+  draftSaver = (
+    <div>
+      <Popconfirm
+        title="Are you sure?"
+        onConfirm={() => {
+          saveDraft();
+          Modal.success({
+            title: 'Your draft was successfully saved.',
+          });
+        }}
+        okText="Yes"
+        cancelText="No"
+    >
+      <Button style={{ marginTop: "20px", marginRight: "20px" }}><SaveOutlined /> Save as draft</Button>
+    </Popconfirm>
+    <Button
+      onClick={() => history.push("/create/drafts")}
+    >
+      <BookOutlined />My Drafts
+    </Button>
+  </div>
+  );
 }
 
 return (
@@ -670,6 +703,7 @@ return (
         </div>}
         <div className="canvas">
           {canvas}
+          {draftSaver}
         </div>
         {portrait
         ? <div className="edit-tools-bottom">

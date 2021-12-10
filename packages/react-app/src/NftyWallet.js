@@ -13,6 +13,7 @@ import Artist from "./Artist.js";
 import Leaderboard from "./Leaderboard.js";
 import LeaderboardCollectors from "./LeaderboardCollectors.js";
 import CreateInk from "./CreateInk.js";
+import Drafts from "./Drafts.js";
 import ViewInk from "./ViewInk.js";
 import Help from "./Help.js";
 import Explore from "./Explore.js";
@@ -341,7 +342,7 @@ export default function NftyWallet(props) {
               <Redirect to="/leaderboard/artists" />
         </Route>
 
-        <Route path="/create">
+        <Route exact path="/create">
               <div>
               <CreateInk {...props}
               key={renderKey}
@@ -368,6 +369,12 @@ export default function NftyWallet(props) {
               calculatedVmin={calculatedVmin}
               transactionConfig={transactionConfig}
               />
+            </div>
+        </Route>
+
+        <Route exact path="/create/drafts">
+              <div>
+                <Drafts setDrawing={setDrawing} {...props} address={props.address || ""} />
             </div>
         </Route>
 
