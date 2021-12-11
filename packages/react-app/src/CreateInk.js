@@ -590,7 +590,7 @@ export default function CreateInk(props) {
   };
 
   const downloadCanvas = async () => {
-    const myData = drawingCanvas.current.lines; // I am assuming that "this.state.myData"
+    const myData = drawingCanvas.current.getSaveData(); //drawingCanvas.current.lines; // I am assuming that "this.state.myData"
     // is an object and I wrote it to file as
     // json
     const fileName = `nifty_ink_canvas_${Date.now()}`;
@@ -605,7 +605,7 @@ export default function CreateInk(props) {
     document.body.removeChild(link);
   };
 
-  const handleChange = e => {
+  const uploadFileChange = e => {
     const fileReader = new FileReader();
     fileReader.readAsText(e.target.files[0], "UTF-8");
     fileReader.onload = e => {
@@ -613,9 +613,14 @@ export default function CreateInk(props) {
     };
   };
 
-  const uploadCanvas = lines => {
-    alert("Your current drawing will be erased!");
-    triggerOnChange(lines);
+  const uploadRef = useRef();
+
+  const uploadCanvas = uploadedDrawing => {
+    //triggerOnChange(lines); -> bug with resizing
+    //setInitialDrawing(uploadedDrawing); -> bug we re-uploading
+    drawingCanvas.current.loadSaveData(uploadedDrawing);
+    saveDrawing(drawingCanvas.current, true);
+    setCanvasFile();
   };
 
   const fillBackground = color => {
@@ -1054,38 +1059,6 @@ export default function CreateInk(props) {
     );
     draftSaver = (
       <div>
-        <div style={{ marginTop: 16 }}>
-          <Tooltip title="Download current drawing">
-            <Button
-              disabled={
-                !drawingCanvas.current ||
-                (drawingCanvas.current && !drawingCanvas.current.lines.length)
-              }
-              onClick={async () => {
-                if (
-                  canvasDisabled ||
-                  (drawingCanvas.current && !drawingCanvas.current.lines)
-                )
-                  return;
-                await downloadCanvas();
-              }}
-            >
-              <DownloadOutlined /> DOWNLOAD
-            </Button>
-          </Tooltip>
-        </div>
-        <div style={{ marginTop: 16 }}>
-          <input type="file" onChange={handleChange} />
-          <Tooltip title="Upload saved drawing">
-            <Button
-              onClick={async () => {
-                await uploadCanvas(canvasFile);
-              }}
-            >
-              <UploadOutlined /> UPLOAD
-            </Button>
-          </Tooltip>
-        </div>
         <Popconfirm
           title="Are you sure?"
           onConfirm={() => {
@@ -1097,14 +1070,48 @@ export default function CreateInk(props) {
           okText="Yes"
           cancelText="No"
         >
-          <Button style={{ marginTop: "20px", marginRight: "20px" }}>
+          <Button style={{ marginTop: "20px" }}>
             <SaveOutlined /> Save as draft
           </Button>
         </Popconfirm>
+        <Tooltip title="Download current drawing">
+          <Button
+            disabled={
+              !drawingCanvas.current ||
+              (drawingCanvas.current && !drawingCanvas.current.lines.length)
+            }
+            onClick={async () => {
+              if (
+                canvasDisabled ||
+                (drawingCanvas.current && !drawingCanvas.current.lines)
+              )
+                return;
+              await downloadCanvas();
+            }}
+          >
+            <DownloadOutlined /> DOWNLOAD
+          </Button>
+        </Tooltip>
         <Button onClick={() => history.push("/create/drafts")}>
           <BookOutlined />
           My Drafts
         </Button>
+        <div style={{ marginTop: 16 }}>
+          <input type="file" onChange={uploadFileChange} ref={uploadRef} />
+          {canvasFile && (
+            <Popconfirm
+              title="This will replace your current drawing"
+              onConfirm={async () => {
+                await uploadCanvas(canvasFile);
+                uploadRef.current.value = "";
+              }}
+            >
+              <Button>
+                <UploadOutlined /> UPLOAD
+              </Button>
+            </Popconfirm>
+          )}
+        </div>
       </div>
     );
   }
@@ -1122,16 +1129,19 @@ export default function CreateInk(props) {
       {
         <>
           {portrait && <div className="title-top">{top}</div>}
-          <div className="canvas">
-            {canvas}
-            {draftSaver}
-          </div>
+          <div className="canvas">{canvas}</div>
           {portrait ? (
-            <div className="edit-tools-bottom">{bottom}</div>
+            <div className="edit-tools-bottom">
+              {bottom}
+              {draftSaver}
+            </div>
           ) : (
             <div className="edit-tools">
               {top}
-              <div className="edit-tools-side">{bottom}</div>
+              <div className="edit-tools-side">
+                {bottom}
+                {draftSaver}
+              </div>
             </div>
           )}
         </>
