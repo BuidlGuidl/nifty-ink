@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { INKS_QUERY } from "./apollo/queries";
 import { isBlocklisted } from "./helpers";
 import { Row } from "antd";
-import { Loader } from "./components"
+import { Loader } from "./components";
 
 export default function AllInks(props) {
   let [allInks, setAllInks] = useState([]);
@@ -16,21 +16,21 @@ export default function AllInks(props) {
     }
   });
 
-  const getMetadata = async (jsonURL) => {
+  const getMetadata = async jsonURL => {
     const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
     const data = await response.json();
     return data;
   };
 
-  const getInks = (data) => {
-    setAllInks([...allInks, ...data])
-    data.forEach(async (ink) => {
+  const getInks = data => {
+    setAllInks([...allInks, ...data]);
+    data.forEach(async ink => {
       if (isBlocklisted(ink.jsonUrl)) return;
       let _ink = ink;
       _ink.metadata = await getMetadata(ink.jsonUrl);
-      let _newInk = {}
-      _newInk[_ink.inkNumber] = _ink
-      setInks((inks) => ({...inks, ..._newInk}));
+      let _newInk = {};
+      _newInk[_ink.inkNumber] = _ink;
+      setInks(inks => ({ ...inks, ..._newInk }));
       //setInks((inks) => [...inks, _ink]);
     });
   };
@@ -57,14 +57,13 @@ export default function AllInks(props) {
   }, [data]);
 
   useEffect(() => {
-  window.addEventListener("scroll", onLoadMore);
-  return () => {
-    window.removeEventListener("scroll", onLoadMore);
-  };
-}, [onLoadMore]);
+    window.addEventListener("scroll", onLoadMore);
+    return () => {
+      window.removeEventListener("scroll", onLoadMore);
+    };
+  }, [onLoadMore]);
 
-
-  if (loading) return <Loader/>;
+  if (loading) return <Loader />;
   if (error) return `Error! ${error.message}`;
 
   return (
@@ -74,32 +73,28 @@ export default function AllInks(props) {
           {inks
             ? Object.keys(inks)
                 .sort((a, b) => b - a)
-                .map((ink) => (
-                <li
-                  key={inks[ink].id}
-                  style={{
-                    display: "inline-block",
-                    verticalAlign: "top",
-                    margin: 10,
-                    fontWeight: "bold"
-                  }}
-                >
-                  <Link
-                    to={"ink/"+inks[ink].id}
-                    style={{ color: "black" }}
+                .map(ink => (
+                  <li
+                    key={inks[ink].id}
+                    style={{
+                      display: "inline-block",
+                      verticalAlign: "top",
+                      margin: 10,
+                      fontWeight: "bold"
+                    }}
                   >
-                    <img
-                      src={inks[ink].metadata.image}
-                      alt={inks[ink].metadata.name}
-                      width="120"
-                    />
-                  </Link>
-                </li>
-              ))
+                    <Link to={"ink/" + inks[ink].id} style={{ color: "black" }}>
+                      <img
+                        src={inks[ink].metadata.image}
+                        alt={inks[ink].metadata.name}
+                        width="120"
+                      />
+                    </Link>
+                  </li>
+                ))
             : null}
         </ul>
-        <Row justify="center">
-        </Row>
+        <Row justify="center"></Row>
       </div>
     </div>
   );

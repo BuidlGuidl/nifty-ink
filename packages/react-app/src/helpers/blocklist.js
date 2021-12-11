@@ -1,4 +1,3 @@
-
 const blocklist = [
   "QmUr59dCZeXR4ozGNV7D8TYtVvTAGoZcvaPg6FALqxvWTG",
   "QmYto8RMovpQfpdGL2z5eVzCaEDtz1ckhpWSezVct2rjd9",
@@ -15,5 +14,5 @@ const blocklist = [
 ];
 
 export default function isBlocklisted(hash) {
-  return (blocklist.indexOf(hash)>=0)
+  return blocklist.indexOf(hash) >= 0;
 }

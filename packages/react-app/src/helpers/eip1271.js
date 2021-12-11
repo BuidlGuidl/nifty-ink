@@ -8,25 +8,25 @@ const spec = {
       inputs: [
         {
           name: "_hash",
-          type: "bytes32",
+          type: "bytes32"
         },
         {
           name: "_sig",
-          type: "bytes",
-        },
+          type: "bytes"
+        }
       ],
       name: "isValidSignature",
       outputs: [
         {
           name: "magicValue",
-          type: "bytes4",
-        },
+          type: "bytes4"
+        }
       ],
       payable: false,
       stateMutability: "view",
-      type: "function",
-    },
-  ],
+      type: "function"
+    }
+  ]
 };
 
 export async function isValidSignature(
@@ -35,19 +35,16 @@ export async function isValidSignature(
   data: string,
   provider: providers.Provider,
   abi = spec.abi,
-  magicValue = spec.magicValue,
+  magicValue = spec.magicValue
 ) {
   let returnValue;
   try {
-    let contract = new Contract(address, abi, provider)
-    console.log(contract)
-    returnValue = await contract.isValidSignature(
-      utils.arrayify(data),
-      sig,
-    );
-    console.log('returnValue', returnValue)
+    let contract = new Contract(address, abi, provider);
+    console.log(contract);
+    returnValue = await contract.isValidSignature(utils.arrayify(data), sig);
+    console.log("returnValue", returnValue);
   } catch (e) {
-    console.log(e)
+    console.log(e);
     return false;
   }
   return returnValue.toLowerCase() === magicValue.toLowerCase();
