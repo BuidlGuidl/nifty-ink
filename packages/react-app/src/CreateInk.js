@@ -540,25 +540,6 @@ let top, bottom, canvas, shortcutsPopover, draftSaver
                   drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(),false)//LZ.decompress(props.drawing), false)
                   setCanvasDisabled(true)
                 }}><PlaySquareOutlined /> PLAY</Button>
-            <Tooltip title="Download current drawing">
-            <Button
-                disabled={!drawingCanvas.current || drawingCanvas.current && !drawingCanvas.current.lines.length}
-                onClick={async () => {
-                  if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
-                  await downloadCanvas()
-                }}
-            ><DownloadOutlined /> DOWNLOAD</Button>
-            </Tooltip>
-          </div>
-          <div style={{marginTop: 16}}>
-            <input type="file" onChange={handleChange} />
-            <Tooltip title="Upload saved drawing">
-              <Button
-                  onClick={async () => {
-                    await uploadCanvas(canvasFile)
-                  }}
-              ><UploadOutlined /> UPLOAD</Button>
-            </Tooltip>
           </div>
         </div>
 
@@ -715,6 +696,27 @@ let top, bottom, canvas, shortcutsPopover, draftSaver
     )
   draftSaver = (
     <div>
+      <div style={{marginTop: 16}}>
+      <Tooltip title="Download current drawing">
+        <Button
+            disabled={!drawingCanvas.current || drawingCanvas.current && !drawingCanvas.current.lines.length}
+            onClick={async () => {
+              if (canvasDisabled || drawingCanvas.current&&!drawingCanvas.current.lines) return;
+              await downloadCanvas()
+            }}
+        ><DownloadOutlined /> DOWNLOAD</Button>
+      </Tooltip>
+      </div>
+      <div style={{marginTop: 16}}>
+        <input type="file" onChange={handleChange} />
+        <Tooltip title="Upload saved drawing">
+          <Button
+              onClick={async () => {
+                await uploadCanvas(canvasFile)
+              }}
+          ><UploadOutlined /> UPLOAD</Button>
+        </Tooltip>
+      </div>
       <Popconfirm
         title="Are you sure?"
         onConfirm={() => {
