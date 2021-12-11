@@ -50,7 +50,7 @@ export default function Drafts(props) {
         </p>
       </Row>
       <Divider />
-      {drafts.length === 0 && <p>You do not have any saved drafts yet</p>}
+      {drafts.length === 0 && <p>You do not have any saved drafts</p>}
       <div className="inks-grid">
         <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
           {drafts.map((draft, i) => (
