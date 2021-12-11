@@ -360,7 +360,7 @@ useEffect(() => {
     const myData = drawingCanvas.current.lines; // I am assuming that "this.state.myData"
     // is an object and I wrote it to file as
     // json
-    const fileName = "canvas";
+    const fileName = `nifty_ink_canvas_${Date.now()}`;
     const json = JSON.stringify(myData);
     const blob = new Blob([json],{type:'application/json'});
     const href = await URL.createObjectURL(blob);
@@ -540,6 +540,7 @@ let top, bottom, canvas, shortcutsPopover, draftSaver
                   drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(),false)//LZ.decompress(props.drawing), false)
                   setCanvasDisabled(true)
                 }}><PlaySquareOutlined /> PLAY</Button>
+            <Tooltip title="Download current drawing">
             <Button
                 disabled={!drawingCanvas.current || drawingCanvas.current && !drawingCanvas.current.lines.length}
                 onClick={async () => {
@@ -547,6 +548,7 @@ let top, bottom, canvas, shortcutsPopover, draftSaver
                   await downloadCanvas()
                 }}
             ><DownloadOutlined /> DOWNLOAD</Button>
+            </Tooltip>
           </div>
           <div style={{marginTop: 16}}>
             <input type="file" onChange={handleChange} />
