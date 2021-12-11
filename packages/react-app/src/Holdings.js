@@ -1,74 +1,101 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useLazyQuery } from "react-apollo";
-import { HOLDINGS_QUERY, HOLDINGS_MAIN_QUERY, HOLDINGS_MAIN_INKS_QUERY } from "./apollo/queries";
-import ApolloClient, { InMemoryCache } from 'apollo-boost';
+import {
+  HOLDINGS_QUERY,
+  HOLDINGS_MAIN_QUERY,
+  HOLDINGS_MAIN_INKS_QUERY
+} from "./apollo/queries";
+import ApolloClient, { InMemoryCache } from "apollo-boost";
 import { isBlocklisted } from "./helpers";
 import { useParams, Link, useHistory } from "react-router-dom";
-import { Typography, Row, Col, Divider, Switch, Button, Empty, Popover, notification, Form } from "antd";
-import { SendOutlined, RocketOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  Typography,
+  Row,
+  Col,
+  Divider,
+  Switch,
+  Button,
+  Empty,
+  Popover,
+  notification,
+  Form
+} from "antd";
+import {
+  SendOutlined,
+  RocketOutlined,
+  SearchOutlined
+} from "@ant-design/icons";
 import { AddressInput, Loader } from "./components";
 import SendInkForm from "./SendInkForm.js";
 import UpgradeInkButton from "./UpgradeInkButton.js";
 import Blockies from "react-blockies";
-import NiftyShop from "./NiftyShop.js"
+import NiftyShop from "./NiftyShop.js";
 import { ethers } from "ethers";
 const { Text } = Typography;
 
 const mainClient = new ApolloClient({
   uri: process.env.REACT_APP_GRAPHQL_ENDPOINT_MAINNET,
-  cache: new InMemoryCache(),
-})
+  cache: new InMemoryCache()
+});
 
 export default function Holdings(props) {
-
   const [searchCollector] = Form.useForm();
   const history = useHistory();
 
   let { address } = useParams();
 
-  address = address ? address : props.address
+  address = address ? address : props.address;
 
-  const [ens, setEns] = useState()
+  const [ens, setEns] = useState();
 
-  const [holdings, setHoldings] = useState() // Array with the token id's currently held
+  const [holdings, setHoldings] = useState(); // Array with the token id's currently held
   const [tokens, setTokens] = useState({}); // Object holding information about relevant tokens
   const [myCreationOnly, setmyCreationOnly] = useState(true);
 
-  const [blockNumber, setBlockNumber] = useState(0)
-  const [data, setData] = useState() // Data filtered for latest block update that we have seen
-  const skipper = useRef(0)
+  const [blockNumber, setBlockNumber] = useState(0);
+  const [data, setData] = useState(); // Data filtered for latest block update that we have seen
+  const skipper = useRef(0);
 
-    useEffect(()=> {
-      const getEns = async () => {
-      let _ens = await props.mainnetProvider.lookupAddress(address)
-      setEns(_ens)
+  useEffect(() => {
+    const getEns = async () => {
+      let _ens = await props.mainnetProvider.lookupAddress(address);
+      setEns(_ens);
+    };
+    getEns();
+    setHoldings();
+    setTokens({});
+  }, [address]);
+
+  const { loading: loadingMain, error: errorMain, data: dataMain } = useQuery(
+    HOLDINGS_MAIN_QUERY,
+    {
+      variables: { owner: address },
+      client: mainClient,
+      pollInterval: 4000
     }
-      getEns()
-      setHoldings()
-      setTokens({})
-    },[address])
+  );
 
-  const { loading: loadingMain, error: errorMain, data: dataMain } = useQuery(HOLDINGS_MAIN_QUERY, {
-    variables: { owner: address },
-    client: mainClient,
-    pollInterval: 4000
-  });
+  const [
+    mainInksQuery,
+    { loading: loadingMainInks, error: errorMainInks, data: dataMainInks }
+  ] = useLazyQuery(HOLDINGS_MAIN_INKS_QUERY);
 
-  const [mainInksQuery, { loading: loadingMainInks, error: errorMainInks, data: dataMainInks }] = useLazyQuery(HOLDINGS_MAIN_INKS_QUERY)
-
-  const { loading, error, data: dataRaw, fetchMore } = useQuery(HOLDINGS_QUERY, {
-    variables: {
-      first: 16,
-      skip: 0,
-      orderBy: 'createdAt',
-      orderDirection: 'desc',
-      owner: address.toLowerCase() },
-    pollInterval: 4000
-  });
+  const { loading, error, data: dataRaw, fetchMore } = useQuery(
+    HOLDINGS_QUERY,
+    {
+      variables: {
+        first: 16,
+        skip: 0,
+        orderBy: "createdAt",
+        orderDirection: "desc",
+        owner: address.toLowerCase()
+      },
+      pollInterval: 4000
+    }
+  );
 
   const onLoadMore = useCallback(() => {
-
-    console.log(skipper.current)
+    console.log(skipper.current);
 
     if (
       Math.round((window.scrollY + window.innerHeight) * 1.1) >=
@@ -84,21 +111,21 @@ export default function Holdings(props) {
         }
       });
     }
-  }, [fetchMore, (data && data.tokens.length)]);
+  }, [fetchMore, data && data.tokens.length]);
 
   useEffect(() => {
-  window.addEventListener("scroll", onLoadMore);
-  return () => {
-    window.removeEventListener("scroll", onLoadMore);
-  };
-}, [onLoadMore]);
+    window.addEventListener("scroll", onLoadMore);
+    return () => {
+      window.removeEventListener("scroll", onLoadMore);
+    };
+  }, [onLoadMore]);
 
-  const getMetadata = async (jsonURL) => {
-
+  const getMetadata = async jsonURL => {
     // https://dev.to/stereobooster/fetch-with-a-timeout-3d6
     const timeoutableFetch = (url, options = {}) => {
       let { timeout = 15000, ...rest } = options;
-      if (rest.signal) throw new Error("Signal not supported in timeoutable fetch");
+      if (rest.signal)
+        throw new Error("Signal not supported in timeoutable fetch");
       const controller = new AbortController();
       const { signal } = controller;
       return new Promise((resolve, reject) => {
@@ -113,111 +140,111 @@ export default function Holdings(props) {
     };
 
     //const response = await timeoutableFetch("https://ipfs.io/ipfs/" + jsonURL);
-    const response = await timeoutableFetch("https://nifty-ink.mypinata.cloud/ipfs/" + jsonURL);
+    const response = await timeoutableFetch(
+      "https://nifty-ink.mypinata.cloud/ipfs/" + jsonURL
+    );
     const data = await response.json();
-    data.image = data.image.replace('https://ipfs.io/ipfs/','https://nifty-ink.mypinata.cloud/ipfs/')
+    data.image = data.image.replace(
+      "https://ipfs.io/ipfs/",
+      "https://nifty-ink.mypinata.cloud/ipfs/"
+    );
 
     return data;
   };
 
-  const getTokens = async (_data) => {
-
-    let chunkedData = []
-    let size = 10
+  const getTokens = async _data => {
+    let chunkedData = [];
+    let size = 10;
     for (let i = 0; i < _data.length; i += size) {
-        let chunk = _data.slice(i, i + size)
-        chunkedData.push(chunk)
+      let chunk = _data.slice(i, i + size);
+      chunkedData.push(chunk);
     }
 
     for (const _dataChunk in chunkedData) {
       try {
-        console.log(`running chunk ${_dataChunk}`)
-        await Promise.all(chunkedData[_dataChunk].map(async (token) => {
-          if(!tokens[token.id]) {
-            skipper.current = skipper.current + 1
-          }
-          if (isBlocklisted(token.ink.jsonUrl)) return;
-          let _token = token;
-          _token.network = 'xDai'
-          _token.ink.metadata = await getMetadata(token.ink.jsonUrl);
-          //setTokens((tokens) => [...tokens, _token]);
-          let _newToken = {}
-          _newToken[_token.id] = _token
-          setTokens((tokens) => ({...tokens, ..._newToken}));
-        }))
+        console.log(`running chunk ${_dataChunk}`);
+        await Promise.all(
+          chunkedData[_dataChunk].map(async token => {
+            if (!tokens[token.id]) {
+              skipper.current = skipper.current + 1;
+            }
+            if (isBlocklisted(token.ink.jsonUrl)) return;
+            let _token = token;
+            _token.network = "xDai";
+            _token.ink.metadata = await getMetadata(token.ink.jsonUrl);
+            //setTokens((tokens) => [...tokens, _token]);
+            let _newToken = {};
+            _newToken[_token.id] = _token;
+            setTokens(tokens => ({ ...tokens, ..._newToken }));
+          })
+        );
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
       await new Promise(r => setTimeout(r, 100));
     }
-
   };
 
-  const getMainInks = async (_data) => {
+  const getMainInks = async _data => {
     let _inkList = _data.map(a => a.ink);
     let mainInks = await mainInksQuery({
       variables: { inkList: _inkList }
-    })
-  };
-
-
-  const getMainTokens = (_data, inks, ownerIsArtist = false) => {
-    _data.forEach(async (token) => {
-      if (isBlocklisted(token.jsonUrl)) return;
-      let _token = Object.assign({}, token);
-      const _tokenInk = inks.filter(ink => ink.id === _token.ink)
-      _token.ink = _tokenInk[0]
-      if (ownerIsArtist && _token.ink.artist.address !== address.toLowerCase()) return;
-      _token.network = 'Mainnet'
-      _token.ink.metadata = await getMetadata(token.jsonUrl);
-      let _newToken = {}
-      _newToken[_token.id] = _token
-      setTokens((tokens) => ({...tokens, ..._newToken}));
     });
   };
 
-  useEffect(()=> {
-    if(tokens) updateHoldings()
-  },[tokens])
-
-  const updateHoldings = () => {
-    if(Object.keys(tokens).length > 0) {
-      let tokenList = Object.keys(tokens)
-      setHoldings(tokenList)
-  }
-  }
-
-  const handleFilter = () => {
-    setmyCreationOnly((myCreationOnly) => !myCreationOnly);
-    setTokens({})
-    if(!myCreationOnly) {
-        getTokens(data.tokens)
-        getMainTokens(dataMain.tokens, dataMainInks.inks)
-      }
-      else {
-        getTokens(
-          data.tokens
-            .filter(
-              (token) =>
-                token.ink.artist.address === address.toLowerCase()
-            )
-            .reverse()
-        );
-        if(dataMain.tokens && dataMain.inks) {
-          getMainTokens(dataMain.tokens, dataMainInks.inks, true)
-        }
-      }
+  const getMainTokens = (_data, inks, ownerIsArtist = false) => {
+    _data.forEach(async token => {
+      if (isBlocklisted(token.jsonUrl)) return;
+      let _token = Object.assign({}, token);
+      const _tokenInk = inks.filter(ink => ink.id === _token.ink);
+      _token.ink = _tokenInk[0];
+      if (ownerIsArtist && _token.ink.artist.address !== address.toLowerCase())
+        return;
+      _token.network = "Mainnet";
+      _token.ink.metadata = await getMetadata(token.jsonUrl);
+      let _newToken = {};
+      _newToken[_token.id] = _token;
+      setTokens(tokens => ({ ...tokens, ..._newToken }));
+    });
   };
 
   useEffect(() => {
+    if (tokens) updateHoldings();
+  }, [tokens]);
 
-    const getHoldings = async (_data) => {
-      let _blockNumber = parseInt(_data.metaData.value)
-      console.log(blockNumber, _blockNumber)
-      if(_blockNumber >= blockNumber) {
-      setData(_data)
-      setBlockNumber(_blockNumber)
+  const updateHoldings = () => {
+    if (Object.keys(tokens).length > 0) {
+      let tokenList = Object.keys(tokens);
+      setHoldings(tokenList);
     }
+  };
+
+  const handleFilter = () => {
+    setmyCreationOnly(myCreationOnly => !myCreationOnly);
+    setTokens({});
+    if (!myCreationOnly) {
+      getTokens(data.tokens);
+      getMainTokens(dataMain.tokens, dataMainInks.inks);
+    } else {
+      getTokens(
+        data.tokens
+          .filter(token => token.ink.artist.address === address.toLowerCase())
+          .reverse()
+      );
+      if (dataMain.tokens && dataMain.inks) {
+        getMainTokens(dataMain.tokens, dataMainInks.inks, true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const getHoldings = async _data => {
+      let _blockNumber = parseInt(_data.metaData.value);
+      console.log(blockNumber, _blockNumber);
+      if (_blockNumber >= blockNumber) {
+        setData(_data);
+        setBlockNumber(_blockNumber);
+      }
     };
 
     dataRaw ? getHoldings(dataRaw) : console.log("loading data");
@@ -225,7 +252,7 @@ export default function Holdings(props) {
 
   useEffect(() => {
     data ? getTokens(data.tokens) : console.log("loading tokens");
-    if(data) console.log(data.tokens)
+    if (data) console.log(data.tokens);
   }, [data]);
 
   useEffect(() => {
@@ -233,25 +260,27 @@ export default function Holdings(props) {
   }, [dataMain]);
 
   useEffect(() => {
-    dataMain && dataMainInks ? getMainTokens(dataMain.tokens, dataMainInks.inks) : console.log("loading main tokens");
+    dataMain && dataMainInks
+      ? getMainTokens(dataMain.tokens, dataMainInks.inks)
+      : console.log("loading main tokens");
   }, [dataMainInks]);
 
-  if (loading) return <Loader/>;
+  if (loading) return <Loader />;
   if (error) {
-    if(!address || (data && data.tokens && data.tokens.length <= 0)){
-      return <Empty/>
+    if (!address || (data && data.tokens && data.tokens.length <= 0)) {
+      return <Empty />;
     } else {
-    return `Error! ${error.message}`;
+      return `Error! ${error.message}`;
     }
   }
 
-  const search = async (values) => {
+  const search = async values => {
     try {
       const newAddress = ethers.utils.getAddress(values["address"]);
       setData();
-      setHoldings()
-      setTokens({})
-      history.push("/holdings/"+newAddress);
+      setHoldings();
+      setTokens({});
+      history.push("/holdings/" + newAddress);
     } catch (e) {
       console.log("not an address");
       notification.open({
@@ -262,7 +291,7 @@ export default function Holdings(props) {
   };
 
   const onFinishFailed = errorInfo => {
-    console.log('Failed:', errorInfo);
+    console.log("Failed:", errorInfo);
   };
 
   const SearchForm = () => {
@@ -290,113 +319,165 @@ export default function Holdings(props) {
           </Button>
         </Form.Item>
       </Form>
-  )
+    );
   };
 
   return (
-    <div style={{maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
+    <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
       <Blockies
         seed={address.toLowerCase()}
-        size={12} scale={6}
+        size={12}
+        scale={6}
         className="holdings_blockie"
       />
-      <h2 style={{ margin: 10 }}><Text copyable={{text: ens ? ens : address}}>{ens ? ens : address.slice(0, 6)}</Text></h2>
+      <h2 style={{ margin: 10 }}>
+        <Text copyable={{ text: ens ? ens : address }}>
+          {ens ? ens : address.slice(0, 6)}
+        </Text>
+      </h2>
       <Row justify="centre">
-          <p style={{ margin: "auto" }}>
-            <b>All Holdings:</b> {(dataMain && data && data.user) ? (dataMain.tokens.length + parseInt(data.user.tokenCount)) : 0}
-          </p>
+        <p style={{ margin: "auto" }}>
+          <b>All Holdings:</b>{" "}
+          {dataMain && data && data.user
+            ? dataMain.tokens.length + parseInt(data.user.tokenCount)
+            : 0}
+        </p>
       </Row>
       <Divider />
       <Row justify="end" style={{ marginBottom: 20 }}>
-        <Col><SearchForm/></Col>
         <Col>
-          {`Created by ${props.address == address ? 'me' : 'holder'}:  `}
+          <SearchForm />
+        </Col>
+        <Col>
+          {`Created by ${props.address == address ? "me" : "holder"}:  `}
           <Switch defaultChecked={!myCreationOnly} onChange={handleFilter} />
         </Col>
       </Row>
       <div className="inks-grid">
         <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
           {holdings
-            ? holdings.sort(function(a, b){return b-a}).filter((id) => id in tokens).map((id) => (
-                <li
-                  key={id}
-                  style={{
-                    display: "inline-block",
-                    verticalAlign: "top",
-                    margin: 4,
-                    padding: 5,
-                    border: "1px solid #e5e5e6",
-                    borderRadius: "10px",
-                    fontWeight: "bold"
-                  }}
-                >
-                <Link
-                  to={{pathname: "/ink/"+tokens[id].ink.id}}
-                  style={{ color: "black" }}
-                >
-                    <img
-                      src={tokens[id].ink.metadata.image}
-                      alt={tokens[id].ink.metadata.name}
-                      width="150"
-                      style={{
-                        border: "1px solid #e5e5e6",
-                        borderRadius: "10px"
-                      }}
-                    />
-                    <h3
-                      style={{ margin: "10px 0px 5px 0px", fontWeight: "700" }}
+            ? holdings
+                .sort(function(a, b) {
+                  return b - a;
+                })
+                .filter(id => id in tokens)
+                .map(id => (
+                  <li
+                    key={id}
+                    style={{
+                      display: "inline-block",
+                      verticalAlign: "top",
+                      margin: 4,
+                      padding: 5,
+                      border: "1px solid #e5e5e6",
+                      borderRadius: "10px",
+                      fontWeight: "bold"
+                    }}
+                  >
+                    <Link
+                      to={{ pathname: "/ink/" + tokens[id].ink.id }}
+                      style={{ color: "black" }}
                     >
-                      {tokens[id].ink.metadata.name.length > 18
-                        ? tokens[id].ink.metadata.name.slice(0, 15).concat("...")
-                        : tokens[id].ink.metadata.name}
-                    </h3>
+                      <img
+                        src={tokens[id].ink.metadata.image}
+                        alt={tokens[id].ink.metadata.name}
+                        width="150"
+                        style={{
+                          border: "1px solid #e5e5e6",
+                          borderRadius: "10px"
+                        }}
+                      />
+                      <h3
+                        style={{
+                          margin: "10px 0px 5px 0px",
+                          fontWeight: "700"
+                        }}
+                      >
+                        {tokens[id].ink.metadata.name.length > 18
+                          ? tokens[id].ink.metadata.name
+                              .slice(0, 15)
+                              .concat("...")
+                          : tokens[id].ink.metadata.name}
+                      </h3>
 
-                    <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
-                      Edition: {tokens[id].ink.count}/{tokens[id].ink.limit}
-                    </p>
-                  </Link>
-                  <Row justify={"center"}>
-                  {tokens[id].network==="xDai"
-                  ? <>
-                  {address==props.address&&<><Popover content={
-                    <SendInkForm tokenId={tokens[id].id} address={props.address} mainnetProvider={props.mainnetProvider} injectedProvider={props.injectedProvider} transactionConfig={props.transactionConfig}/>
-                  }
-                  title="Send Ink">
-                    <Button size="small" type="secondary" style={{margin:4,marginBottom:12}}><SendOutlined/> Send</Button>
-                  </Popover>
-                  <UpgradeInkButton
-                    tokenId={tokens[id].id}
-                    injectedProvider={props.injectedProvider}
-                    gasPrice={props.gasPrice}
-                    upgradePrice={props.upgradePrice}
-                    transactionConfig={props.transactionConfig}
-                    buttonSize="small"
-                  /></>}
-                  <NiftyShop
-                    injectedProvider={props.injectedProvider}
-                    metaProvider={props.metaProvider}
-                    type={'token'}
-                    ink={tokens[id].ink.id}
-                    itemForSale={tokens[id].id}
-                    gasPrice={props.gasPrice}
-                    address={props.address?props.address.toLowerCase():null}
-                    ownerAddress={address.toLowerCase()}
-                    price={tokens[id].price}
-                    visible={true}
-                    transactionConfig={props.transactionConfig}
-                    buttonSize="small"
-                  />
-                  </>
-                  : <Button type="primary" style={{ margin:8, background: "#722ed1", borderColor: "#722ed1"  }} onClick={()=>{
-                      console.log("item",id)
-                      window.open("https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/"+id)
-                    }}>
-                     <RocketOutlined />  View on OpenSea
-                    </Button>
-                  }
-                  </Row>
-                </li>
-              ))
+                      <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
+                        Edition: {tokens[id].ink.count}/{tokens[id].ink.limit}
+                      </p>
+                    </Link>
+                    <Row justify={"center"}>
+                      {tokens[id].network === "xDai" ? (
+                        <>
+                          {address == props.address && (
+                            <>
+                              <Popover
+                                content={
+                                  <SendInkForm
+                                    tokenId={tokens[id].id}
+                                    address={props.address}
+                                    mainnetProvider={props.mainnetProvider}
+                                    injectedProvider={props.injectedProvider}
+                                    transactionConfig={props.transactionConfig}
+                                  />
+                                }
+                                title="Send Ink"
+                              >
+                                <Button
+                                  size="small"
+                                  type="secondary"
+                                  style={{ margin: 4, marginBottom: 12 }}
+                                >
+                                  <SendOutlined /> Send
+                                </Button>
+                              </Popover>
+                              <UpgradeInkButton
+                                tokenId={tokens[id].id}
+                                injectedProvider={props.injectedProvider}
+                                gasPrice={props.gasPrice}
+                                upgradePrice={props.upgradePrice}
+                                transactionConfig={props.transactionConfig}
+                                buttonSize="small"
+                              />
+                            </>
+                          )}
+                          <NiftyShop
+                            injectedProvider={props.injectedProvider}
+                            metaProvider={props.metaProvider}
+                            type={"token"}
+                            ink={tokens[id].ink.id}
+                            itemForSale={tokens[id].id}
+                            gasPrice={props.gasPrice}
+                            address={
+                              props.address ? props.address.toLowerCase() : null
+                            }
+                            ownerAddress={address.toLowerCase()}
+                            price={tokens[id].price}
+                            visible={true}
+                            transactionConfig={props.transactionConfig}
+                            buttonSize="small"
+                          />
+                        </>
+                      ) : (
+                        <Button
+                          type="primary"
+                          style={{
+                            margin: 8,
+                            background: "#722ed1",
+                            borderColor: "#722ed1"
+                          }}
+                          onClick={() => {
+                            console.log("item", id);
+                            window.open(
+                              "https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" +
+                                id
+                            );
+                          }}
+                        >
+                          <RocketOutlined /> View on OpenSea
+                        </Button>
+                      )}
+                    </Row>
+                  </li>
+                ))
             : null}
         </ul>
       </div>
