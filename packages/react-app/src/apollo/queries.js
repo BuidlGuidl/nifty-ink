@@ -19,14 +19,22 @@ export const ARTISTS_QUERY = gql`
         where: { burned: false }
       ) {
         id
+        inkNumber
         jsonUrl
         limit
         count
         bestPrice
         createdAt
+        likeCount
+        likes {
+          id
+        }
         sales {
           id
           price
+        }
+        artist {
+          id
         }
       }
       tokenTransfers(first: 1, orderBy: createdAt, orderDirection: desc) {
