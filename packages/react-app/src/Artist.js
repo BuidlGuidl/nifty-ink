@@ -4,6 +4,7 @@ import { useParams, Link, useHistory } from "react-router-dom";
 import { useQuery, useLazyQuery } from "react-apollo";
 import { ARTISTS_QUERY, ARTIST_RECENT_ACTIVITY_QUERY } from "./apollo/queries";
 import { isBlocklisted } from "./helpers";
+import LikeButton from "./LikeButton.js"
 import {
   Row,
   Col,
@@ -414,17 +415,26 @@ export default function Artist(props) {
                               />
                             </>
                           ) : (
-                            <>
-                              <img
-                                src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
-                                alt="xdai"
-                                style={{
-                                  marginLeft: 5,
-                                  visibility: "hidden"
-                                }}
-                              />
-                            </>
+                            <></>
                           )}
+                          <span style={{paddingRight: 10, paddingLeft: 10}}>
+                            <LikeButton
+                              metaProvider={props.metaProvider}
+                              metaSigner={props.metaSigner}
+                              injectedGsnSigner={props.injectedGsnSigner}
+                              signingProvider={props.injectedProvider}
+                              localProvider={props.kovanProvider}
+                              contractAddress={props.contractAddress}
+                              targetId={ink.inkNumber}
+                              likerAddress={props.address}
+                              transactionConfig={props.transactionConfig}
+                              // likeCount={likeInfo&&likeInfo.likeCount || 0}
+                              // hasLiked={likeInfo&&likeInfo.likes.length > 0 || false}
+                              likeCount={0}
+                              hasLiked={false}
+                              marginBottom={"0px"}
+                            />
+                          </span>
                         </Row>
                         <Divider style={{ margin: "8px 0px" }} />
                         <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
