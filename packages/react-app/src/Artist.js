@@ -36,7 +36,11 @@ export default function Artist(props) {
   let zeroAddress = "0x0000000000000000000000000000000000000000";
 
   const { loading, error, data } = useQuery(ARTISTS_QUERY, {
-    variables: { address: address }
+    variables: {
+      address: address,
+      liker: props.address,
+    },
+    pollInterval: 5000,
   });
 
   const dateRange = 2592000;
@@ -428,10 +432,8 @@ export default function Artist(props) {
                               targetId={ink.inkNumber}
                               likerAddress={props.address}
                               transactionConfig={props.transactionConfig}
-                              // likeCount={likeInfo&&likeInfo.likeCount || 0}
-                              // hasLiked={likeInfo&&likeInfo.likes.length > 0 || false}
-                              likeCount={0}
-                              hasLiked={false}
+                              likeCount={ink.likeCount}
+                              hasLiked={ink.likes&&ink.likes.length>0 || false}
                               marginBottom={"0px"}
                             />
                           </span>
