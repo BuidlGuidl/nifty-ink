@@ -1,7 +1,10 @@
 import { gql } from "apollo-boost";
 
 export const ARTISTS_QUERY = gql`
-  query artists($address: Bytes!) {
+  query artists(
+    $address: Bytes!
+    $liker: String!
+  ) {
     artists(where: { address: $address }) {
       id
       inkCount
@@ -26,7 +29,7 @@ export const ARTISTS_QUERY = gql`
         bestPrice
         createdAt
         likeCount
-        likes {
+        likes(where: { liker: $liker }) {
           id
         }
         sales {
