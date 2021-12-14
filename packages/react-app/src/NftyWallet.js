@@ -327,7 +327,12 @@ export default function NftyWallet(props) {
         </Route>
 
         <Route path="/artist/:address">
-          <Artist {...props} supabase={supabase} />
+          <Artist
+            {...props}
+            supabase={supabase}
+            transactionConfig={transactionConfig}
+            contractAddress={props.readKovanContracts?props.readKovanContracts['NiftyInk']['address']:''}
+          />
         </Route>
 
         <Route path="/leaderboard/artists">
