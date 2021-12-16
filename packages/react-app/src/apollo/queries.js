@@ -90,6 +90,24 @@ export const LAST_30_DAILY_TOTALS = gql`
   }
 `;
 
+export const TOTALS = gql`
+  query totals(
+    $date: Int
+  ) {
+    totals(where: {day: $date}) {
+      artists
+      day
+      inks
+      id
+      saleValue
+      sales
+      tokens
+      upgrades
+      users
+    }
+  }
+`;
+
 export const TOP_COLLECTORS_QUERY = gql`
   query users(
     $first: Int
