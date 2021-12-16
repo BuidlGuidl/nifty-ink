@@ -12,6 +12,7 @@ import AllInks from "./AllInks.js";
 import Artist from "./Artist.js";
 import Leaderboard from "./Leaderboard.js";
 import LeaderboardCollectors from "./LeaderboardCollectors.js";
+import Stats from "./Stats.js"
 import CreateInk from "./CreateInk.js";
 import Drafts from "./Drafts.js";
 import ViewInk from "./ViewInk.js";
@@ -252,6 +253,17 @@ export default function NftyWallet(props) {
               </NavLink>
             </Menu.Item>
           </Menu.SubMenu>
+          <Menu.Item key="stats">
+            <NavLink to={"/stats"}>
+              <span>
+                <span style={{ padding: 8 }} role="img" aria-label="stats">
+                  📊
+                </span>{" "}
+                stats
+              </span>{" "}
+              <Badge style={badgeStyle} count={displayBalance} showZero />
+            </NavLink>
+          </Menu.Item>
           <Menu.Item key="help">
             <Button style={menuButtonStyle} size="large" onClick={showDrawer}>
               <span
@@ -360,6 +372,10 @@ export default function NftyWallet(props) {
 
             <Route path="/leaderboard">
               <Redirect to="/leaderboard/artists" />
+            </Route>
+
+            <Route path="/stats">
+              <Stats {...props} supabase={supabase} />
             </Route>
 
             <Route exact path="/create">
