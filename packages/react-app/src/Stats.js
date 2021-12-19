@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import LineChart from './LineChart';
 import moment from 'moment'
 import ToolTip  from './ToolTip.js'
-import {LAST_30_DAILY_TOTALS, TOTALS} from "./apollo/queries";
+import {LAST_30_DAILY_TOTALS, TOTALS, TOTALS_UP_TO_DATE} from "./apollo/queries";
 import {useHistory, useLocation} from "react-router-dom";
 import {Col, Form, Row, Select, Typography} from "antd";
 import {Loader} from "./components";
@@ -52,17 +52,13 @@ export default function Stats(props) {
         }
     });
 
-    const {loading2, error2, data: totalDataBefore} = useQuery(TOTALS, {
+    const {loading: loading2, error: error2, data: totalDataBefore} = useQuery(TOTALS_UP_TO_DATE, {
         variables: {
             date: startingDate
         }
     });
 
-    const {loading3, error3, data: totalDataNow} = useQuery(TOTALS, {
-        variables: {
-            date: dayjs().utc().startOf("day").unix()
-        }
-    });
+    const {loading: loading3, error: error3, data: totalDataNow} = useQuery(TOTALS);
 
     useEffect(() => {
         if (totalDataBefore && totalDataNow) {
