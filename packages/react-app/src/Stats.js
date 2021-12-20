@@ -221,7 +221,7 @@ export default function Stats(props) {
                                 />
                                 <StatCard
                                     name={"Sale Value"}
-                                    value={totalData.saleValue}
+                                    value={totalData.saleValue.toFixed(2)}
                                     emoji={"💲"}
                                 />
                                 <StatCard
