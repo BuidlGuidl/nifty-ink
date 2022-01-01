@@ -368,7 +368,7 @@ export default function Artist(props) {
                         style={{ color: "black" }}
                       >
                         <img
-                          src={`https://ipfs.nifty.ink/${ink.id}`}
+                          src={ink.metadata.image}
                           alt={ink.metadata.name}
                           width="150"
                           style={{
