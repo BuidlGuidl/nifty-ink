@@ -261,7 +261,6 @@ export default function NftyWallet(props) {
                 </span>{" "}
                 stats
               </span>{" "}
-              <Badge style={badgeStyle} count={displayBalance} showZero />
             </NavLink>
           </Menu.Item>
           <Menu.Item key="help">

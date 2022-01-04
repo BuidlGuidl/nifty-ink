@@ -100,9 +100,9 @@ export default function Stats(props) {
             setFinalData(dailyTotals.map((x, count) => {
                 return {
                     d: moment.unix(x.day).format('MMM DD'),
-                    p: metric === "saleValue" ? ethers.utils.formatEther(x[metric]).toLocaleString() : x[metric].toLocaleString(),
+                    p: metric === "saleValue" ? parseFloat(ethers.utils.formatEther(x[metric])).toFixed(2) : x[metric].toLocaleString(),
                     x: count,
-                    y: metric === "saleValue" ? parseFloat(ethers.utils.formatEther(x[metric])) : parseFloat(x[metric])
+                    y: metric === "saleValue" ? +parseFloat(ethers.utils.formatEther(x[metric])).toFixed(2) : parseFloat(x[metric])
                 }
             }))
         }else {
@@ -221,7 +221,7 @@ export default function Stats(props) {
                                 />
                                 <StatCard
                                     name={"Sale Value"}
-                                    value={totalData.saleValue.toFixed(2)}
+                                    value={totalData.saleValue?.toFixed(2)}
                                     emoji={"💲"}
                                 />
                                 <StatCard
