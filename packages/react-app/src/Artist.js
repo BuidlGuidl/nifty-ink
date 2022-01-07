@@ -4,6 +4,8 @@ import { useParams, Link, useHistory } from "react-router-dom";
 import { useQuery, useLazyQuery } from "react-apollo";
 import { ARTISTS_QUERY, ARTIST_RECENT_ACTIVITY_QUERY } from "./apollo/queries";
 import { isBlocklisted } from "./helpers";
+import StatCard from './StatCard.js'
+
 import {
   Row,
   Col,
@@ -95,41 +97,6 @@ export default function Artist(props) {
           </Form.Item>
         </Form>
       </Row>
-    );
-  };
-
-  const StatCard = props => {
-    return (
-      <li
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          borderRadius: "10px",
-          border: "1px solid rgb(229, 229, 230)",
-          padding: "10px 20px",
-          minWidth: "160px",
-          margin: "10px"
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <p style={{ fontSize: "14px", color: "rgba(0, 0, 0, 0.45)" }}>
-            {props.name}
-          </p>
-          <span>{props.emoji}</span>
-        </div>
-        <div>
-          <p
-            style={{
-              textAlign: "left",
-              fontSize: "24px",
-              color: "rgba(0, 0, 0, 0.85)",
-              margin: 0
-            }}
-          >
-            {props.value}
-          </p>
-        </div>
-      </li>
     );
   };
 

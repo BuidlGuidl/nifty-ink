@@ -72,6 +72,58 @@ export const TOP_ARTISTS_QUERY = gql`
   }
 `;
 
+export const LAST_30_DAILY_TOTALS = gql`
+  query dailyTotals(
+    $date: Int
+  ) {
+    dailyTotals(where: {day_gt: $date}) {
+      artists
+      day
+      inks
+      id
+      saleValue
+      sales
+      tokens
+      upgrades
+      users
+    }
+  }
+`;
+
+export const TOTALS_UP_TO_DATE = gql`
+  query totals(
+    $date: Int
+  ) {
+    totals(where: {day: $date}) {
+      artists
+      day
+      inks
+      id
+      saleValue
+      sales
+      tokens
+      upgrades
+      users
+    }
+  }
+`;
+
+export const TOTALS = gql`
+  query totals {
+    totals(first: 1, orderBy: day, orderDirection: desc) {
+      artists
+      day
+      inks
+      id
+      saleValue
+      sales
+      tokens
+      upgrades
+      users
+    }
+  }
+`;
+
 export const TOP_COLLECTORS_QUERY = gql`
   query users(
     $first: Int
