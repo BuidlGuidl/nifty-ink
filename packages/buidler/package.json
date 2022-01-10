@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@opengsn/gsn": "^2.1.0",
+    "@opengsn/contracts": "2.2.4",
     "@openzeppelin/contracts": "^3.0.2",
     "node-watch": "^0.6.3"
   }

@@ -1,10 +1,10 @@
-pragma solidity ^0.6.10;
+pragma solidity >=0.7.6;
 pragma experimental ABIEncoderV2;
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import "@opengsn/gsn/contracts/forwarder/IForwarder.sol";
-import "@opengsn/gsn/contracts/BasePaymaster.sol";
+import "@opengsn/contracts/forwarder/IForwarder.sol";
+import "@opengsn/contracts/BasePaymaster.sol";
 
 contract SimplePaymaster is BasePaymaster {
 	mapping (address => bool) public targetContracts;
@@ -46,7 +46,7 @@ contract SimplePaymaster is BasePaymaster {
 	}
 
   function versionPaymaster() external virtual view override returns (string memory) {
-    return "2.0.3";
+    return "2.2.0+niftyink.simplepaymaster";
   }
 
 }
