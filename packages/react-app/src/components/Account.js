@@ -100,7 +100,7 @@ export default function Account(props) {
       verbose: true,
       relayLookupWindowBlocks: 1e18,
       minGasPrice: 20000000000,
-      maxRelayNonceGap: 100
+      maxRelayNonceGap: 100000
     };
   }
 
