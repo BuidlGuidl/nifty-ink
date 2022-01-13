@@ -5,7 +5,7 @@ import { Balance, Address, Wallet } from ".";
 import { useBurnerSigner } from "../hooks";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { Button } from "antd";
-import { RelayProvider } from "@opengsn/gsn";
+import { RelayProvider } from "@opengsn/provider";
 import { RampInstantSDK } from "@ramp-network/ramp-instant-sdk";
 import Blockies from "react-blockies";
 import { BankOutlined, SwapOutlined } from "@ant-design/icons";
@@ -99,8 +99,9 @@ export default function Account(props) {
       paymasterAddress: process.env.REACT_APP_PAYMASTER_ADDRESS, //process.env.REACT_APP_NETWORK_NAME === 'xdai' ? "0x4734356359c48ba2Cb50BA048B1404A78678e5C2" : require('.././gsn/Paymaster.json').address,
       verbose: true,
       relayLookupWindowBlocks: 1e18,
-      minGasPrice: 20000000000,
-      maxRelayNonceGap: 100000
+      maxRelayNonceGap: 100,
+      relayRegistrationLookupBlocks: 6e5,
+      pastEventsQueryMaxPageSize: Number.MAX_SAFE_INTEGER
     };
   }
 

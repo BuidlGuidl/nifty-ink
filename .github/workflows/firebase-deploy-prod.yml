@@ -22,7 +22,7 @@ jobs:
           REACT_APP_SUPABASE_KEY: "${{ secrets.SUPABASE_KEY }}"
           REACT_APP_SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
           REACT_APP_COPY_WORD: "${{ secrets.COPY_WORD }}"
-          REACT_APP_PAYMASTER_ADDRESS: "0x4734356359c48ba2Cb50BA048B1404A78678e5C2"
+          REACT_APP_PAYMASTER_ADDRESS: "0xadc67622Ef5a8D1492f65392AD21d57BE0E6Ca2A"
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
