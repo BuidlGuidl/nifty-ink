@@ -42,21 +42,31 @@ async function main() {
 
     const SimplePaymaster = await deploy("SimplePaymaster");
 
+    console.log("deployed Paymaster", SimplePaymaster.address);
+
     console.log("setting relay hub");
     await SimplePaymaster.setRelayHub(
       "0x727862794bdaa3b8Bc4E3705950D4e9397E3bAfd"
     );
 
     console.log("setting target addresses");
-    await SimplePaymaster.setTarget(NiftyInk.address, true);
-    await SimplePaymaster.setTarget(NiftyToken.address, true);
-    await SimplePaymaster.setTarget(Liker.address, true);
+    let tx;
+    tx = await SimplePaymaster.setTarget(NiftyInk.address, true);
+    console.log(`NiftyInk set as target`);
+    tx = await SimplePaymaster.setTarget(NiftyToken.address, true);
+    console.log(`NiftyToken set as target`);
+    tx = await SimplePaymaster.setTarget(Liker.address, true);
+    console.log(`Liker set as target`);
 
     console.log("setting trusted forwarder");
-    await SimplePaymaster.setTrustedForwarder(trustedForwarder);
-    await NiftyInk.setTrustedForwarder(trustedForwarder);
-    await NiftyToken.setTrustedForwarder(trustedForwarder);
-    await Liker.setTrustedForwarder(trustedForwarder);
+    //tx = await SimplePaymaster.setTrustedForwarder(trustedForwarder);
+    //console.log(`Paymaster setTrustedForward`)
+    tx = await NiftyInk.setTrustedForwarder(trustedForwarder);
+    console.log(`NiftyInk setTrustedForward`);
+    tx = await NiftyToken.setTrustedForwarder(trustedForwarder);
+    console.log(`NiftyToken setTrustedForward`);
+    tx = await Liker.setTrustedForwarder(trustedForwarder);
+    console.log(`Liker setTrustedForward`);
   }
 }
 main()
