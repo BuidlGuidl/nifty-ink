@@ -49,24 +49,36 @@ async function main() {
       "0x727862794bdaa3b8Bc4E3705950D4e9397E3bAfd"
     );
 
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    await sleep(2000);
+
     console.log("setting target addresses");
     let tx;
     tx = await SimplePaymaster.setTarget(NiftyInk.address, true);
     console.log(`NiftyInk set as target`);
+    await sleep(2000);
     tx = await SimplePaymaster.setTarget(NiftyToken.address, true);
     console.log(`NiftyToken set as target`);
+    await sleep(2000);
     tx = await SimplePaymaster.setTarget(Liker.address, true);
     console.log(`Liker set as target`);
+    await sleep(2000);
 
     console.log("setting trusted forwarder");
     //tx = await SimplePaymaster.setTrustedForwarder(trustedForwarder);
     //console.log(`Paymaster setTrustedForward`)
     tx = await NiftyInk.setTrustedForwarder(trustedForwarder);
     console.log(`NiftyInk setTrustedForward`);
+    await sleep(2000);
     tx = await NiftyToken.setTrustedForwarder(trustedForwarder);
     console.log(`NiftyToken setTrustedForward`);
+    await sleep(2000);
     tx = await Liker.setTrustedForwarder(trustedForwarder);
     console.log(`Liker setTrustedForward`);
+    await sleep(2000);
   }
 }
 main()
