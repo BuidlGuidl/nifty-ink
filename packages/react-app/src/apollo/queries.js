@@ -52,7 +52,6 @@ export const TOP_ARTISTS_QUERY = gql`
       where: $filters
       orderBy: $orderBy
       orderDirection: $orderDirection
-      createdAt: $createdAt
     ) {
       inkCount
       earnings
@@ -73,10 +72,8 @@ export const TOP_ARTISTS_QUERY = gql`
 `;
 
 export const LAST_30_DAILY_TOTALS = gql`
-  query dailyTotals(
-    $date: Int
-  ) {
-    dailyTotals(where: {day_gt: $date}) {
+  query dailyTotals($date: Int) {
+    dailyTotals(where: { day_gt: $date }) {
       artists
       day
       inks
@@ -91,10 +88,8 @@ export const LAST_30_DAILY_TOTALS = gql`
 `;
 
 export const TOTALS_UP_TO_DATE = gql`
-  query totals(
-    $date: Int
-  ) {
-    totals(where: {day: $date}) {
+  query totals($date: Int) {
+    totals(where: { day: $date }) {
       artists
       day
       inks
@@ -136,8 +131,7 @@ export const TOP_COLLECTORS_QUERY = gql`
       first: $first
       orderBy: $orderBy
       orderDirection: $orderDirection
-      createdAt: $createdAt
-      where: { id_not: "0x000000000000000000000000000000000000dead" }
+      where: $filters
     ) {
       tokenCount
       saleCount

@@ -26,7 +26,8 @@ export default function Leaderboard(props) {
   let [period, setPeriod] = useState(searchParams.get("period") || "lastmonth");
   let [createdAt, setCreatedAt] = useState(1596240000);
   let [lastFilterAt, setLastFilterAt] = useState({
-    lastTransferAt_gt: 1596240000
+    lastTransferAt_gt: 1596240000,
+    id_not: "0x000000000000000000000000000000000000dead"
   });
 
   const emojifyTop3 = rank => {
