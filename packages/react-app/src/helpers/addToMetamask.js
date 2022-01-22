@@ -12,7 +12,13 @@ export async function addXDAItoMetamask(props) {
           {
             chainId: "0x64",
             chainName: "xDAI Chain",
-            rpcUrls: ["https://rpc.xdaichain.com"],
+            rpcUrls: [
+              "https://rpc.gnosischain.com",
+              "https://rpc.xdaichain.com",
+              "https://xdai.poanetwork.dev",
+              "https://dai.poa.network",
+              "https://xdai-archive.blockscout.com"
+            ],
             iconUrls: [
               "https://gblobscdn.gitbook.com/spaces%2F-Lpi9AHj62wscNlQjI-l%2Favatar.png"
             ],

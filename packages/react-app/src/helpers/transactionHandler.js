@@ -29,15 +29,15 @@ export async function transactionHandler(c) {
       content: (
         <>
           <p>
-            Nifty Ink is built on xDai: please change your MetaMask Network to
-            point to the{" "}
+            Nifty Ink is built on Gnosis chain: please change your MetaMask
+            Network to point to the{" "}
             <a href="https://www.xdaichain.com/" target="_blank">
               xDai Chain
             </a>
           </p>
           <p>
             You will need to create a custom RPC with the following URL:{" "}
-            <b>https://dai.poa.network</b>
+            <b>https://rpc.gnosischain.com</b>
           </p>
         </>
       )
@@ -50,7 +50,7 @@ export async function transactionHandler(c) {
       content: (
         <Space direction="vertical">
           <Text>
-            <a target="_blank" href={"https://xdai.io"}>
+            <a target="_blank" href={"https://bridge.xdaichain.com/"}>
               Take it to the bridge
             </a>{" "}
             (to transfer DAI from mainnet).
