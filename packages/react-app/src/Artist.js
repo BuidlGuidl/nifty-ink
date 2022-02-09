@@ -25,6 +25,7 @@ const dayjs = require("dayjs");
 const { TabPane } = Tabs;
 
 export default function Artist(props) {
+  console.log(props.transactionConfig);
   const { address } = useParams();
   const [inks, setInks] = useState([]);
   const [searchArtist] = Form.useForm();
