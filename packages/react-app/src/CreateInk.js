@@ -472,6 +472,9 @@ export default function CreateInk(props) {
         value: values.limit.toString()
       }
     ];
+    if(InkAttributes.length > 0 ){
+      currentInk["attributes"] = currentInk["attributes"].concat(InkAttributes);
+    }
     currentInk["name"] = values.title;
     let newEns;
     try {
