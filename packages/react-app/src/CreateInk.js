@@ -563,6 +563,7 @@ export default function CreateInk(props) {
       props.setViewDrawing(drawingCanvas.current.getSaveData()); //LZ.decompress(props.drawing))
       setDrawingSize(10000);
       props.setDrawing("");
+      setInkAttributes([{trait_type: "brushstrokes",value:0}]);
       history.push("/ink/" + drawingHash);
     }
   };
