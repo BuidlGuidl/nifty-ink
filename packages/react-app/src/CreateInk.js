@@ -13,7 +13,9 @@ import {
   DownloadOutlined,
   UploadOutlined,
   InfoCircleOutlined,
-  BookOutlined
+  BookOutlined,
+  MinusCircleOutlined, 
+  PlusOutlined
 } from "@ant-design/icons";
 import {
   Row,
@@ -32,7 +34,9 @@ import {
   Tooltip,
   Popover,
   Table,
-  Select
+  Select,
+  Divider,
+  Badge
 } from "antd";
 import { useLocalStorage } from "./hooks";
 import { addToIPFS, transactionHandler } from "./helpers";
@@ -62,6 +66,7 @@ export default function CreateInk(props) {
   const [colorArray, setColorArray] = useLocalStorage("colorArray", "twitter");
   const [_, setDrafts] = useLocalStorage("drafts", []);
   const [canvasFile, setCanvasFile] = useState(null);
+  let [InkAttributes, setInkAttributes] = useLocalStorage("inkAttributes", [{trait_type: "brushstrokes",value:0}]);
 
   const recentColorCount = 24;
 
@@ -340,6 +345,9 @@ export default function CreateInk(props) {
       setDrawingSaved(false);
     }
     //}
+
+    InkAttributes[0].value = drawingCanvas.current.lines.length;
+    setInkAttributes(InkAttributes);
   };
 
   useEffect(() => {
@@ -371,6 +379,9 @@ export default function CreateInk(props) {
           //console.log(decompressed)
           //drawingCanvas.current.loadSaveData(decompressed, true)
           setInitialDrawing(decompressed);
+          
+          InkAttributes[0].value = currentLines.current.length;
+          setInkAttributes(InkAttributes);
         } catch (e) {
           console.log(e);
         }
@@ -688,13 +699,56 @@ export default function CreateInk(props) {
   const saveDraft = () => {
     let imageData = drawingCanvas.current.canvas.drawing.toDataURL("image/png");
     let savedData = LZ.compress(drawingCanvas.current.getSaveData());
+    let inkAttr = JSON.stringify(InkAttributes);
 
     setDrafts(drafts => {
-      return [...drafts, { imageData, savedData }];
+      return [...drafts, { imageData, savedData, inkAttr}];
     });
   };
 
   let top, bottom, canvas, shortcutsPopover, draftSaver;
+  let badgeColors = [
+    'pink',
+    'red',
+    'yellow',
+    'orange',
+    'cyan',
+    'green',
+    'blue',
+    'purple',
+    'geekblue',
+    'magenta',
+    'volcano',
+    'gold',
+    'lime',
+  ];
+  // let attributesArr = [
+  //   {
+  //     trait_type: "brushstrokes",
+  //     value: 1000
+  //   },
+  //   {
+  //     trait_type: "tags",
+  //     value: "mountains, sun, mt fuji"
+  //   }
+  // ]
+
+  const saveAttributes = a => {
+    // console.log('attributes form values :', a);
+
+    // InkAttributes.length = 1;
+    InkAttributes = InkAttributes.concat(a.attrs);
+    setInkAttributes(InkAttributes);
+  };
+  const delAttributes = i => {
+    // console.log('attributes i :', i);
+
+    InkAttributes = InkAttributes.filter( (t,ii) =>{
+      return ii !== i
+    });
+    setInkAttributes(InkAttributes);
+  };
+
   if (props.mode === "edit") {
     top = (
       <div style={{ margin: "0 auto", marginBottom: 16 }}>
@@ -786,6 +840,7 @@ export default function CreateInk(props) {
               drawingCanvas.current.clear();
               //setLoadedLines()
               props.setDrawing();
+              setInkAttributes([{trait_type: "brushstrokes",value:0}]);
             }}
             okText="Yes"
             cancelText="No"
@@ -814,6 +869,80 @@ export default function CreateInk(props) {
           >
             <PlaySquareOutlined /> PLAY
           </Button>
+        </div>
+
+        <div style={{ flex: "1 0 auto", margin: "2% 10%" }}>
+          <Divider orientation="left">Attributes</Divider>
+          <Form 
+            name="attributes_form" 
+            onFinish={saveAttributes} 
+            autoComplete="off"
+            layout={"inline"}
+            labelAlign={"middle"}
+            style={{ justifyContent: "center" }}
+          >
+            <Form.List name="attrs">
+              {(fields, { add, remove }) => (
+                <>
+                  {
+                    fields.map(({ key, name, ...restField }) => (
+                      <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'trait_type']}
+                          rules={[{ required: true, message: 'Missing trait type' }]}
+                        >
+                          <Input placeholder="trait type" />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'value']}
+                          rules={[{ required: true, message: 'Missing value' }]}
+                        >
+                          <Input placeholder="value" />
+                        </Form.Item>
+                        <Form.Item>
+                          <MinusCircleOutlined onClick={() => remove(name)} />
+                        </Form.Item>
+                      </Space>
+                  ))
+                  }
+                  <Form.Item>
+                    <Space>
+                      <Button type="primary" onClick={() => add()} icon={<PlusOutlined />}>
+                        add custom attribute
+                      </Button>
+                      <Button type="primary" htmlType="submit">
+                        save attributes
+                      </Button>
+                    </Space>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+          </Form>
+          <div style={{ marginTop: 16 }}>
+          { 
+            InkAttributes.map( (c,i) => (
+              <>
+                <Badge color={badgeColors[i]} text={
+                  <>
+                    <div style={{width: 150, fontWeight:"bold",display: "inline-block",textAlign:"left"}}>
+                      {c.trait_type} 
+                    </div>:
+                    <div style={{width: 250, marginLeft: 16, display: "inline-block",textAlign:"left"}}>
+                      {c.value}
+                    </div>
+                    <div style={{width: 250, marginLeft: 16, display: "inline-block",textAlign:"left"}}>
+                      { i > 0 && <MinusCircleOutlined onClick={() => delAttributes(i)} /> }
+                    </div>
+                  </>
+                } 
+                style={{ width:725, margin: "0 auto"}}/>
+              </>
+            ))
+          }
+          </div>
         </div>
       </div>
     );
