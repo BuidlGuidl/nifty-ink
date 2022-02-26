@@ -11,11 +11,13 @@ const { Text } = Typography;
 export default function Drafts(props) {
   const history = useHistory();
   const [drafts, setDrafts] = useLocalStorage("drafts", []);
+  const [InkAttributes, setInkAttributes] = useLocalStorage("inkAttributes", [{trait_type: "brushstrokes",value:0}]);
   const { address, ens, setDrawing } = props;
 
   const goDraft = useCallback(
-    savedData => {
+    (savedData, inkAttr) => {
       setDrawing(savedData);
+      setInkAttributes(inkAttr ? JSON.parse(inkAttr): [{trait_type: "brushstrokes",value:0}]);
       history.push("/create");
     },
     [history, setDrawing]
@@ -79,7 +81,7 @@ export default function Drafts(props) {
                 <Popconfirm
                   title="This will overwrite the current drawing, are you sure?"
                   onConfirm={() => {
-                    goDraft(draft.savedData);
+                    goDraft(draft.savedData,draft.inkAttr);
                   }}
                   okText="Yes"
                   cancelText="No"
