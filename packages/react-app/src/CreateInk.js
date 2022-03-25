@@ -13,7 +13,8 @@ import {
   DownloadOutlined,
   UploadOutlined,
   InfoCircleOutlined,
-  BookOutlined
+  BookOutlined,
+  FileImageOutlined
 } from "@ant-design/icons";
 import {
   Row,
@@ -210,6 +211,8 @@ export default function CreateInk(props) {
   //const [loadedLines, setLoadedLines] = useState()
 
   const [drawingSaved, setDrawingSaved] = useState(true);
+  const [isPreviewInk, setIsPreviewInk ] = useState(false);
+  const [previewImageData, setPreviewImageData ] = useState("");
 
   const portraitRatio = 1.7;
   const portraitCalc =
@@ -434,6 +437,41 @@ export default function CreateInk(props) {
 
     return result;
   };
+
+  const handlePreviewVisible = v => {
+    setIsPreviewInk(v);
+  };
+  const PreviewInk = async () => {
+    await setSending(true);
+    let imageData = await drawingCanvas.current.canvas.drawing.toDataURL("image/png");
+    // await setPreviewImageData(imageData);
+    // setSending(false);
+
+    // test code
+    // const _el = new Image();
+    // _el.src = imageData;
+    // _el.style.width = (size[0]) + "px";
+    // _el.style.height = (size[1]) + "px";
+    // await document.body.appendChild(_el);
+
+    const _i = new Image();
+    _i.src = await imageData;
+    _i.style.width = (size[0]*2) + "px";
+    _i.style.height = (size[1]*2) + "px";
+    _i.onload = async () => {
+      const _c = document.createElement('canvas');
+      const _ct = _c.getContext('2d');
+      _c.width = (size[0] * 2) ;
+      _c.height = (size[1] * 2) ;
+      await _ct.drawImage(_i, 0, 0, size[0] * 2, size[1] * 2);
+      // await document.body.appendChild(_c);
+
+      let _d = await _c.toDataURL();
+      await setPreviewImageData(_d);
+      setSending(false);
+    }
+    
+  }
 
   const createInk = async values => {
     console.log("Inking:", values);
@@ -814,6 +852,41 @@ export default function CreateInk(props) {
           >
             <PlaySquareOutlined /> PLAY
           </Button>
+          <Popover
+            content={
+              <div>
+                <img 
+                  width={size[0]}
+                  height={size[1]}
+                  src={previewImageData}
+                />
+              </div>
+            }
+            overlayStyle={{paddingRight: '30px'}}
+            fitToScreen={true}
+            placement="bottom" 
+            title="Preview Ink"
+            trigger="click"
+            visible={isPreviewInk}
+            onVisibleChange={handlePreviewVisible}
+          >
+            <Button
+              disabled={
+                canvasDisabled ||
+                (drawingCanvas.current && !drawingCanvas.current.lines.length)
+              }
+              onClick={() => {
+                if (
+                  canvasDisabled ||
+                  (drawingCanvas.current && !drawingCanvas.current.lines)
+                )
+                  return;
+                PreviewInk();
+              }}
+            >
+              <FileImageOutlined /> Preview Ink
+            </Button>
+          </Popover>
         </div>
       </div>
     );
