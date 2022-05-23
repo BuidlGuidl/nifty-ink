@@ -103,7 +103,7 @@ export default function ViewInk(props) {
     INK_MAIN_QUERY,
     {
       variables: { inkUrl: hash },
-      pollInterval: 2500,
+      pollInterval: 15000,
       client: mainClient
     }
   );

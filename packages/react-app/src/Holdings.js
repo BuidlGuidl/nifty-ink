@@ -71,7 +71,7 @@ export default function Holdings(props) {
     {
       variables: { owner: address },
       client: mainClient,
-      pollInterval: 4000
+      pollInterval: 15000
     }
   );
 

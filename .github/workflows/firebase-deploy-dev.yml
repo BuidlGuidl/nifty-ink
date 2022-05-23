@@ -18,7 +18,7 @@ jobs:
           REACT_APP_NETWORK_COLOR: "#f6c343"
           REACT_APP_USE_GSN: true
           REACT_APP_GRAPHQL_ENDPOINT: "https://api.thegraph.com/subgraphs/name/azf20/nifty-ink-v2"
-          REACT_APP_GRAPHQL_ENDPOINT_MAINNET: "https://api.thegraph.com/subgraphs/name/azf20/nifty-ink-main"
+          REACT_APP_GRAPHQL_ENDPOINT_MAINNET: "${{ secrets.MAINNET_SUBGRAPH_URL }}"
           REACT_APP_SUPABASE_KEY: "${{ secrets.SUPABASE_KEY }}"
           REACT_APP_SUPABASE_URL: "${{ secrets.SUPABASE_URL }}"
           REACT_APP_COPY_WORD: "${{ secrets.COPY_WORD }}"
