@@ -25,7 +25,7 @@ REACT_APP_NETWORK_COLOR=#f6c343
 REACT_APP_USE_GSN=true
 REACT_APP_GRAPHQL_ENDPOINT=https://api.thegraph.com/subgraphs/name/azf20/nifty-ink
 REACT_APP_GRAPHQL_ENDPOINT_MAINNET=https://api.thegraph.com/subgraphs/name/azf20/nifty-ink-main
-REACT_APP_PAYMASTER_ADDRESS=0x4734356359c48ba2Cb50BA048B1404A78678e5C2
+REACT_APP_PAYMASTER_ADDRESS=0x9e59Ea5333cD4f402dAc320a04fafA023fe3810D
 ```
 
 Get the react front-end up and running - http://localhost:3000
