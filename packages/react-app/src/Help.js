@@ -13,7 +13,7 @@ const addXDAItoMetamask = async props => {
           {
             chainId: "0x64",
             chainName: "xDAI Chain",
-            rpcUrls: ["https://rpc.xdaichain.com"],
+            rpcUrls: ["https://rpc.gnosischain.com"],
             iconUrls: [
               "https://gblobscdn.gitbook.com/spaces%2F-Lpi9AHj62wscNlQjI-l%2Favatar.png"
             ],

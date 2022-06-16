@@ -4,7 +4,6 @@ import { Modal, notification, Button, Space, Typography } from "antd";
 import { getSignature } from "./getSignature";
 import { default as Transactor } from "./Transactor";
 import { RampInstantSDK } from "@ramp-network/ramp-instant-sdk";
-import { DepositXDai } from "../components";
 import { addXDAItoMetamask } from "./addToMetamask.js";
 const { Text } = Typography;
 

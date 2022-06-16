@@ -7,15 +7,14 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import { Button } from "antd";
 import { RelayProvider } from "@opengsn/provider";
 import { RampInstantSDK } from "@ramp-network/ramp-instant-sdk";
-import Blockies from "react-blockies";
-import { BankOutlined, SwapOutlined } from "@ant-design/icons";
+import { BankOutlined } from "@ant-design/icons";
 //import { ConnextModal } from '@connext/vector-modal';
 //import Fortmatic from "fortmatic";
 //import Portis from "@portis/web3";
 const Web3HttpProvider = require("web3-providers-http");
 
 const INFURA_ID = "9ea7e149b122423991f56257b882261c"; // MY INFURA_ID, SWAP IN YOURS!
-const XDAI_RPC = "https://rpc.xdaichain.com/";
+const XDAI_RPC = "https://rpc.gnosischain.com/";
 
 const web3Modal = new Web3Modal({
   network: "xdai", // optional
@@ -105,6 +104,7 @@ export default function Account(props) {
     };
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateProviders = async provider => {
     if (provider && ethers.Signer.isSigner(provider)) {
       let burnerAddress = await burner.getAddress();
@@ -182,6 +182,7 @@ export default function Account(props) {
         logoutOfWeb3Modal();
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.setInjectedProvider, burner]);
 
   const logoutOfWeb3Modal = async () => {
@@ -204,6 +205,7 @@ export default function Account(props) {
     };
 
     checkForProvider();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [burner]);
 
   let modalButtons = [];
