@@ -46,6 +46,7 @@ export default function NftyWallet(props) {
     window.document.body.clientHeight,
     window.document.body.clientWidth
   );
+  //console.log(props.metaProvider)
 
   const [tab, setTab] = useState("explore");
 
@@ -358,7 +359,22 @@ export default function NftyWallet(props) {
             </Route>
 
             <Route path="/artist/:address">
-              <Artist {...props} supabase={supabase} />
+              <Artist 
+                {...props}
+                metaProvider={props.metaProvider}
+                metaSigner={props.metaSigner}
+                injectedGsnSigner={injectedGsnSigner}
+                signingProvider={props.injectedProvider}
+                localProvider={props.kovanProvider}
+                contractAddress={
+                  props.readKovanContracts
+                    ? props.readKovanContracts["NiftyInk"]["address"]
+                    : ""
+                }
+                address={props.address}
+                transactionConfig={transactionConfig}
+                supabase={supabase} 
+              />
             </Route>
 
             <Route path="/leaderboard/artists">
