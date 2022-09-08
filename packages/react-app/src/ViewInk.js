@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ethers } from "ethers";
@@ -967,7 +968,9 @@ export default function ViewInk(props) {
               }}
             >
               {inkJson.image ? (
-                <img width="100%" height="100%" src={inkJson.image} />
+                <object type="image/png" style={{width: '100%', height: '100%'}} data={inkJson.image.replace('https://ipfs.io/ipfs/','https://gateway.nifty.ink:42069/ipfs/')}>
+                  <img src={inkJson.image} />
+                </object>
               ) : (
                 <Loader />
               )}
