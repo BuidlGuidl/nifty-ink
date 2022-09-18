@@ -130,6 +130,38 @@ export class NiftyInk__inkInfoByIdResult {
     map.set("value7", ethereum.Value.fromUnsignedBigInt(this.value7));
     return map;
   }
+
+  getValue0(): BigInt {
+    return this.value0;
+  }
+
+  getValue1(): Address {
+    return this.value1;
+  }
+
+  getValue2(): string {
+    return this.value2;
+  }
+
+  getValue3(): Bytes {
+    return this.value3;
+  }
+
+  getValue4(): BigInt {
+    return this.value4;
+  }
+
+  getValue5(): BigInt {
+    return this.value5;
+  }
+
+  getValue6(): string {
+    return this.value6;
+  }
+
+  getValue7(): BigInt {
+    return this.value7;
+  }
 }
 
 export class NiftyInk__inkInfoByInkUrlResult {
@@ -173,6 +205,38 @@ export class NiftyInk__inkInfoByInkUrlResult {
     map.set("value6", ethereum.Value.fromString(this.value6));
     map.set("value7", ethereum.Value.fromUnsignedBigInt(this.value7));
     return map;
+  }
+
+  getValue0(): BigInt {
+    return this.value0;
+  }
+
+  getValue1(): Address {
+    return this.value1;
+  }
+
+  getValue2(): string {
+    return this.value2;
+  }
+
+  getValue3(): Bytes {
+    return this.value3;
+  }
+
+  getValue4(): BigInt {
+    return this.value4;
+  }
+
+  getValue5(): BigInt {
+    return this.value5;
+  }
+
+  getValue6(): string {
+    return this.value6;
+  }
+
+  getValue7(): BigInt {
+    return this.value7;
   }
 }
 

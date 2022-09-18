@@ -1,4 +1,4 @@
-import { BigInt, Address, ipfs, json, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
+import { BigInt, Address, ipfs, json, JSONValueKind, log, TypedMap, Bytes } from "@graphprotocol/graph-ts"
 import {
   NiftyInk,
   newInk,
@@ -22,7 +22,10 @@ import {
 import {
   liked
 } from "../generated/Liker/Liker";
-import { Ink, Artist, Token, TokenTransfer, Sale, RelayPrice, Total, MetaData, InkLookup, Like, User, DailyTotal } from "../generated/schema"
+import {
+  InkMetadata as InkMetadataTemplate
+} from "../generated/templates"
+import { Ink, Artist, Token, TokenTransfer, Sale, RelayPrice, Total, MetaData, InkLookup, Like, User, DailyTotal, InkMetadata } from "../generated/schema"
 
 
  function updateMetaData(metric: String, value: String): void {
@@ -175,6 +178,9 @@ export function handlenewInk(event: newInk): void {
     ink = new Ink(event.params.inkUrl)
   }
 
+  InkMetadataTemplate.create(event.params.jsonUrl);
+  ink.metadata = event.params.jsonUrl;
+
 //  let jsonBytes = ipfs.cat(event.params.jsonUrl)
 //  if (jsonBytes !== null) {
 //    let data = json.fromBytes(jsonBytes!);
@@ -214,6 +220,21 @@ export function handlenewInk(event: newInk): void {
 
   incrementTotal('inks',event.block.timestamp, BigInt.fromI32(1))
   updateMetaData('blockNumber',event.block.number.toString())
+}
+
+export function handleInkMetadata(file: string, content: Bytes): void {
+  let tokenMetadata = new InkMetadata(file);
+  const data = json.fromBytes(content).toObject()
+  if(data) {
+    const name = data.get("name");
+    const image = data.get("image");
+    const description = data.get("description");
+
+    tokenMetadata.name = name ? name.toString() : '';
+    tokenMetadata.image = image ? image.toString() : '';
+    tokenMetadata.description = description ? description.toString() : '';
+    tokenMetadata.save()
+  }
 }
 
 function _handleSetPrice(inkUrl: String, price: BigInt, timestamp: BigInt): void {

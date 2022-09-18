@@ -140,6 +140,26 @@ export class Liker__getLikeInfoByIdResult {
     map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
     return map;
   }
+
+  getValue0(): BigInt {
+    return this.value0;
+  }
+
+  getValue1(): Address {
+    return this.value1;
+  }
+
+  getValue2(): BigInt {
+    return this.value2;
+  }
+
+  getValue3(): Address {
+    return this.value3;
+  }
+
+  getValue4(): BigInt {
+    return this.value4;
+  }
 }
 
 export class Liker extends ethereum.SmartContract {

@@ -120,6 +120,19 @@ dataSources:
         - event: liked(uint256,address,uint256,uint256,address)
           handler: handleLikedInk
       file: ./src/mapping.ts
+templates:
+  - name: InkMetadata
+    kind: file/ipfs
+    mapping:
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      handler: handleInkMetadata
+      entities:
+        - InkMetadata
+      abis:
+        - name: NiftyInk
+          file: ./abis/NiftyInk.json
 {{/sideChain}}
 {{#mainChain}}
 specVersion: 0.0.2

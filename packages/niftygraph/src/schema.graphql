@@ -29,6 +29,14 @@ type Ink @entity {
   likeCount: BigInt
   burnedCount: BigInt
   burned: Boolean
+  metadata: InkMetadata
+}
+
+type InkMetadata @entity {
+  id: ID!
+  name: String
+  image: String
+  description: String
 }
 
 type Token @entity {
