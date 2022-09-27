@@ -1,4 +1,4 @@
-import { BigInt, Address, ipfs, json, JSONValueKind, log, TypedMap, Bytes } from "@graphprotocol/graph-ts"
+import { BigInt, Address, ipfs, json, JSONValueKind, log, TypedMap, Bytes, dataSource, DataSourceContext } from "@graphprotocol/graph-ts"
 import {
   NiftyInk,
   newInk,
@@ -178,8 +178,12 @@ export function handlenewInk(event: newInk): void {
     ink = new Ink(event.params.inkUrl)
   }
 
-  InkMetadataTemplate.create(event.params.jsonUrl);
+  let context = new DataSourceContext()
+  context.setString('ipfsHash', event.params.jsonUrl)
+  InkMetadataTemplate.createWithContext(event.params.jsonUrl, context);
   ink.metadata = event.params.jsonUrl;
+
+  log.warning('--> creating dataSource ipfsHash {}', [event.params.jsonUrl])
 
 //  let jsonBytes = ipfs.cat(event.params.jsonUrl)
 //  if (jsonBytes !== null) {
@@ -222,8 +226,14 @@ export function handlenewInk(event: newInk): void {
   updateMetaData('blockNumber',event.block.number.toString())
 }
 
-export function handleInkMetadata(file: string, content: Bytes): void {
-  let tokenMetadata = new InkMetadata(file);
+export function handleInkMetadata(content: Bytes): void {
+
+  let context = dataSource.context()
+  let ipfsHash = context.getString('ipfsHash')
+
+  log.warning('--> ipfsHash {} dataSourceAddress {}', [ipfsHash, dataSource.address().toHexString()])
+
+  let tokenMetadata = new InkMetadata(ipfsHash);
   const data = json.fromBytes(content).toObject()
   if(data) {
     const name = data.get("name");
