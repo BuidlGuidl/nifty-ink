@@ -12,7 +12,7 @@ import { INFURA_ID } from "../constants";
 const { Text } = Typography;
 
 const mainnetProvider = new JsonRpcProvider(`https://mainnet.infura.io/v3/${INFURA_ID}`)
-const xDaiProvider = new JsonRpcProvider(`https://dai.poa.network`)
+const xDaiProvider = new JsonRpcProvider(`https://rpc.gnosischain.com/`)
 
 const daiTokenAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 const xDaiBridgeAddress = '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6'
