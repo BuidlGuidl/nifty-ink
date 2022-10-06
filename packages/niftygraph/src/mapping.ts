@@ -231,7 +231,7 @@ export function handleInkMetadata(content: Bytes): void {
   let context = dataSource.context()
   let ipfsHash = context.getString('ipfsHash')
 
-  log.warning('--> ipfsHash {} dataSourceAddress {}', [ipfsHash, dataSource.address().toHexString()])
+  log.warning('--> ipfsHash is {} dataSourceAddress {}', [ipfsHash, dataSource.address().toHexString()])
 
   let tokenMetadata = new InkMetadata(ipfsHash);
   const data = json.fromBytes(content).toObject()

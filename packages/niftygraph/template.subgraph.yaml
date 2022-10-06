@@ -5,7 +5,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: NiftyInk
-    network: xdai
+    network: gnosis
     source:
       address: "{{inkAddress}}"
       abi: NiftyInk
@@ -38,7 +38,7 @@ dataSources:
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: NiftyToken
-    network: xdai
+    network: gnosis
     source:
       address: "{{tokenAddress}}"
       abi: NiftyToken
@@ -76,7 +76,7 @@ dataSources:
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: NiftyMediator
-    network: xdai
+    network: gnosis
     source:
       address: "{{mediatorAddress}}"
       abi: NiftyMediator
@@ -100,7 +100,7 @@ dataSources:
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: Liker
-    network: xdai
+    network: gnosis
     source:
       address: "{{likerAddress}}"
       abi: Liker
