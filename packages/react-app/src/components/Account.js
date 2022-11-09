@@ -99,7 +99,7 @@ export default function Account(props) {
       verbose: true,
       relayLookupWindowBlocks: 1e18,
       maxRelayNonceGap: 100,
-      relayRegistrationLookupBlocks: 6e5,
+      relayRegistrationLookupBlocks: 6e6,
       pastEventsQueryMaxPageSize: Number.MAX_SAFE_INTEGER
     };
   }
