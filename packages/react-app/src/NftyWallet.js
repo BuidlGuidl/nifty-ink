@@ -4,7 +4,7 @@ import { Button, Badge, Tabs, Row, Col, Drawer, Layout, Menu } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
 import { PlusOutlined } from "@ant-design/icons";
 import { useContractReader, useLocalStorage } from "./hooks";
-import { RelayProvider } from "@opengsn/gsn";
+import { RelayProvider } from "@opengsn/provider";
 import { Account, Faucet } from "./components";
 import { createClient } from "@supabase/supabase-js";
 import Holdings from "./Holdings.js";
