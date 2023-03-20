@@ -18,7 +18,8 @@ import {
   Skeleton,
   InputNumber,
   Input,
-  Tabs
+  Tabs,
+  Divider
 } from "antd";
 import { AddressInput, Address, Loader } from "./components";
 import {
@@ -838,11 +839,53 @@ export default function ViewInk(props) {
       <img width={1} height={1} src={inkJson.image} />
     );
   }
-
+  let badgeColors = [
+    'pink',
+    'red',
+    'yellow',
+    'orange',
+    'cyan',
+    'green',
+    'blue',
+    'purple',
+    'geekblue',
+    'magenta',
+    'volcano',
+    'gold',
+    'lime',
+  ];
   let bottom = (
     <div>
       {likeButtonDisplay}
       {detailsDisplay}
+      { 
+        inkJson && 
+        inkJson.attributes && 
+        <div style={{ flex: "1 0 auto", margin: "2% 10% 5%" }}>
+          <Divider orientation="left">Attributes</Divider>
+          <div style={{ marginTop: 16 }}>
+            { 
+              inkJson && 
+              inkJson.attributes && 
+              inkJson.attributes.map( (c,i) => (
+                <>
+                  <Badge color={badgeColors[i]} text={
+                    <>
+                      <div style={{width: 150, fontWeight:"bold",display: "inline-block",textAlign:"left"}}>
+                        {c.trait_type} 
+                      </div>:
+                      <div style={{width: 250, marginLeft: 16, display: "inline-block",textAlign:"left"}}>
+                        {c.value}
+                      </div>
+                    </>
+                  } 
+                  style={{ width:725, margin: "0 auto"}}/>
+                </>
+              ))
+            }
+          </div>
+        </div>
+      }
       <div style={{ marginTop: 16, margin: "auto" }}>{inkChainInfoDisplay}</div>
 
       <div style={{ marginTop: 20 }}>
