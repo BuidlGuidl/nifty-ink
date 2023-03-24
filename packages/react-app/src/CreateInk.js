@@ -13,7 +13,7 @@ import {
   DownloadOutlined,
   UploadOutlined,
   InfoCircleOutlined,
-  BookOutlined
+  BookOutlined,
 } from "@ant-design/icons";
 import {
   Row,
@@ -32,7 +32,7 @@ import {
   Tooltip,
   Popover,
   Table,
-  Select
+  Select,
 } from "antd";
 import { useLocalStorage } from "./hooks";
 import { addToIPFS, transactionHandler } from "./helpers";
@@ -41,7 +41,7 @@ import {
   SketchPicker,
   CirclePicker,
   TwitterPicker,
-  AlphaPicker
+  AlphaPicker,
 } from "react-color";
 import LZ from "lz-string";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -57,7 +57,7 @@ export default function CreateInk(props) {
   const [color, setColor] = useLocalStorage("color", "rgba(102,102,102,1)");
   const [brushRadius, setBrushRadius] = useState(8);
   const [recentColors, setRecentColors] = useLocalStorage("recentColors", [
-    "rgba(102,102,102,1)"
+    "rgba(102,102,102,1)",
   ]);
   const [colorArray, setColorArray] = useLocalStorage("colorArray", "twitter");
   const [_, setDrafts] = useLocalStorage("drafts", []);
@@ -75,7 +75,7 @@ export default function CreateInk(props) {
       "#555555",
       "#dce775",
       "#ff8a65",
-      "#ba68c8"
+      "#ba68c8",
     ],
     circle: [
       "#f44336",
@@ -95,7 +95,7 @@ export default function CreateInk(props) {
       "#ff9800",
       "#ff5722",
       "#795548",
-      "#607d8b"
+      "#607d8b",
     ],
     github: [
       "#B80000",
@@ -113,7 +113,7 @@ export default function CreateInk(props) {
       "#BEDADC",
       "#C4DEF6",
       "#BED3F3",
-      "#D4C4FB"
+      "#D4C4FB",
     ],
     twitter: [
       "#FF6900",
@@ -125,7 +125,7 @@ export default function CreateInk(props) {
       "#ABB8C3",
       "#EB144C",
       "#F78DA7",
-      "#9900EF"
+      "#9900EF",
     ],
     compact: [
       "#4D4D4D",
@@ -163,7 +163,7 @@ export default function CreateInk(props) {
       "#0C797D",
       "#0062B1",
       "#653294",
-      "#AB149E"
+      "#AB149E",
     ],
     sketch: [
       "#D0021B",
@@ -180,7 +180,7 @@ export default function CreateInk(props) {
       "#000000",
       "#4A4A4A",
       "#9B9B9B",
-      "#FFFFFF"
+      "#FFFFFF",
     ],
     niftyone: ["#00171F", "#003459", "#00A7EA", "#FFFFFF", "#007EA7"],
     niftytwo: ["#306B34", "#1C5253", "#F3FFC6", "#C3EB78", "#B6174B"],
@@ -190,13 +190,13 @@ export default function CreateInk(props) {
     niftysix: ["#2274A5", "#E7EB90", "#FADF63", "#E6AF2E", "#632B30"],
     niftyseven: ["#C05746", "#ADC698", "#D0E3C4", "#FFFFFF", "#503047"],
     niftyeight: ["#0E7C7B", "#17BEBB", "#D62246", "#D4F4DD", "#4B1D3F"],
-    recent: recentColors.slice(-recentColorCount)
+    recent: recentColors.slice(-recentColorCount),
   };
 
   const drawingCanvas = useRef(null);
   const [size, setSize] = useState([
     0.85 * props.calculatedVmin,
-    0.85 * props.calculatedVmin
+    0.85 * props.calculatedVmin,
   ]); //["70vmin", "70vmin"]) //["50vmin", "50vmin"][750, 500]
 
   const [sending, setSending] = useState();
@@ -219,9 +219,9 @@ export default function CreateInk(props) {
 
   function debounce(fn, ms) {
     let timer;
-    return _ => {
+    return (_) => {
       clearTimeout(timer);
-      timer = setTimeout(_ => {
+      timer = setTimeout((_) => {
         timer = null;
         fn.apply(this, arguments);
       }, ms);
@@ -238,7 +238,7 @@ export default function CreateInk(props) {
 
     window.addEventListener("resize", debouncedHandleResize);
 
-    return _ => {
+    return (_) => {
       window.removeEventListener("resize", debouncedHandleResize);
     };
   });
@@ -248,24 +248,24 @@ export default function CreateInk(props) {
 
   //Keyboard shortcuts
   useHotkeys("ctrl+z", () => undo());
-  useHotkeys("]", () => updateBrushRadius(brushRadius => brushRadius + 1));
+  useHotkeys("]", () => updateBrushRadius((brushRadius) => brushRadius + 1));
   useHotkeys("shift+]", () =>
-    updateBrushRadius(brushRadius => brushRadius + 10)
+    updateBrushRadius((brushRadius) => brushRadius + 10)
   );
-  useHotkeys("[", () => updateBrushRadius(brushRadius => brushRadius - 1));
+  useHotkeys("[", () => updateBrushRadius((brushRadius) => brushRadius - 1));
   useHotkeys("shift+[", () =>
-    updateBrushRadius(brushRadius => brushRadius - 10)
+    updateBrushRadius((brushRadius) => brushRadius - 10)
   );
   useHotkeys(".", () => updateOpacity(0.01));
   useHotkeys("shift+.", () => updateOpacity(0.1));
   useHotkeys(",", () => updateOpacity(-0.01));
   useHotkeys("shift+,", () => updateOpacity(-0.1));
 
-  const updateBrushRadius = value => {
+  const updateBrushRadius = useCallback((value) => {
     setBrushRadius(value);
-  };
+  });
 
-  const updateColor = value => {
+  const updateColor = (value) => {
     console.log(value);
     setColor(
       `rgba(${value.rgb.r},${value.rgb.g},${value.rgb.b},${value.rgb.a})`
@@ -275,12 +275,12 @@ export default function CreateInk(props) {
     );
   };
 
-  const updateOpacity = value => {
+  const updateOpacity = useCallback((value) => {
     let colorPlaceholder = drawingCanvas.current.props.brushColor
       .substring(5)
       .replace(")", "")
       .split(",")
-      .map(e => parseFloat(e));
+      .map((e) => parseFloat(e));
 
     if (
       (colorPlaceholder[3] <= 0.01 && value < 0) ||
@@ -307,20 +307,20 @@ export default function CreateInk(props) {
         },${(colorPlaceholder[3] + value).toFixed(2)})`
       );
     }
-  };
+  });
 
   const saveDrawing = (newDrawing, saveOverride) => {
     let colorPlaceholder = drawingCanvas.current.props.brushColor
       .substring(5)
       .replace(")", "")
       .split(",")
-      .map(e => parseFloat(e));
+      .map((e) => parseFloat(e));
     let opaqueColor = `rgba(${colorPlaceholder[0]},${colorPlaceholder[1]},${colorPlaceholder[2]},1)`;
     if (!recentColors.slice(-recentColorCount).includes(opaqueColor)) {
       console.log(opaqueColor, "adding to recent");
-      setRecentColors(prevItems => [
+      setRecentColors((prevItems) => [
         ...prevItems.slice(-recentColorCount + 1),
-        opaqueColor
+        opaqueColor,
       ]);
     }
     // console.log(recentColors)
@@ -348,7 +348,7 @@ export default function CreateInk(props) {
     } else if (brushRadius >= 100) {
       setBrushRadius(100);
     }
-  }, [updateBrushRadius, updateOpacity]);
+  }, [brushRadius, updateBrushRadius, updateOpacity]);
 
   useEffect(() => {
     const loadPage = async () => {
@@ -379,7 +379,7 @@ export default function CreateInk(props) {
     };
     window.drawingCanvas = drawingCanvas;
     loadPage();
-  }, []);
+  }, [props.drawing]);
 
   const PickerDisplay = pickers[picker % pickers.length];
 
@@ -389,14 +389,14 @@ export default function CreateInk(props) {
     let regularFunctionArgs = [
       inkUrl,
       jsonUrl,
-      props.ink.attributes[0]["value"]
+      props.ink.attributes[0]["value"],
     ];
     let signatureFunction = "createInkFromSignature";
     let signatureFunctionArgs = [
       inkUrl,
       jsonUrl,
       props.ink.attributes[0]["value"],
-      props.address
+      props.address,
     ];
     let getSignatureTypes = [
       "bytes",
@@ -405,7 +405,7 @@ export default function CreateInk(props) {
       "address",
       "string",
       "string",
-      "uint256"
+      "uint256",
     ];
     let getSignatureArgs = [
       "0x19",
@@ -414,7 +414,7 @@ export default function CreateInk(props) {
       props.address,
       inkUrl,
       jsonUrl,
-      limit
+      limit,
     ];
 
     let createInkConfig = {
@@ -425,7 +425,7 @@ export default function CreateInk(props) {
       signatureFunction,
       signatureFunctionArgs,
       getSignatureTypes,
-      getSignatureArgs
+      getSignatureArgs,
     };
 
     console.log(createInkConfig);
@@ -435,7 +435,7 @@ export default function CreateInk(props) {
     return result;
   };
 
-  const createInk = async values => {
+  const createInk = async (values) => {
     console.log("Inking:", values);
 
     setSending(true);
@@ -458,8 +458,8 @@ export default function CreateInk(props) {
     currentInk["attributes"] = [
       {
         trait_type: "Limit",
-        value: values.limit.toString()
-      }
+        value: values.limit.toString(),
+      },
     ];
     currentInk["name"] = values.title;
     let newEns;
@@ -504,12 +504,12 @@ export default function CreateInk(props) {
       const imageResult = addToIPFS(imageBuffer, props.ipfsConfig);
       const inkResult = addToIPFS(inkBuffer, props.ipfsConfig);
 
-      drawingResultInfura = addToIPFS(drawingBuffer, props.ipfsConfigInfura);
-      imageResultInfura = addToIPFS(imageBuffer, props.ipfsConfigInfura);
-      inkResultInfura = addToIPFS(inkBuffer, props.ipfsConfigInfura);
+      // drawingResultInfura = addToIPFS(drawingBuffer, props.ipfsConfigInfura);
+      // imageResultInfura = addToIPFS(imageBuffer, props.ipfsConfigInfura);
+      // inkResultInfura = addToIPFS(inkBuffer, props.ipfsConfigInfura);
 
       await Promise.all([drawingResult, imageResult, inkResult]).then(
-        values => {
+        (values) => {
           console.log("FINISHED UPLOADING TO PINNER", values);
           message.destroy();
         }
@@ -519,7 +519,7 @@ export default function CreateInk(props) {
       setSending(false);
       notification.open({
         message: "📛 Ink upload failed",
-        description: `Please wait a moment and try again ${e.message}`
+        description: `Please wait a moment and try again ${e.message}`,
       });
 
       return;
@@ -540,8 +540,8 @@ export default function CreateInk(props) {
       Promise.all([
         drawingResultInfura,
         imageResultInfura,
-        inkResultInfura
-      ]).then(values => {
+        inkResultInfura,
+      ]).then((values) => {
         console.log("INFURA FINISHED UPLOADING!", values);
       });
 
@@ -553,15 +553,15 @@ export default function CreateInk(props) {
     }
   };
 
-  const onFinishFailed = errorInfo => {
+  const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
 
-  const triggerOnChange = lines => {
+  const triggerOnChange = (lines) => {
     let saved = JSON.stringify({
       lines: lines,
       width: drawingCanvas.current.props.canvasWidth,
-      height: drawingCanvas.current.props.canvasHeight
+      height: drawingCanvas.current.props.canvasHeight,
     });
 
     drawingCanvas.current.loadSaveData(saved, true);
@@ -605,17 +605,17 @@ export default function CreateInk(props) {
     document.body.removeChild(link);
   };
 
-  const uploadFileChange = e => {
+  const uploadFileChange = (e) => {
     const fileReader = new FileReader();
     fileReader.readAsText(e.target.files[0], "UTF-8");
-    fileReader.onload = e => {
+    fileReader.onload = (e) => {
       setCanvasFile(JSON.parse(e.target.result));
     };
   };
 
   const uploadRef = useRef();
 
-  const uploadCanvas = uploadedDrawing => {
+  const uploadCanvas = (uploadedDrawing) => {
     //triggerOnChange(lines); -> bug with resizing
     //setInitialDrawing(uploadedDrawing); -> bug we re-uploading
     drawingCanvas.current.loadSaveData(uploadedDrawing);
@@ -623,7 +623,7 @@ export default function CreateInk(props) {
     setCanvasFile();
   };
 
-  const fillBackground = color => {
+  const fillBackground = (color) => {
     let width = drawingCanvas.current.props.canvasWidth;
     let height = drawingCanvas.current.props.canvasHeight;
 
@@ -632,12 +632,13 @@ export default function CreateInk(props) {
       brushRadius: (width + height) / 2,
       points: [
         { x: 0, y: 0 },
-        { x: width, y: height }
+        { x: width, y: height },
       ],
-      background: true
+      background: true,
     };
 
-    let previousBGColor = drawingCanvas.current.lines.filter(l => l.ref).length
+    let previousBGColor = drawingCanvas.current.lines.filter((l) => l.ref)
+      .length
       ? drawingCanvas.current.lines[0].brushColor
       : "#FFF";
 
@@ -646,12 +647,12 @@ export default function CreateInk(props) {
       brushRadius: 1,
       points: [
         { x: -1, y: -1 },
-        { x: -1, y: -1 }
+        { x: -1, y: -1 },
       ],
-      ref: true
+      ref: true,
     };
 
-    drawingCanvas.current.lines.filter(l => l.background).length
+    drawingCanvas.current.lines.filter((l) => l.background).length
       ? drawingCanvas.current.lines.splice(0, 1, bg)
       : drawingCanvas.current.lines.unshift(bg);
     drawingCanvas.current.lines.push(bgRef);
@@ -676,8 +677,8 @@ export default function CreateInk(props) {
         { x: width, y: height },
         { x: 0, y: height },
         { x: 0, y: height },
-        { x: 0, y: 0 }
-      ]
+        { x: 0, y: 0 },
+      ],
     });
 
     let lines = drawingCanvas.current.lines;
@@ -689,7 +690,7 @@ export default function CreateInk(props) {
     let imageData = drawingCanvas.current.canvas.drawing.toDataURL("image/png");
     let savedData = LZ.compress(drawingCanvas.current.getSaveData());
 
-    setDrafts(drafts => {
+    setDrafts((drafts) => {
       return [...drafts, { imageData, savedData }];
     });
   };
@@ -712,7 +713,7 @@ export default function CreateInk(props) {
           <Form.Item
             name="title"
             rules={[
-              { required: true, message: "What is this work of art called?" }
+              { required: true, message: "What is this work of art called?" },
             ]}
           >
             <Input placeholder={"name"} style={{ fontSize: 16 }} />
@@ -721,7 +722,7 @@ export default function CreateInk(props) {
           <Form.Item
             name="limit"
             rules={[
-              { required: true, message: "How many inks can be minted?" }
+              { required: true, message: "How many inks can be minted?" },
             ]}
           >
             <InputNumber
@@ -822,7 +823,7 @@ export default function CreateInk(props) {
       <Table
         columns={[
           { title: "Hotkey", dataIndex: "shortcut" },
-          { title: "Action", dataIndex: "action" }
+          { title: "Action", dataIndex: "action" },
         ]}
         dataSource={[
           { key: "1", shortcut: "Ctrl+z", action: "Undo" },
@@ -830,34 +831,34 @@ export default function CreateInk(props) {
           {
             key: "3",
             shortcut: "Shift+]",
-            action: "Increase brush size by 10"
+            action: "Increase brush size by 10",
           },
           { key: "4", shortcut: "[", action: "Decrease brush size by 1" },
           {
             key: "5",
             shortcut: "Shift+[",
-            action: "Decrease brush size by 10"
+            action: "Decrease brush size by 10",
           },
           {
             key: "6",
             shortcut: "> ",
-            action: "Increase current color opacity by 1%"
+            action: "Increase current color opacity by 1%",
           },
           {
             key: "7",
             shortcut: "Shift+> ",
-            action: "Increase current color opacity by 10%"
+            action: "Increase current color opacity by 10%",
           },
           {
             key: "8",
             shortcut: "<",
-            action: "Decrease current color opacity by 1%"
+            action: "Decrease current color opacity by 1%",
           },
           {
             key: "9",
             shortcut: "Shift+< ",
-            action: "Decrease current color opacity by 10%"
-          }
+            action: "Decrease current color opacity by 10%",
+          },
         ]}
         size="small"
         pagination={false}
@@ -871,7 +872,7 @@ export default function CreateInk(props) {
             margin: "0 auto",
             display: "inline-flex",
             justifyContent: "center",
-            alignItems: "middle"
+            alignItems: "middle",
           }}
         >
           <Space>
@@ -880,7 +881,7 @@ export default function CreateInk(props) {
                 <Select
                   defaultValue={colorArray}
                   style={{ width: 200 }}
-                  onChange={value => {
+                  onChange={(value) => {
                     setColorArray(value);
                   }}
                 >
@@ -912,7 +913,7 @@ export default function CreateInk(props) {
                   backgroundColor: "#F4F4F4",
                   justifyContent: "center",
                   alignItems: "middle",
-                  padding: 4
+                  padding: 4,
                 }}
               >
                 <PickerDisplay
@@ -930,7 +931,7 @@ export default function CreateInk(props) {
             margin: "0 auto",
             marginTop: "4vh",
             justifyContent: "center",
-            alignItems: "middle"
+            alignItems: "middle",
           }}
         >
           <AlphaPicker onChangeComplete={updateColor} color={color} />
@@ -939,7 +940,7 @@ export default function CreateInk(props) {
           style={{
             margin: "0 auto",
             marginTop: "4vh",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
         >
           <Col span={12}>
@@ -964,7 +965,7 @@ export default function CreateInk(props) {
           style={{
             margin: "0 auto",
             marginTop: "4vh",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
         >
           <Space>
@@ -987,7 +988,7 @@ export default function CreateInk(props) {
             width: "40vmin",
             margin: "0 auto",
             marginTop: "1vh",
-            justifyContent: "center"
+            justifyContent: "center",
           }}
         >
           <Space>
@@ -1024,7 +1025,7 @@ export default function CreateInk(props) {
           margin: "auto",
           border: "1px solid #999999",
           boxShadow: "2px 2px 8px #AAAAAA",
-          cursor: "pointer"
+          cursor: "pointer",
         }}
         onMouseUp={saveCanvas}
         onTouchEnd={saveCanvas}
@@ -1064,7 +1065,7 @@ export default function CreateInk(props) {
           onConfirm={() => {
             saveDraft();
             Modal.success({
-              title: "Your draft was successfully saved."
+              title: "Your draft was successfully saved.",
             });
           }}
           okText="Yes"
