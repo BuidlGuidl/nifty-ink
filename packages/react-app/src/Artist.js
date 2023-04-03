@@ -5,6 +5,7 @@ import { useQuery, useLazyQuery } from "react-apollo";
 import { ARTISTS_QUERY, ARTIST_RECENT_ACTIVITY_QUERY } from "./apollo/queries";
 import { isBlocklisted } from "./helpers";
 import StatCard from './StatCard.js'
+import LikeButton from "./LikeButton.js";
 
 import {
   Row,
@@ -32,13 +33,23 @@ export default function Artist(props) {
   const [activity, setActivity] = useState({});
   const activityCreatedAt = useRef(dayjs().unix());
   const [userFirstActivity, setUserFirstActivity] = useState();
+  let [likes, setLikes] = useState([]);
 
   let burnAddress = "0x000000000000000000000000000000000000dead";
   let zeroAddress = "0x0000000000000000000000000000000000000000";
 
   const { loading, error, data } = useQuery(ARTISTS_QUERY, {
-    variables: { address: address }
+    variables: { 
+      address: address, 
+      liker: props.address ? props.address.toLowerCase() : "" 
+    }
   });
+
+  useEffect(() => {
+    if (data && data.artists && data.artists[0].inks && data.artists[0].inks.length > 0) {
+      setLikes(data.artists[0].inks);
+    }
+  }, [data]);
 
   const dateRange = 2592000;
 
@@ -317,7 +328,14 @@ export default function Artist(props) {
               {inks ? (
                 inks
                   .sort((a, b) => b.createdAt - a.createdAt)
-                  .map(ink => (
+                  .map(ink => {
+                    let likeInfo =
+                      likes.length > 0 &&
+                      likes.find(
+                        element => element.inkNumber === ink.inkNumber
+                      );
+
+                    return (
                     <li
                       key={ink.id}
                       style={{
@@ -392,6 +410,24 @@ export default function Artist(props) {
                               />
                             </>
                           )}
+                          <div style={{ marginLeft: 10, marginRight: 10 }}>
+                            <LikeButton
+                              metaProvider={props.metaProvider}
+                              metaSigner={props.metaSigner}
+                              injectedGsnSigner={props.injectedGsnSigner}
+                              signingProvider={props.injectedProvider}
+                              localProvider={props.kovanProvider}
+                              contractAddress={props.contractAddress}
+                              targetId={ink.inkNumber}
+                              likerAddress={props.address}
+                              transactionConfig={props.transactionConfig}
+                              likeCount={likeInfo&&likeInfo.likeCount || 0}
+                              hasLiked={likeInfo&&likeInfo.likes.length > 0 || false}
+                              // likeCount={0}
+                              // hasLiked={false}
+                              marginBottom={"0px"}
+                            />
+                          </div>
                         </Row>
                         <Divider style={{ margin: "8px 0px" }} />
                         <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
@@ -401,7 +437,7 @@ export default function Artist(props) {
                         </p>
                       </Link>
                     </li>
-                  ))
+                  )})
               ) : (
                 <Loader />
               )}

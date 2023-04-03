@@ -1,8 +1,8 @@
 import { gql } from "apollo-boost";
 
 export const ARTISTS_QUERY = gql`
-  query artists($address: Bytes!) {
-    artists(where: { address: $address }) {
+  query artists($address: Bytes!, $liker: String! ) {
+    artists(where: { address: $address}) {
       id
       inkCount
       address
@@ -27,6 +27,11 @@ export const ARTISTS_QUERY = gql`
         sales {
           id
           price
+        }
+        inkNumber
+        likeCount
+        likes(where: { liker: $liker }) {
+          id
         }
       }
       tokenTransfers(first: 1, orderBy: createdAt, orderDirection: desc) {
