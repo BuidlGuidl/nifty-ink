@@ -38,7 +38,7 @@ export default function Stats(props) {
     const [dailyTotals, setDailyTotals] = useState(null)
     const [period, setPeriod] = useState("month")
     const [totalData, setTotalData] = useState({})
-    const [startingDate, setStartingDate] = useState(dailyDate)
+    const [startingDate, setStartingDate] = useState(dayjs().utc().startOf("day").subtract(28, "day").unix())
 
 
     const handleChartHover = (hoverLoc, activePoint) => {
@@ -65,20 +65,20 @@ export default function Stats(props) {
             console.log("before", totalDataBefore.totals)
             console.log("now", totalDataNow.totals)
             setTotalData({
-                tokens: totalDataNow.totals[0].tokens - totalDataBefore.totals[0].tokens,
-                inks: totalDataNow.totals[0].inks - totalDataBefore.totals[0].inks,
-                saleValue: ethers.utils.formatEther(totalDataNow.totals[0].saleValue) - ethers.utils.formatEther(totalDataBefore.totals[0].saleValue),
-                sales: totalDataNow.totals[0].sales - totalDataBefore.totals[0].sales,
-                upgrades: totalDataNow.totals[0].upgrades - totalDataBefore.totals[0].upgrades,
-                users: totalDataNow.totals[0].users - totalDataBefore.totals[0].users,
-                artists: totalDataNow.totals[0].artists - totalDataBefore.totals[0].artists
+                tokens: totalDataNow.totals[0].tokens - (totalDataBefore?.totals[0]?.tokens || 0),
+                inks: totalDataNow.totals[0].inks - (totalDataBefore?.totals[0]?.inks||0),
+                saleValue: ethers.utils.formatEther(totalDataNow?.totals[0]?.saleValue) - (ethers.utils.formatEther(totalDataBefore?.totals[0]?.saleValue || 0)),
+                sales: totalDataNow.totals[0].sales - (totalDataBefore?.totals[0]?.sales || 0),
+                upgrades: totalDataNow.totals[0].upgrades - (totalDataBefore?.totals[0]?.upgrades|| 0),
+                users: totalDataNow.totals[0].users - (totalDataBefore?.totals[0]?.users || 0),
+                artists: totalDataNow.totals[0].artists - (totalDataBefore?.totals[0]?.artists || 0)
             })
         }
     }, [totalDataBefore, totalDataNow])
 
     useEffect(() => {
         if (period == "month") {
-           setStartingDate(dayjs().utc().startOf("day").subtract(1, "month").unix())
+           setStartingDate(dayjs().utc().startOf("day").subtract(28, "day").unix())
         } else if (period == "week") {
             setStartingDate(dayjs().utc().startOf("day").subtract(1, "week").unix())
         } else if (period == "year") {
@@ -221,7 +221,7 @@ export default function Stats(props) {
                                 />
                                 <StatCard
                                     name={"Sale Value"}
-                                    value={totalData.saleValue?.toFixed(2)}
+                                    value={Number(totalData.saleValue)?.toFixed(2)}
                                     emoji={"💲"}
                                 />
                                 <StatCard

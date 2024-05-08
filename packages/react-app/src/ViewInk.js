@@ -953,8 +953,7 @@ export default function ViewInk(props) {
           width: size[0],
           height: size[0],
           margin: "0 auto",
-          border: "1px solid #999999",
-          boxShadow: "2px 2px 8px #AAAAAA"
+          outline: "3px solid #999999",
         }}
       >
         <div style={{ position: "relative" }}>
