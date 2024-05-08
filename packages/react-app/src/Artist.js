@@ -187,7 +187,7 @@ export default function Artist(props) {
       const data = await response.json();
       data.image = data.image.replace(
         "https://ipfs.io/ipfs/",
-        "https://nifty-ink.mypinata.cloud/ipfs/"
+        "https://gateway.nifty.ink:42069/ipfs/"
       );
       return data;
     };
