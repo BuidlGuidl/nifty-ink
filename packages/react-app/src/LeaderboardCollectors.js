@@ -195,12 +195,18 @@ export default function Leaderboard(props) {
       <Row justify="center">
         <div className="artists-leaderboard">
           <ul>
-            {artists.length > 0
-              ? artists.map((artist, i) => {
+            {artists.length > 0 
+              ? artists
+                  .filter(
+                    (artist) =>
+                      artist.address !==
+                        "0x000000000000000000000000000000000000dead" &&
+                      artist.address !==
+                        "0xdead000000000000000042069420694206942069"
+                  )
+                  .map((artist, i) => {
                   if (
-                    artist[orderBy] > 0 &&
-                    artist.address !==
-                      "0x000000000000000000000000000000000000dead"
+                    artist[orderBy] > 0
                   ) {
                     return (
                       <li
