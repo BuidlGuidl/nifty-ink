@@ -6,10 +6,40 @@ import { Input, Badge } from 'antd';
 
 export default function AddressInput(props) {
 
+  const [ ens, setEns ] = useState(0)
   const [ value, setValue ] = useState()
-  const [isAddressFound, setIsAddressFound] = useState(false);
 
   const currentValue = typeof props.value != "undefined"?props.value:value
+
+  useEffect(()=>{
+    setEns("")
+    if(currentValue && props.ensProvider){
+      async function getEns(){
+        let newEns
+        try{
+          console.log("trying reverse ens",newEns)
+
+          newEns = await props.ensProvider.lookupAddress(currentValue)
+          console.log("setting ens",newEns)
+          setEns(newEns)
+        }catch(e){}
+        console.log("checking resolve")
+        if( currentValue.indexOf(".eth")>0 || currentValue.indexOf(".xyz")>0 ){
+          try{
+            console.log("resolving")
+            let possibleAddress = await props.ensProvider.resolveName(currentValue);
+            console.log("GOT:L",possibleAddress)
+            if(possibleAddress){
+              setEns(currentValue)
+              props.onChange(possibleAddress)
+            }
+          }catch(e){}
+        }
+      }
+      getEns()
+    }
+  },[props.value])
+
 
   const [ scan, setScan ] = useState(false)
 
@@ -32,11 +62,8 @@ export default function AddressInput(props) {
           let possibleAddress = await props.ensProvider.resolveName(address);
           if(possibleAddress){
             address = possibleAddress
-            setIsAddressFound(true);
           }
         }catch(e){}
-      } else {
-        setIsAddressFound(true);
       }
       setValue(address)
       if(typeof props.onChange == "function") { props.onChange(address) }
@@ -78,10 +105,10 @@ export default function AddressInput(props) {
     <div>
       {scanner}
       <Input
-        autoFocus={!isAddressFound}
+        autoFocus={props.autoFocus}
         placeholder={props.placeholder?props.placeholder:"address"}
         prefix={<Blockie address={currentValue} size={8} scale={3}/>}
-        value={currentValue}
+        value={ens?ens:currentValue}
         addonAfter={scannerButton}
         onChange={(e)=>{
           updateAddress(e.target.value)
