@@ -16,7 +16,11 @@ const Home: NextPage = () => {
   const [orderBy] = useState<keyof Ink>("createdAt");
   const [orderDirection] = useState("desc");
 
-  const { loading: isInksLoading, data } = useQuery(EXPLORE_QUERY, {
+  const {
+    loading: isInksLoading,
+    data,
+    fetchMore: fetchMoreInks,
+  } = useQuery(EXPLORE_QUERY, {
     variables: {
       first: 5,
       skip: 0,
