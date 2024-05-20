@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { LikeButton } from "./_components/LikeButton";
 import { useQuery } from "@apollo/client";
 import type { NextPage } from "next";
 import { formatEther } from "viem";
+import { useAccount } from "wagmi";
 import { EXPLORE_QUERY } from "~~/apollo/queries";
 
 interface InkMetadata {
@@ -45,15 +47,13 @@ interface Ink {
 }
 
 const Home: NextPage = () => {
-  // const { address: connectedAddress } = useAccount();
+  const { address: connectedAddress } = useAccount();
   const layout = "cards";
   // let [allInks, setAllInks] = useState<Ink[]>([]);
   const [inks, setInks] = useState<Record<number, Ink>>({});
 
-  // let [orderBy, setOrderBy] = useState("createdAt");
-  // let [orderDirection, setOrderDirection] = useState("desc");
-  const orderBy = "createdAt";
-  const orderDirection = "desc";
+  const [orderBy] = useState("createdAt");
+  const [orderDirection] = useState("desc");
 
   const { data } = useQuery(EXPLORE_QUERY, {
     variables: {
@@ -61,22 +61,10 @@ const Home: NextPage = () => {
       skip: 0,
       orderBy: orderBy,
       orderDirection: orderDirection,
-      // liker: props.address ? props.address.toLowerCase() : "",
+      liker: connectedAddress ? connectedAddress.toLowerCase() : "",
       // filters: inkFilters
     },
   });
-
-  // const {
-  //   loading: likesLoading,
-  //   error: likesError,
-  //   data: likesData,
-  // } = useQuery(INK_LIKES_QUERY, {
-  //   variables: {
-  //     inks: inks,
-  //     // liker: props.address ? props.address.toLowerCase() : ""
-  //   },
-  //   pollInterval: 6000,
-  // });
 
   const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
     const response = await fetch(`https://nifty-ink.mypinata.cloud/ipfs/${jsonURL}`);
@@ -87,7 +75,7 @@ const Home: NextPage = () => {
   };
 
   const getInks = async (data: Ink[]) => {
-    // setAllInks((prevAllInks) => [...prevAllInks, ...data]);
+    // setAllInks(prevAllInks => [...prevAllInks, ...data]);
     // let blocklist;
     // if (props.supabase) {
     //   let { data: supabaseBlocklist } = await props.supabase
@@ -130,7 +118,7 @@ const Home: NextPage = () => {
                     const ink = Number(inkKey);
                     // let likeInfo =
                     //   likes.length > 0 &&
-                    //   likes.find((element) => element.inkNumber === inks[ink].inkNumber);
+                    //   likes.find((element) => element?.inkNumber === inks[ink].inkNumber);
                     return (
                       <li
                         key={inks[ink].id}
@@ -172,26 +160,23 @@ const Home: NextPage = () => {
                                       className="ml-1 invisible"
                                     />
                                   )}
-                                  {/* <div className="mx-2">
+                                  <div className="mx-2">
                                     <LikeButton
-                                      metaProvider={props.metaProvider}
-                                      metaSigner={props.metaSigner}
-                                      injectedGsnSigner={props.injectedGsnSigner}
-                                      signingProvider={props.injectedProvider}
-                                      localProvider={props.kovanProvider}
-                                      contractAddress={props.contractAddress}
+                                      // metaProvider={props.metaProvider}
+                                      // metaSigner={props.metaSigner}
+                                      // injectedGsnSigner={props.injectedGsnSigner}
+                                      // signingProvider={props.injectedProvider}
+                                      // localProvider={props.kovanProvider}
+                                      // contractAddress={props.contractAddress}
                                       targetId={inks[ink].inkNumber}
-                                      likerAddress={props.address}
-                                      transactionConfig={props.transactionConfig}
-                                      likeCount={
-                                        (likeInfo && likeInfo.likeCount) || 0
-                                      }
-                                      hasLiked={
-                                        (likeInfo && likeInfo.likes.length > 0) || false
-                                      }
-                                      marginBottom="0"
+                                      likerAddress={connectedAddress}
+                                      // transactionConfig={props.transactionConfig}
+                                      likeCount={inks[ink]?.likeCount || 0}
+                                      hasLiked={false}
+                                      // hasLiked={(likeInfo && likeInfo.likes.length > 0) || false}
+                                      // marginBottom="0"
                                     />
-                                  </div> */}
+                                  </div>
                                 </div>
                               </div>
                             </>
