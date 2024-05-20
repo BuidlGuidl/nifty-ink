@@ -8,6 +8,7 @@ import type { NextPage } from "next";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { EXPLORE_QUERY } from "~~/apollo/queries";
+import xDai from "~~/public/xDAI.png";
 
 interface InkMetadata {
   attributes: InkMetadataAttribute[];
@@ -147,18 +148,10 @@ const Home: NextPage = () => {
                                       <p className="text-gray-600 m-0">
                                         <b>{parseFloat(formatEther(BigInt(inks[ink]?.bestPrice)))} </b>
                                       </p>
-                                      <img
-                                        src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
-                                        alt="xdai"
-                                        className="ml-1"
-                                      />
+                                      <img src={xDai.src} alt="xdai" className="ml-1" />
                                     </>
                                   ) : (
-                                    <img
-                                      src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
-                                      alt="xdai"
-                                      className="ml-1 invisible"
-                                    />
+                                    <img src={xDai.src} alt="xdai" className="ml-1 invisible" />
                                   )}
                                   <div className="mx-2">
                                     <LikeButton
