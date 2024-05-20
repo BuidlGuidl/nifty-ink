@@ -53,7 +53,7 @@ const Home: NextPage = () => {
   // let [allInks, setAllInks] = useState<Ink[]>([]);
   const [inks, setInks] = useState<Record<number, Ink>>({});
 
-  const [orderBy] = useState("createdAt");
+  const [orderBy] = useState<keyof Ink>("createdAt");
   const [orderDirection] = useState("desc");
 
   const { data } = useQuery(EXPLORE_QUERY, {
@@ -110,16 +110,13 @@ const Home: NextPage = () => {
           <ul className="p-0 text-center list-none">
             {inks
               ? Object.keys(inks)
-                  // .sort((a, b) =>
-                  //   orderDirection === "desc"
-                  //     ? inks[b][orderBy] - inks[a][orderBy]
-                  //     : inks[a][orderBy] - inks[b][orderBy],
-                  // )
+                  .sort((a, b) => {
+                    const inkA = Number(inks[Number(a)]?.[orderBy]);
+                    const inkB = Number(inks[Number(b)]?.[orderBy]);
+                    return orderDirection === "desc" ? inkB - inkA : inkA - inkB;
+                  })
                   .map(inkKey => {
                     const ink = Number(inkKey);
-                    // let likeInfo =
-                    //   likes.length > 0 &&
-                    //   likes.find((element) => element?.inkNumber === inks[ink].inkNumber);
                     return (
                       <li
                         key={inks[ink].id}
