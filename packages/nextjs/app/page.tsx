@@ -1,51 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { LikeButton } from "./_components/LikeButton";
+import { InkList } from "./_components/InkList";
 import { useQuery } from "@apollo/client";
 import type { NextPage } from "next";
-import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { EXPLORE_QUERY } from "~~/apollo/queries";
-import xDai from "~~/public/xDAI.png";
-
-interface InkMetadata {
-  attributes: InkMetadataAttribute[];
-  description: string;
-  drawing: string;
-  external_url: string;
-  image: string;
-  name: string;
-}
-
-interface InkMetadataAttribute {
-  trait_type: string;
-  value: string;
-}
-
-interface Artist {
-  __typename: string;
-  address: string;
-  id: string;
-}
-
-interface Ink {
-  __typename: string;
-  artist: Artist;
-  bestPrice: number;
-  bestPrceSetAt?: string;
-  bestPriceSource?: string;
-  count: string;
-  createdAt: string;
-  id: string;
-  inkNumber: number;
-  jsonUrl: string;
-  likeCount?: number;
-  likes: any[];
-  limit: number;
-  metadata?: InkMetadata;
-}
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -56,7 +16,7 @@ const Home: NextPage = () => {
   const [orderBy] = useState<keyof Ink>("createdAt");
   const [orderDirection] = useState("desc");
 
-  const { data } = useQuery(EXPLORE_QUERY, {
+  const { loading: isInksLoading, data } = useQuery(EXPLORE_QUERY, {
     variables: {
       first: 5,
       skip: 0,
@@ -105,80 +65,14 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="inks-grid">
-          <ul className="p-0 text-center list-none">
-            {inks
-              ? Object.keys(inks)
-                  .sort((a, b) => {
-                    const inkA = Number(inks[Number(a)]?.[orderBy]);
-                    const inkB = Number(inks[Number(b)]?.[orderBy]);
-                    return orderDirection === "desc" ? inkB - inkA : inkA - inkB;
-                  })
-                  .map(inkKey => {
-                    const ink = Number(inkKey);
-                    return (
-                      <li
-                        key={inks[ink].id}
-                        className={`inline-block border border-gray-200 rounded-lg ${
-                          layout === "cards" ? "m-2 p-2 font-bold" : ""
-                        }`}
-                      >
-                        <Link href={{ pathname: "/ink/" + inks[ink].id }} className="text-black">
-                          <img
-                            src={inks[ink]?.metadata?.image}
-                            alt={inks[ink]?.metadata?.name}
-                            width={layout === "cards" ? "180" : "150"}
-                            className={`${layout === "cards" ? "border border-gray-200 rounded-lg" : ""}`}
-                          />
-                          {layout === "cards" && (
-                            <>
-                              <div className="flex flex-col items-center w-44">
-                                <h3 className="my-2 text-lg font-bold">
-                                  {inks[ink]?.metadata?.name?.length ?? 0 > 18 // review for zero
-                                    ? inks[ink]?.metadata?.name.slice(0, 15).concat("...")
-                                    : inks[ink]?.metadata?.name}
-                                </h3>
-                                <div className="flex items-center justify-center w-44">
-                                  {inks[ink]?.bestPrice > 0 ? (
-                                    <>
-                                      <p className="text-gray-600 m-0">
-                                        <b>{parseFloat(formatEther(BigInt(inks[ink]?.bestPrice)))} </b>
-                                      </p>
-                                      <img src={xDai.src} alt="xdai" className="ml-1" />
-                                    </>
-                                  ) : (
-                                    <img src={xDai.src} alt="xdai" className="ml-1 invisible" />
-                                  )}
-                                  <div className="mx-2">
-                                    <LikeButton
-                                      // metaProvider={props.metaProvider}
-                                      // metaSigner={props.metaSigner}
-                                      // injectedGsnSigner={props.injectedGsnSigner}
-                                      // signingProvider={props.injectedProvider}
-                                      // localProvider={props.kovanProvider}
-                                      // contractAddress={props.contractAddress}
-                                      targetId={inks[ink].inkNumber}
-                                      likerAddress={connectedAddress}
-                                      // transactionConfig={props.transactionConfig}
-                                      likeCount={inks[ink]?.likeCount || 0}
-                                      hasLiked={false}
-                                      // hasLiked={(likeInfo && likeInfo.likes.length > 0) || false}
-                                      // marginBottom="0"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </>
-                          )}
-                        </Link>
-                      </li>
-                    );
-                  })
-              : null}
-          </ul>
-        </div>
-      </div>
+      <InkList
+        inks={inks}
+        orderDirection={orderDirection}
+        orderBy={orderBy}
+        layout={layout}
+        connectedAddress={connectedAddress}
+        isInksLoading={isInksLoading}
+      />
     </>
   );
 };
