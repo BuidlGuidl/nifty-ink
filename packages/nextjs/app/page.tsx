@@ -22,7 +22,7 @@ const Home: NextPage = () => {
     fetchMore: fetchMoreInks,
   } = useQuery(EXPLORE_QUERY, {
     variables: {
-      first: 5,
+      first: 10,
       skip: 0,
       orderBy: orderBy,
       orderDirection: orderDirection,
@@ -37,6 +37,18 @@ const Home: NextPage = () => {
     console.log(data);
     data.image = data.image.replace("https://ipfs.io/ipfs/", "https://nifty-ink.mypinata.cloud/ipfs/");
     return data;
+  };
+
+  const onLoadMore = (skip: number) => {
+    fetchMoreInks({
+      variables: {
+        skip: skip,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return fetchMoreResult;
+      },
+    });
   };
 
   const getInks = async (data: Ink[]) => {
@@ -58,17 +70,22 @@ const Home: NextPage = () => {
       const _ink = { ...ink, metadata };
       newInks[_ink.inkNumber] = _ink;
     }
+    console.log("HI");
     setInks(prevInks => ({ ...prevInks, ...newInks }));
   };
 
   useEffect(() => {
-    data ? getInks(data.inks) : console.log("loading");
+    if (data && data.inks) {
+      getInks(data.inks);
+    } else {
+      console.log("loading");
+    }
   }, [data]);
 
   console.log(inks);
 
   return (
-    <>
+    <div className="max-w-screen-xl">
       <InkList
         inks={inks}
         orderDirection={orderDirection}
@@ -76,8 +93,9 @@ const Home: NextPage = () => {
         layout={layout}
         connectedAddress={connectedAddress}
         isInksLoading={isInksLoading}
+        onLoadMore={onLoadMore}
       />
-    </>
+    </div>
   );
 };
 
