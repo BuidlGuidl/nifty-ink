@@ -35,7 +35,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ant-design/cssinjs@npm:^1.19.1":
+"@ant-design/cssinjs@npm:^1.19.1, @ant-design/cssinjs@npm:^1.20.0":
   version: 1.20.0
   resolution: "@ant-design/cssinjs@npm:1.20.0"
   dependencies:
@@ -2211,6 +2211,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/nextjs@workspace:packages/nextjs"
   dependencies:
+    "@ant-design/cssinjs": ^1.20.0
     "@heroicons/react": ^2.0.11
     "@rainbow-me/rainbowkit": ^2.0.2
     "@tanstack/react-query": ^5.28.6

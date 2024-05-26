@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { InkList } from "./_components/InkList";
 import { useQuery } from "@apollo/client";
 import { DatePicker, Form, Row, Select } from "antd";
@@ -14,6 +14,8 @@ const { Option } = Select;
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const layout = "cards";
@@ -27,6 +29,20 @@ const Home: NextPage = () => {
   const [endDate, setEndDate] = useState(searchParams.has("endDate") ? dayjs(searchParams.get("endDate")) : dayjs());
   const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
   const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
+
+  const updateSearchParams = (names: string[], values: string[]) => {
+    router.push(`${pathname}?${createQueryString(names, values)}`);
+    // setInks({});
+  };
+
+  const createQueryString = useCallback(
+    (names: string[], values: string[]) => {
+      const params = new URLSearchParams(searchParams.toString());
+      names.map((name, index) => params.set(name, values[index]));
+      return params.toString();
+    },
+    [searchParams],
+  );
 
   const {
     loading: isInksLoading,
@@ -128,14 +144,9 @@ const Home: NextPage = () => {
                   size="large"
                   value={[startDate, endDate]}
                   onChange={(moments, dateStrings) => {
-                    // searchParams.set("startDate", dateStrings[0]);
-                    // searchParams.set("endDate", dateStrings[1]);
-                    // history.push(
-                    //   `${location.pathname}?${searchParams.toString()}`
-                    // );
+                    updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
                     setStartDate(dayjs(dateStrings[0]));
                     setEndDate(dayjs(dateStrings[1]));
-                    // setInks({});
                   }}
                 />
               </Form.Item>
@@ -144,11 +155,7 @@ const Home: NextPage = () => {
                   value={orderBy}
                   size="large"
                   onChange={val => {
-                    // searchParams.set("orderBy", val);
-                    // history.push(
-                    //   `${location.pathname}?${searchParams.toString()}`
-                    // );
-                    // setInks({});
+                    updateSearchParams(["orderBy"], [val]);
                     setOrderBy(val);
                   }}
                 >
@@ -164,12 +171,8 @@ const Home: NextPage = () => {
                   style={{ width: 120 }}
                   size="large"
                   onChange={val => {
-                    //   searchParams.set("orderDirection", val);
-                    //   history.push(
-                    //     `${location.pathname}?${searchParams.toString()}`
-                    //   );
+                    updateSearchParams(["orderDirection"], [val]);
                     setOrderDirection(val);
-                    // setInks({});
                   }}
                 >
                   <Option value="desc">Descending</Option>
@@ -182,12 +185,8 @@ const Home: NextPage = () => {
                   style={{ width: 120 }}
                   size="large"
                   onChange={val => {
-                    // searchParams.set("forSale", val);
-                    // history.push(
-                    //   `${location.pathname}?${searchParams.toString()}`
-                    // );
+                    updateSearchParams(["forSale"], [val]);
                     setForSale(val);
-                    // setInks({});
                   }}
                 >
                   <Option value={"for-sale"}>For sale</Option>
