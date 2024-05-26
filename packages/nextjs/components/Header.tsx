@@ -42,10 +42,6 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "💡 help",
     href: "/",
   },
-  {
-    label: "💬 chat",
-    href: "/",
-  },
   // {
   //   label: "Debug Contracts",
   //   href: "/debug",
