@@ -1,20 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { InkList } from "./_components/InkList";
 import { useQuery } from "@apollo/client";
+import { DatePicker, Form, Row, Select } from "antd";
+import dayjs from "dayjs";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { EXPLORE_QUERY } from "~~/apollo/queries";
 
+const { Option } = Select;
+
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
+  const searchParams = useSearchParams();
+
   const layout = "cards";
   // let [allInks, setAllInks] = useState<Ink[]>([]);
   const [inks, setInks] = useState<Record<number, Ink>>({});
 
-  const [orderBy] = useState<keyof Ink>("createdAt");
-  const [orderDirection] = useState("desc");
+  const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
+  const [startDate, setStartDate] = useState(
+    searchParams.has("startDate") ? dayjs(searchParams.get("startDate")) : dayjs().subtract(29, "days"),
+  );
+  const [endDate, setEndDate] = useState(searchParams.has("endDate") ? dayjs(searchParams.get("endDate")) : dayjs());
+  const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
+  const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
 
   const {
     loading: isInksLoading,
@@ -86,10 +98,111 @@ const Home: NextPage = () => {
 
   return (
     <div className="max-w-screen-xl">
+      <Row className="mt-5 mb-3 justify-center">
+        <Form
+          layout={"inline"}
+          initialValues={{
+            layout: layout,
+            dateRange: [startDate, endDate],
+            orderBy: orderBy,
+            orderDirection: orderDirection,
+            forSale: forSale,
+          }}
+        >
+          {/* <Form.Item name="layout">
+              <Radio.Group
+                size="large"
+                value={layout}
+                onChange={v => {
+                  setLayout(v.target.value);
+                }}
+              >
+                <Radio.Button value={"cards"}>Cards</Radio.Button>
+                <Radio.Button value={"tiles"}>Tiles</Radio.Button>
+              </Radio.Group>
+            </Form.Item> */}
+          {layout == "cards" && (
+            <>
+              <Form.Item name="dateRange">
+                <DatePicker.RangePicker
+                  size="large"
+                  value={[startDate, endDate]}
+                  onChange={(moments, dateStrings) => {
+                    // searchParams.set("startDate", dateStrings[0]);
+                    // searchParams.set("endDate", dateStrings[1]);
+                    // history.push(
+                    //   `${location.pathname}?${searchParams.toString()}`
+                    // );
+                    setStartDate(dayjs(dateStrings[0]));
+                    setEndDate(dayjs(dateStrings[1]));
+                    // setInks({});
+                  }}
+                />
+              </Form.Item>
+              <Form.Item name="orderBy">
+                <Select
+                  value={orderBy}
+                  size="large"
+                  onChange={val => {
+                    // searchParams.set("orderBy", val);
+                    // history.push(
+                    //   `${location.pathname}?${searchParams.toString()}`
+                    // );
+                    // setInks({});
+                    setOrderBy(val);
+                  }}
+                >
+                  <Option value="createdAt">Created At</Option>
+                  <Option value="bestPrice">Price</Option>
+                  <Option value="likeCount">Likes</Option>
+                  <Option value="count">Token Count</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item name="orderDirection">
+                <Select
+                  value={orderDirection}
+                  style={{ width: 120 }}
+                  size="large"
+                  onChange={val => {
+                    //   searchParams.set("orderDirection", val);
+                    //   history.push(
+                    //     `${location.pathname}?${searchParams.toString()}`
+                    //   );
+                    setOrderDirection(val);
+                    // setInks({});
+                  }}
+                >
+                  <Option value="desc">Descending</Option>
+                  <Option value="asc">Ascending</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item name="forSale">
+                <Select
+                  value={forSale}
+                  style={{ width: 120 }}
+                  size="large"
+                  onChange={val => {
+                    // searchParams.set("forSale", val);
+                    // history.push(
+                    //   `${location.pathname}?${searchParams.toString()}`
+                    // );
+                    setForSale(val);
+                    // setInks({});
+                  }}
+                >
+                  <Option value={"for-sale"}>For sale</Option>
+                  <Option value={"all-inks"}>All inks</Option>
+                </Select>
+              </Form.Item>
+            </>
+          )}
+        </Form>
+      </Row>
+
       <InkList
         inks={inks}
         orderDirection={orderDirection}
-        orderBy={orderBy}
+        orderBy={orderBy as keyof Ink}
         layout={layout}
         connectedAddress={connectedAddress}
         isInksLoading={isInksLoading}

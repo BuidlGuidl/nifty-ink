@@ -26,7 +26,7 @@ export const InkList = ({ inks, orderBy, orderDirection, layout, connectedAddres
 
   return (
     <div>
-      <div className="flex items-center flex-col flex-grow pt-10">
+      <div className="flex items-center flex-col flex-grow">
         <div className="inks-grid">
           <ul className="p-0 text-center list-none">
             {inks
