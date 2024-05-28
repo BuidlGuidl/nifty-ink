@@ -182,7 +182,7 @@ export default function Artist(props) {
     const getMetadata = async jsonURL => {
       //const response = await fetch("https://ipfs.io/ipfs/" + jsonURL);
       const response = await fetch(
-        "https://nifty-ink.mypinata.cloud/ipfs/" + jsonURL
+        "https://gateway.nifty.ink:42069/ipfs/" + jsonURL
       );
       const data = await response.json();
       data.image = data.image.replace(

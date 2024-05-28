@@ -139,12 +139,12 @@ export default function ForSale(props) {
     //const response = await fetch("https://ipfs.nifty.ink:8080/ipfs/" + jsonURL);
     //const response = await fetch(ipfsGateways[Math.floor(Math.random() * ipfsGateways.length)] + jsonURL);
     const response = await fetch(
-      "https://nifty-ink.mypinata.cloud/ipfs/" + jsonURL
+      "https://gateway.nifty.ink:42069/ipfs/" + jsonURL
     );
     const data = await response.json();
     data.image = data.image.replace(
       "https://ipfs.io/ipfs/",
-      "https://nifty-ink.mypinata.cloud/ipfs/"
+      "https://gateway.nifty.ink:42069/ipfs/"
     );
     return data;
   };

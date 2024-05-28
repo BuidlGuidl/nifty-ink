@@ -141,12 +141,12 @@ export default function Holdings(props) {
 
     //const response = await timeoutableFetch("https://ipfs.io/ipfs/" + jsonURL);
     const response = await timeoutableFetch(
-      "https://nifty-ink.mypinata.cloud/ipfs/" + jsonURL
+      "https://gateway.nifty.ink:42069/ipfs/" + jsonURL
     );
     const data = await response.json();
     data.image = data.image.replace(
       "https://ipfs.io/ipfs/",
-      "https://nifty-ink.mypinata.cloud/ipfs/"
+      "https://gateway.nifty.ink:42069/ipfs/"
     );
 
     return data;
