@@ -11,6 +11,8 @@ type HeaderMenuLink = {
   label: string;
   href: string;
   icon?: React.ReactNode;
+  sublinks?: string[];
+  subnames?: string[];
 };
 
 export const menuLinks: HeaderMenuLink[] = [
@@ -20,27 +22,29 @@ export const menuLinks: HeaderMenuLink[] = [
   },
   {
     label: "🖌 create",
-    href: "/",
+    href: "/create",
   },
   {
     label: "🖼 inks",
-    href: "/",
+    href: "/inks",
   },
   {
     label: "👛 holdings",
-    href: "/",
+    href: "/holdings",
   },
   {
     label: "🏆 leaderboard",
-    href: "/",
+    href: "/leaderboard",
+    subnames: ["🧑‍🎨 artists", "🕶 collectors"],
+    sublinks: ["artists", "collectors"],
   },
   {
     label: "📊 stats",
-    href: "/",
+    href: "/stats",
   },
   {
     label: "💡 help",
-    href: "/",
+    href: "/help",
   },
   // {
   //   label: "Debug Contracts",
@@ -54,9 +58,37 @@ export const HeaderMenuLinks = () => {
 
   return (
     <>
-      {menuLinks.map(({ label, href, icon }) => {
+      {menuLinks.map(({ label, href, icon, sublinks, subnames }) => {
         const isActive = pathname === href;
-        return (
+        return sublinks ? (
+          <li key={href} className="relative group mb-2">
+            <Link
+              href={href}
+              passHref
+              className={`${
+                isActive ? "bg-secondary shadow-md" : ""
+              } hover:bg-secondary hover:shadow-md focus:bg-secondary active:text-neutral py-1.5 px-3 text-sm rounded-full flex items-center`}
+            >
+              {icon}
+              <span className="ml-2">{label}</span>
+            </Link>
+            {sublinks && subnames && (
+              <ul className="absolute hidden group-hover:block bg-white shadow mt-8 min-w-[130px]">
+                {sublinks.map((sublink, index) => (
+                  <li key={index}>
+                    <Link
+                      href={`${href}/${sublink}`}
+                      passHref
+                      className="block text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      {subnames[index]}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ) : (
           <li key={href}>
             <Link
               href={href}
