@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import type { NextPage } from "next";
 import { formatUnits } from "viem";
 import { TOP_ARTISTS_QUERY } from "~~/apollo/queries";
+import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
 
 const { Option } = Select;
@@ -34,14 +35,10 @@ const Home: NextPage = () => {
   });
 
   useEffect(() => {
-    console.log("HI");
     if (data) {
-      console.log("HI");
       if (period === "alltime") {
-        console.log("HI");
         setArtists(data.artists);
       } else {
-        console.log("HI");
         artistStats(data.artists);
       }
     }
@@ -148,34 +145,38 @@ const Home: NextPage = () => {
           </Form>
         </Col>
       </Row>
-      <Row justify="center">
-        <div className="py-4 px-2.5">
-          <ul>
-            {artists.length > 0
-              ? artists.map((artist, i) => (
-                  <li key={artist?.address} className="flex items-center border border-gray-200 rounded-lg mb-1.5">
-                    <div className="w-16 py-3 px-2.5 mx-2.5">
-                      <h3 className="font-bold">{emojifyTop3(i + 1)}</h3>
-                    </div>
+      {loading ? (
+        <Loader />
+      ) : (
+        <Row justify="center">
+          <div className="py-4 px-2.5">
+            <ul>
+              {artists.length > 0
+                ? artists.map((artist, i) => (
+                    <li key={artist?.address} className="flex items-center border border-gray-200 rounded-lg mb-1.5">
+                      <div className="w-16 py-3 px-2.5 mx-2.5">
+                        <h3 className="font-bold">{emojifyTop3(i + 1)}</h3>
+                      </div>
 
-                    <div className="w-52 transform scale-60">
-                      <Link href={`/artist/${artist?.address}`}>
-                        <Address address={artist.address} disableAddressLink={true} />
-                      </Link>
-                    </div>
-                    <div className="text-xs py-1.5 px-5">
-                      <p className="m-0">
-                        💲 Earnings: ${parseFloat(formatUnits(artist?.earnings || 0n, 18)).toFixed(2)}
-                      </p>
-                      <p className="m-0">🖼️ Total Inks: {artist.inkCount}</p>
-                      <p className="m-0">👍 Total likes: {artist.likeCount}</p>
-                    </div>
-                  </li>
-                ))
-              : null}
-          </ul>
-        </div>
-      </Row>
+                      <div className="w-52 transform scale-60">
+                        <Link href={`/artist/${artist?.address}`}>
+                          <Address key={artist?.address} address={artist.address} disableAddressLink={true} />
+                        </Link>
+                      </div>
+                      <div className="text-xs py-1.5 px-5">
+                        <p className="m-0">
+                          💲 Earnings: ${parseFloat(formatUnits(artist?.earnings || 0n, 18)).toFixed(2)}
+                        </p>
+                        <p className="m-0">🖼️ Total Inks: {artist.inkCount}</p>
+                        <p className="m-0">👍 Total likes: {artist.likeCount}</p>
+                      </div>
+                    </li>
+                  ))
+                : null}
+            </ul>
+          </div>
+        </Row>
+      )}
     </div>
   );
 };

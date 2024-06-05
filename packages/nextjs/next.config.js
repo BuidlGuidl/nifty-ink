@@ -14,6 +14,14 @@ const nextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  async rewrites() {
+    return [
+        {
+            source: '/leaderboard',
+            destination: '/leaderboard/artists'
+        }
+    ];
+}
 };
 
 module.exports = nextConfig;

@@ -48,7 +48,8 @@ export const Address = ({ address, disableAddressLink, format, size = "base" }: 
     },
   });
   const { data: fetchedEnsAvatar } = useEnsAvatar({
-    name: fetchedEns ? normalize(fetchedEns) : undefined,
+    // name: fetchedEns ? normalize(fetchedEns) : undefined,
+    name: fetchedEns ? fetchedEns : undefined,
     chainId: 1,
     query: {
       enabled: Boolean(fetchedEns),

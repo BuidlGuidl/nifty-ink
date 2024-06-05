@@ -50,7 +50,7 @@ const Home: NextPage = () => {
     fetchMore: fetchMoreInks,
   } = useQuery(EXPLORE_QUERY, {
     variables: {
-      first: 10,
+      first: 5,
       skip: 0,
       orderBy: orderBy,
       orderDirection: orderDirection,
@@ -60,10 +60,10 @@ const Home: NextPage = () => {
   });
 
   const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
-    const response = await fetch(`https://nifty-ink.mypinata.cloud/ipfs/${jsonURL}`);
+    const response = await fetch(`https://gateway.nifty.ink:42069/ipfs/${jsonURL}`);
     const data: InkMetadata = await response.json();
     console.log(data);
-    data.image = data.image.replace("https://ipfs.io/ipfs/", "https://nifty-ink.mypinata.cloud/ipfs/");
+    data.image = data.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/");
     return data;
   };
 
