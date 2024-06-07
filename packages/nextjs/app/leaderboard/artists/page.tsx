@@ -11,6 +11,7 @@ import { formatUnits } from "viem";
 import { TOP_ARTISTS_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
+import "~~/styles/leaderboard.css";
 
 const { Option } = Select;
 
@@ -154,26 +155,24 @@ const Home: NextPage = () => {
         <Loader />
       ) : (
         <Row justify="center">
-          <div className="py-4 px-2.5">
+          <div className="artists-leaderboard">
             <ul>
               {artists.length > 0
                 ? artists.map((artist, i) => (
-                    <li key={artist?.address} className="flex items-center border border-gray-200 rounded-lg mb-1.5">
-                      <div className="w-16 py-3 px-2.5 mx-2.5">
-                        <h3 className="font-bold">{emojifyTop3(i + 1)}</h3>
+                    <li key={artist?.address} className="artists-leadboard-entry">
+                      <div className="artists-leadboard-entry-rank">
+                        <h3>{emojifyTop3(i + 1)}</h3>
                       </div>
 
-                      <div className="w-52 transform scale-60">
+                      <div className="artists-leadboard-entry-address">
                         <Link href={`/artist/${artist?.address}`}>
                           <Address key={artist?.address} address={artist.address} disableAddressLink={true} />
                         </Link>
                       </div>
-                      <div className="text-xs py-1.5 px-5">
-                        <p className="m-0">
-                          💲 Earnings: ${parseFloat(formatUnits(artist?.earnings || 0n, 18)).toFixed(2)}
-                        </p>
-                        <p className="m-0">🖼️ Total Inks: {artist.inkCount}</p>
-                        <p className="m-0">👍 Total likes: {artist.likeCount}</p>
+                      <div className="artists-leadboard-entry-stats">
+                        <p>💲 Earnings: ${parseFloat(formatUnits(artist?.earnings || 0n, 18)).toFixed(2)}</p>
+                        <p>🖼️ Total Inks: {artist.inkCount}</p>
+                        <p>👍 Total likes: {artist.likeCount}</p>
                       </div>
                     </li>
                   ))
