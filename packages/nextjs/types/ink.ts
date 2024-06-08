@@ -1,17 +1,3 @@
-interface InkMetadata {
-  attributes: InkMetadataAttribute[];
-  description: string;
-  drawing: string;
-  external_url: string;
-  image: string;
-  name: string;
-}
-
-interface InkMetadataAttribute {
-  trait_type: string;
-  value: string;
-}
-
 interface Artist {
   __typename?: string;
   address: string;
@@ -36,4 +22,27 @@ interface Ink {
   likes: any[];
   limit: number;
   metadata?: InkMetadata;
+}
+
+interface InkMetadata {
+  attributes: InkMetadataAttribute[];
+  description: string;
+  drawing: string;
+  external_url: string;
+  image: string;
+  name: string;
+}
+
+interface InkMetadataAttribute {
+  trait_type: string;
+  value: string;
+}
+
+interface User {
+  __typename?: string;
+  address: string;
+  collectionCount: number;
+  purchaseCount: number;
+  saleCount: number;
+  tokenCount: number;
 }

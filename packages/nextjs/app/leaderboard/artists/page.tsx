@@ -12,6 +12,7 @@ import { TOP_ARTISTS_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
 import "~~/styles/leaderboard.css";
+import { emojifyTop3 } from "~~/types/utils";
 
 const { Option } = Select;
 
@@ -64,18 +65,6 @@ const Home: NextPage = () => {
     }
     setLastFilterAt(_lastFilterAt!);
   }, [createdAt, orderBy, setOrderBy]);
-
-  const emojifyTop3 = (rank: number): string => {
-    if (rank === 1) {
-      return rank + " 🏆";
-    } else if (rank === 2) {
-      return rank + " 🥈";
-    } else if (rank === 3) {
-      return rank + " 🥉";
-    } else {
-      return rank.toString();
-    }
-  };
 
   const updateArtistStats = (_artists: any[]): void => {
     const artistsPlaceholder = _artists.map(artist => {
@@ -163,7 +152,6 @@ const Home: NextPage = () => {
                       <div className="artists-leadboard-entry-rank">
                         <h3>{emojifyTop3(i + 1)}</h3>
                       </div>
-
                       <div className="artists-leadboard-entry-address">
                         <Link href={`/artist/${artist?.address}`}>
                           <Address key={artist?.address} address={artist.address} disableAddressLink={true} />
