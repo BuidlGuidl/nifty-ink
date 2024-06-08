@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { emojifyTop3 } from "../utils";
 import { useQuery } from "@apollo/client";
 import { Col, Form, Row, Select, Typography } from "antd";
 import dayjs from "dayjs";
@@ -12,7 +13,6 @@ import { TOP_ARTISTS_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
 import "~~/styles/leaderboard.css";
-import { emojifyTop3 } from "~~/types/utils";
 
 const { Option } = Select;
 
