@@ -16,7 +16,7 @@ export const SearchAddress: React.FC<SearchAddressProps> = ({ redirectToPage }) 
   return (
     <div className="mt-5 mr-10 flex justify-end gap-14 text-black">
       <AddressInput
-        placeholder="Destination Address"
+        placeholder="Search artist"
         value={inputAddress ?? ""}
         onChange={value => setInputAddress(value as AddressType)}
       />
