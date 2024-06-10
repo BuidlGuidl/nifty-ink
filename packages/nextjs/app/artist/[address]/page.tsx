@@ -8,7 +8,8 @@ import { Col, DatePicker, Divider, Form, Row, Select, Tabs } from "antd";
 import dayjs from "dayjs";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { EXPLORE_QUERY, HOLDINGS_MAIN_INKS_QUERY, HOLDINGS_MAIN_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
+import { ARTISTS_QUERY } from "~~/apollo/queries";
+import { InkListArtist } from "~~/app/_components/InkListArtist";
 import { Profile } from "~~/app/_components/Profile";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
 import { AddressInput } from "~~/components/scaffold-eth";
@@ -19,53 +20,74 @@ const Artist = ({ params }: { params: { address: string } }) => {
   const router = useRouter();
 
   const address = params?.address;
-  console.log(address);
+  const [inks, setInks] = useState<Ink[]>([]);
+  const { loading, error, data } = useQuery(ARTISTS_QUERY, {
+    variables: { address: address },
+  });
 
-  // console.log(dataMainInks);
+  useEffect(() => {
+    const getInks = async (data: Ink[]) => {
+      setInks([]);
+      //   let blocklist;
+      //   if (props.supabase) {
+      //     let { data: supabaseBlocklist } = await props.supabase
+      //       .from("blocklist")
+      //       .select("jsonUrl");
+      //     blocklist = supabaseBlocklist;
+      //   }
+      for (const ink of data) {
+        // if (isBlocklisted(ink.jsonUrl)) return;
+        // if (blocklist && blocklist.find(el => el.jsonUrl === ink.jsonUrl)) {
+        //   return;
+        // }
+        const metadata = await getMetadata(ink.jsonUrl);
+        setInks(inks => [...inks, { ...ink, metadata }]);
+        // newInks[_ink.inkNumber] = _ink;
+      }
+    };
+    data !== undefined && data.artists[0] && inks.length === 0 ? getInks(data.artists[0].inks) : console.log("loading");
 
-  // const {
-  //   loading: isInksLoading,
-  //   data,
-  //   fetchMore: fetchMoreInks,
-  // } = useQuery(EXPLORE_QUERY, {
-  //   variables: {
-  //     first: 5,
-  //     skip: 0,
-  //     orderBy: orderBy,
-  //     orderDirection: orderDirection,
-  //     liker: address ? address.toLowerCase() : "",
-  //     // filters: inkFilters
-  //   },
-  // });
+    // if (data !== undefined && data.artists[0]) {
+    //   let { createdAt, lastLikeAt, lastSaleAt } = data.artists[0];
+    //   let lastTransferAt = data.artists[0].tokenTransfers.length ? data.artists[0].tokenTransfers[0].createdAt : 0;
+    //   let lastActivity = Math.max(...[lastLikeAt, lastSaleAt, lastTransferAt].map(e => parseInt(e)));
+
+    //   if (!dataActivity) {
+    //     activityCreatedAt.current = lastActivity - dateRange;
+    //     fetchRecentActivity({
+    //       variables: {
+    //         address: address,
+    //         createdAt: activityCreatedAt.current,
+    //         skipLikes: 0,
+    //         skipSales: 0,
+    //         skipTransfers: 0,
+    //       },
+    //     });
+    //   }
+    //   //   setUserFirstActivity(parseInt(createdAt));
+    // } else {
+    //   console.log("loading");
+    // }
+  }, [data]);
 
   const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
     const response = await fetch(`https://gateway.nifty.ink:42069/ipfs/${jsonURL}`);
     const data: InkMetadata = await response.json();
-    console.log(data);
     data.image = data.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/");
     return data;
   };
 
-  // const onLoadMore = (skip: number) => {
-  //   fetchMoreInks({
-  //     variables: {
-  //       skip: skip,
-  //     },
-  //     updateQuery: (prev, { fetchMoreResult }) => {
-  //       if (!fetchMoreResult) return prev;
-  //       return fetchMoreResult;
-  //     },
-  //   });
-  // };
-
   return (
-    <div className="max-w-screen-xl">
+    <div className="max-w-3xl">
       <Profile address={address} />
 
-      <Divider className="border-gray-300" />
+      <Divider className="border-gray-300 min-w-4" />
 
-      <Tabs defaultActiveKey="1" size="large" type="card" style={{ textAlign: "center" }}>
+      <Tabs defaultActiveKey="1" size="large" type="card" className="flex items-center" style={{ textAlign: "center" }}>
         <TabPane tab="🖼️ Inks" key="1">
+          <div>
+            <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} />
+          </div>
           {/* <div className="inks-grid">
             <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
               {inks ? (

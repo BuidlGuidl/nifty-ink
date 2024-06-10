@@ -98,7 +98,6 @@ const Home: NextPage = () => {
       const _ink = { ...ink, metadata };
       newInks[_ink.inkNumber] = _ink;
     }
-    console.log("HI");
     setInks(prevInks => ({ ...prevInks, ...newInks }));
   };
 
