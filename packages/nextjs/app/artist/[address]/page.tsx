@@ -7,11 +7,13 @@ import { useQuery } from "@apollo/client";
 import { Col, DatePicker, Divider, Form, Row, Select, Tabs } from "antd";
 import dayjs from "dayjs";
 import type { NextPage } from "next";
+import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { ARTISTS_QUERY } from "~~/apollo/queries";
 import { InkListArtist } from "~~/app/_components/InkListArtist";
 import { Profile } from "~~/app/_components/Profile";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
+import StatCard from "~~/app/_components/StatCard";
 import { AddressInput } from "~~/components/scaffold-eth";
 
 const { TabPane } = Tabs;
@@ -85,146 +87,19 @@ const Artist = ({ params }: { params: { address: string } }) => {
 
       <Tabs defaultActiveKey="1" size="large" type="card" className="flex items-center" style={{ textAlign: "center" }}>
         <TabPane tab="🖼️ Inks" key="1">
-          <div>
-            <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} />
-          </div>
-          {/* <div className="inks-grid">
-            <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
-              {inks ? (
-                inks
-                  .sort((a, b) => b.createdAt - a.createdAt)
-                  .map(ink => (
-                    <li
-                      key={ink.id}
-                      style={{
-                        display: "inline-block",
-                        verticalAlign: "top",
-                        margin: 10,
-                        padding: 10,
-                        border: "1px solid #e5e5e6",
-                        borderRadius: "10px",
-                        fontWeight: "bold"
-                      }}
-                    >
-                      <Link
-                        to={{ pathname: "/ink/" + ink.id }}
-                        style={{ color: "black" }}
-                      >
-                        <img
-                          src={ink.metadata.image}
-                          alt={ink.metadata.name}
-                          width="150"
-                          style={{
-                            border: "1px solid #e5e5e6",
-                            borderRadius: "10px"
-                          }}
-                        />
-                        <h3
-                          style={{
-                            margin: "10px 0px 5px 0px",
-                            fontWeight: "700"
-                          }}
-                        >
-                          {ink.metadata.name.length > 18
-                            ? ink.metadata.name.slice(0, 15).concat("...")
-                            : ink.metadata.name}
-                        </h3>
-
-                        <Row
-                          align="middle"
-                          style={{
-                            textAlign: "center",
-                            justifyContent: "center"
-                          }}
-                        >
-                          {ink.bestPrice > 0 ? (
-                            <>
-                              <p
-                                style={{
-                                  color: "#5e5e5e",
-                                  margin: "0"
-                                }}
-                              >
-                                <b>
-                                  {ethers.utils.formatEther(ink.bestPrice)}{" "}
-                                </b>
-                              </p>
-
-                              <img
-                                src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
-                                alt="xdai"
-                                style={{ marginLeft: 5 }}
-                              />
-                            </>
-                          ) : (
-                            <>
-                              <img
-                                src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
-                                alt="xdai"
-                                style={{
-                                  marginLeft: 5,
-                                  visibility: "hidden"
-                                }}
-                              />
-                            </>
-                          )}
-                        </Row>
-                        <Divider style={{ margin: "8px 0px" }} />
-                        <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
-                          {"Edition: " +
-                            ink.count +
-                            (ink.limit > 0 ? "/" + ink.limit : "")}
-                        </p>
-                      </Link>
-                    </li>
-                  ))
-              ) : (
-                <Loader />
-              )}
-            </ul>
-          </div> */}
+          <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} />
         </TabPane>
         <TabPane tab="📈 Statistics" key="3">
-          {/* <div style={{ marginTop: "20px" }}>
-            <Row gutter={16}>
-              <ul
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                  padding: "0",
-                  margin: "0 20px"
-                }}
-              >
-                <StatCard
-                  name={"Inks created"}
-                  value={data.artists.length ? data.artists[0].inkCount : 0}
-                  emoji={"🖼️"}
-                />
-                <StatCard
-                  name={"Inks sold"}
-                  value={data.artists.length ? data.artists[0].saleCount : 0}
-                  emoji={"🖼️"}
-                />
-                <StatCard
-                  name={"Likes"}
-                  value={data.artists.length ? data.artists[0].likeCount : 0}
-                  emoji={"👍"}
-                />
-                <StatCard
-                  name={"Earnings"}
-                  value={`$${
-                    data.artists.length
-                      ? parseInt(
-                          ethers.utils.formatEther(data.artists[0].earnings)
-                        ).toFixed(2)
-                      : 0
-                  }`}
-                  emoji={"💲"}
-                />
-              </ul>
-            </Row>
-          </div> */}
+          <div className="flex flex-wrap justify-center p-0 my-0 mx-5">
+            <StatCard name={"Inks created"} value={data?.artists.length ? data?.artists[0].inkCount : 0} emoji={"🖼️"} />
+            <StatCard name={"Inks sold"} value={data?.artists.length ? data?.artists[0].saleCount : 0} emoji={"🖼️"} />
+            <StatCard name={"Likes"} value={data?.artists.length ? data?.artists?.[0].likeCount : 0} emoji={"👍"} />
+            <StatCard
+              name={"Earnings"}
+              value={`$${data?.artists.length ? parseFloat(formatEther(data?.artists[0].earnings)).toFixed(2) : 0}`}
+              emoji={"💲"}
+            />
+          </div>
         </TabPane>
         <TabPane tab="🕗 Recent activity" key="4">
           {/* {activity !== undefined && Object.values(activity).length > 0 ? (
