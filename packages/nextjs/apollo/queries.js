@@ -89,7 +89,7 @@ export const LAST_30_DAILY_TOTALS = gql`
 
 export const TOTALS_UP_TO_DATE = gql`
   query totals($date: Int) {
-    totals(where: { day: $date }) {
+    totals(where: { day_gte: $date }) {
       artists
       day
       inks
