@@ -29,23 +29,12 @@ const Artist = ({ params }: { params: { address: string } }) => {
 
   useEffect(() => {
     const getInks = async (data: Ink[]) => {
-      setInks([]);
-      //   let blocklist;
-      //   if (props.supabase) {
-      //     let { data: supabaseBlocklist } = await props.supabase
-      //       .from("blocklist")
-      //       .select("jsonUrl");
-      //     blocklist = supabaseBlocklist;
-      //   }
+      const updatedInks: Ink[] = [];
       for (const ink of data) {
-        // if (isBlocklisted(ink.jsonUrl)) return;
-        // if (blocklist && blocklist.find(el => el.jsonUrl === ink.jsonUrl)) {
-        //   return;
-        // }
         const metadata = await getMetadata(ink.jsonUrl);
-        setInks(inks => [...inks, { ...ink, metadata }]);
-        // newInks[_ink.inkNumber] = _ink;
+        updatedInks.push({ ...ink, metadata });
       }
+      setInks(updatedInks);
     };
     data !== undefined && data.artists[0] && inks.length === 0 ? getInks(data.artists[0].inks) : console.log("loading");
 
