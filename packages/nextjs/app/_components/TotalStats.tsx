@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StatCard from "./StatCard";
-import { Form, Row, Select } from "antd";
+import { Form, Row, Select, Typography } from "antd";
 import { formatEther } from "viem";
 
 const { Option } = Select;
@@ -10,8 +10,6 @@ const { Option } = Select;
 interface TotalStatsProps {
   totalDataNow: TotalData;
   totalDataBefore: TotalData;
-  isLoadingTotalDataNow: boolean;
-  isLoadingTotalDataBefore: boolean;
   period: string;
   handleChangePeriod: (varName: string, newVal: string) => void;
 }
@@ -36,14 +34,7 @@ const defaultTotalData: TotalData = {
   users: 0,
 };
 
-const TotalStats: React.FC<TotalStatsProps> = ({
-  totalDataNow,
-  totalDataBefore,
-  isLoadingTotalDataNow,
-  isLoadingTotalDataBefore,
-  period,
-  handleChangePeriod,
-}) => {
+const TotalStats: React.FC<TotalStatsProps> = ({ totalDataNow, totalDataBefore, period, handleChangePeriod }) => {
   const [totalData, setTotalData] = useState<TotalData>(defaultTotalData);
 
   useEffect(() => {
@@ -64,7 +55,8 @@ const TotalStats: React.FC<TotalStatsProps> = ({
 
   return (
     <>
-      <div className="flex items-center justify-center my-5">
+      <div className="flex flex-col items-center justify-center my-5">
+        <Typography.Title level={3}>Total statistics</Typography.Title>
         <Form initialValues={{ period: period }}>
           <Form.Item name="period" className="m-0">
             <Select
@@ -81,17 +73,9 @@ const TotalStats: React.FC<TotalStatsProps> = ({
           </Form.Item>
         </Form>
       </div>
-      <div style={{ marginTop: "20px" }}>
+      <div className="mt-5">
         <Row gutter={16}>
-          <ul
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              padding: "0",
-              margin: "0 20px",
-            }}
-          >
+          <ul className="flex flex-wrap justify-center p-0 mx-5">
             <StatCard name={"Inks"} value={totalData.inks} emoji={"🖼️"} />
             <StatCard name={"Tokens"} value={totalData.tokens} emoji={"🪙"} />
             <StatCard name={"Sale Value"} value={Number(totalData.saleValue)?.toFixed(2)} emoji={"💲"} />

@@ -1,35 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import TotalStats from "../_components/TotalStats";
 import { useQuery } from "@apollo/client";
-import dayjs from "dayjs";
 import { TOTALS, TOTALS_UP_TO_DATE } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
-
-const calculateStartingDate = (period: string) => {
-  const startOfDay = dayjs().startOf("day");
-  switch (period) {
-    case "month":
-      return startOfDay.subtract(28, "day").unix();
-    case "week":
-      return startOfDay.subtract(1, "week").unix();
-    case "year":
-      return startOfDay.subtract(1, "year").unix();
-    default:
-      return startOfDay.unix();
-  }
-};
+import { calculateStartingDate, createQueryString } from "~~/utils/helpers";
 
 const Stats = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [dailyTotals, setDailyTotals] = useState(null);
-  const [period, setPeriod] = useState<string>("month");
-  const [startingDate, setStartingDate] = useState(dayjs().startOf("day").subtract(7, "day").unix());
+  const [period, setPeriod] = useState<string>(searchParams.get("period") || "month");
+  const [startingDate, setStartingDate] = useState<number>(
+    calculateStartingDate(searchParams.get("period") || "month"),
+  );
 
   const {
     loading: isLoadingTotalDataBefore,
@@ -43,13 +30,8 @@ const Stats = () => {
 
   const { loading: isLoadingTotalDataNow, error: errorTotalDataNow, data: totalDataNow } = useQuery(TOTALS);
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-
-      return params.toString();
-    },
+  const createQueryStringCallback = useCallback(
+    (name: string, value: string) => createQueryString(name, value, searchParams),
     [searchParams],
   );
 
@@ -57,7 +39,7 @@ const Stats = () => {
     if (varName === "period") {
       setPeriod(newVal);
       setStartingDate(calculateStartingDate(newVal));
-      router.push(pathname + "?" + createQueryString("period", newVal));
+      router.push(pathname + "?" + createQueryStringCallback("period", newVal));
     }
   };
 
@@ -70,8 +52,6 @@ const Stats = () => {
       <TotalStats
         totalDataNow={totalDataNow?.totals?.[0]}
         totalDataBefore={totalDataBefore?.totals?.[0]}
-        isLoadingTotalDataNow={isLoadingTotalDataNow}
-        isLoadingTotalDataBefore={isLoadingTotalDataNow}
         period={period}
         handleChangePeriod={handleChange}
       />
