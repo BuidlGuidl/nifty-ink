@@ -14,6 +14,7 @@ const Stats = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [metric, setMetric] = useState<string>(searchParams.get("metric") || "tokens");
   const [period, setPeriod] = useState<string>(searchParams.get("period") || "month");
   const [startingDate, setStartingDate] = useState<number>(
     calculateStartingDate(searchParams.get("period") || "month"),
@@ -54,6 +55,9 @@ const Stats = () => {
       setPeriod(newVal);
       setStartingDate(calculateStartingDate(newVal));
       router.push(pathname + "?" + createQueryStringCallback("period", newVal));
+    } else if (varName === "metric") {
+      setMetric(newVal);
+      router.push(pathname + "?" + createQueryStringCallback("metric", newVal));
     }
   };
 
@@ -63,7 +67,9 @@ const Stats = () => {
 
   return (
     <div className="max-w-screen-xl">
-      {lastMonthData && lastMonthData?.dailyTotals && <HistoryStats lastMonthData={lastMonthData?.dailyTotals} />}
+      {lastMonthData && lastMonthData?.dailyTotals && (
+        <HistoryStats lastMonthData={lastMonthData?.dailyTotals} metric={metric} handleChangeMetric={handleChange} />
+      )}
       <TotalStats
         totalDataNow={totalDataNow?.totals?.[0]}
         totalDataBefore={totalDataBefore?.totals?.[0]}

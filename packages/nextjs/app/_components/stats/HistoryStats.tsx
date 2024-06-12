@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import StatCard from "../StatCard";
 import LineChart from "./LineChart";
 import ToolTip from "./ToolTip";
 import { Col, Form, Row, Select, Typography } from "antd";
@@ -11,7 +10,8 @@ const { Option } = Select;
 
 interface HistoryStatsProps {
   lastMonthData?: HistoryData[];
-  handleChangePeriod?: (varName: string, newVal: string) => void;
+  metric: string;
+  handleChangeMetric: (varName: string, newVal: string) => void;
 }
 
 type HistoryData = {
@@ -25,21 +25,36 @@ type HistoryData = {
   users: number;
 };
 
-const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, handleChangePeriod }) => {
+const formatUnixTimestamp = (timestamp: number) => {
+  const date = new Date(timestamp * 1000);
+  const options: Intl.DateTimeFormatOptions = { month: "short", day: "2-digit" };
+  return date.toLocaleDateString("en-US", options);
+};
+
+const formatData = (data: HistoryData[], metric: string) => {
+  return data.map((x, count) => {
+    const formattedValue =
+      metric === "saleValue"
+        ? parseFloat(formatEther(BigInt(x[metric as keyof HistoryData])))
+        : parseFloat(String(x[metric as keyof HistoryData]));
+
+    return {
+      d: formatUnixTimestamp(x.day),
+      p: metric === "saleValue" ? formattedValue.toFixed(2) : x[metric as keyof HistoryData],
+      x: count,
+      y: formattedValue,
+    };
+  });
+};
+
+const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, metric, handleChangeMetric }) => {
   const [hoverLoc, setHoverLoc] = useState<number | null>(null);
   const [activePoint, setActivePoint] = useState(null);
-  const metric = "saleValue";
-  const [finalData, setFinalData] = useState(
-    lastMonthData &&
-      lastMonthData.map((x, count) => {
-        return {
-          d: "hi",
-          p: metric === "saleValue" ? parseFloat(formatEther(BigInt(x[metric]))).toFixed(2) : "klj",
-          x: count,
-          y: metric === "saleValue" ? +parseFloat(formatEther(BigInt(x[metric]))).toFixed(2) : parseFloat(x[metric]),
-        };
-      }),
-  );
+  const [finalData, setFinalData] = useState(lastMonthData && formatData(lastMonthData, metric));
+
+  useEffect(() => {
+    if (lastMonthData) setFinalData(formatData(lastMonthData, metric));
+  }, [metric]);
 
   console.log(lastMonthData && lastMonthData.length);
   console.log(finalData);
@@ -52,50 +67,32 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, handleChange
   };
 
   return (
-    <div className="">
-      <div style={{ marginTop: "16px", textAlign: "left" }}>
-        <div className="container">
-          <div className="row">
-            <Typography.Title level={3}>Daily statistics over the previous month</Typography.Title>
-          </div>
-          <Row gutter={16}>
-            <Col>
-              {/* <Form layout={"inline"} initialValues={{ metric: metric }}>
-                <Form.Item name="metric" size="large">
-                  <Select
-                    value={metric}
-                    size="large"
-                    onChange={val => {
-                      searchParams.set("metric", val);
-                      history.push(`${location.pathname}?${searchParams.toString()}`);
-                      setMetric(val);
-                    }}
-                  >
-                    <Option value="tokens">Tokens</Option>
-                    <Option value="inks">Inks</Option>
-                    <Option value="sales">Sales</Option>
-                    <Option value="upgrades">Upgrades</Option>
-                    <Option value="artists">Artists</Option>
-                    <Option value="saleValue">Sale Value</Option>
-                    <Option value="users">Users</Option>
-                  </Select>
-                </Form.Item>
-              </Form> */}
-            </Col>
-          </Row>
-          <div className="row">
-            <div className="popup">
-              {finalData && hoverLoc ? <ToolTip hoverLoc={hoverLoc} activePoint={activePoint} /> : null}
-            </div>
-          </div>
-          <div className="row">
-            <div className="items-left">
-              {finalData ? (
-                <LineChart data={finalData} onChartHover={(a: any, b: any) => handleChartHover(a, b)} />
-              ) : null}
-            </div>
-          </div>
-        </div>
+    <div className="mt-5">
+      <div className="flex flex-col items-center justify-center">
+        <Typography.Title level={3}>Daily statistics over the previous month</Typography.Title>
+        <Form layout={"inline"} initialValues={{ metric: metric }}>
+          <Form.Item name="metric">
+            <Select
+              value={metric}
+              size="large"
+              onChange={val => {
+                handleChangeMetric("metric", val);
+              }}
+            >
+              <Option value="tokens">Tokens</Option>
+              <Option value="inks">Inks</Option>
+              <Option value="sales">Sales</Option>
+              <Option value="upgrades">Upgrades</Option>
+              <Option value="artists">Artists</Option>
+              <Option value="saleValue">Sale Value</Option>
+              <Option value="users">Users</Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </div>
+      <div>
+        {finalData && hoverLoc ? <ToolTip hoverLoc={hoverLoc} activePoint={activePoint} /> : null}
+        {finalData ? <LineChart data={finalData} onChartHover={(a: any, b: any) => handleChartHover(a, b)} /> : null}
       </div>
     </div>
   );
