@@ -7,6 +7,17 @@ interface Artist {
   likeCount?: number;
 }
 
+type HistoryData = {
+  artists: number;
+  day: number;
+  inks: number;
+  sales: number;
+  saleValue: number;
+  tokens: number;
+  upgrades: number;
+  users: number;
+};
+
 interface Ink {
   __typename: string;
   artist: Artist;

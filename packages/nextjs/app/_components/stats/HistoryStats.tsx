@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import LineChart from "./LineChart";
 import ToolTip from "./ToolTip";
-import { Col, Form, Row, Select, Typography } from "antd";
+import { Form, Select, Typography } from "antd";
 import { formatEther } from "viem";
 
 const { Option } = Select;
@@ -13,17 +13,6 @@ interface HistoryStatsProps {
   metric: string;
   handleChangeMetric: (varName: string, newVal: string) => void;
 }
-
-type HistoryData = {
-  artists: number;
-  day: number;
-  inks: number;
-  sales: number;
-  saleValue: number;
-  tokens: number;
-  upgrades: number;
-  users: number;
-};
 
 const formatUnixTimestamp = (timestamp: number) => {
   const date = new Date(timestamp * 1000);
@@ -56,12 +45,7 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, metric, hand
     if (lastMonthData) setFinalData(formatData(lastMonthData, metric));
   }, [metric]);
 
-  console.log(lastMonthData && lastMonthData.length);
-  console.log(finalData);
-
   const handleChartHover = (hoverLoc: number | null, activePoint: any) => {
-    console.log("Hover Location:", hoverLoc);
-    console.log("Active Point:", activePoint);
     setHoverLoc(hoverLoc);
     setActivePoint(activePoint);
   };

@@ -30,9 +30,6 @@ const Stats = () => {
     },
   });
 
-  console.log(lastMonthData);
-  console.log(lastMonthData?.dailyTotals);
-
   const {
     loading: isLoadingTotalDataBefore,
     error: errorTotalDataBefore,

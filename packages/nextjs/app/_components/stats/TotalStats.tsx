@@ -14,15 +14,7 @@ interface TotalStatsProps {
   handleChangePeriod: (varName: string, newVal: string) => void;
 }
 
-type TotalData = {
-  artists: number;
-  inks: number;
-  sales: number;
-  saleValue: number;
-  tokens: number;
-  upgrades: number;
-  users: number;
-};
+type TotalData = Omit<HistoryData, "day">;
 
 const defaultTotalData: TotalData = {
   artists: 0,
