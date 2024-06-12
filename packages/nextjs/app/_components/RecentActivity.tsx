@@ -10,6 +10,7 @@ import { formatEther } from "viem";
 import { ARTIST_RECENT_ACTIVITY_QUERY, FIRST_ARTIST_ACTIVITY_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
+import xDai from "~~/public/xDAI.png";
 import { calculateStartingDate } from "~~/utils/helpers";
 
 interface SearchAddressProps {
@@ -153,54 +154,22 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
   };
 
   return (
-    <div className="mt-5 mr-10 flex justify-end gap-14 text-black">
+    <div className="ml-10 flex justify-end gap-14 text-black">
       {activity !== undefined && activity?.length > 0 ? (
-        <div style={{ width: "450px", margin: "0 auto" }}>
-          <ul
-            style={{
-              listStyle: "none",
-              padding: 0,
-              textAlign: "left",
-              marginTop: "20px",
-            }}
-          >
+        <div className="">
+          <ul className="list-none p-0 text-left mt-5">
             {activity
               .sort((a, b) => b.createdAt - a.createdAt)
               .map((e, i) => (
-                <li
-                  key={i}
-                  style={{
-                    borderBottom: "1px solid #f0f0f0",
-                    padding: "5px 0",
-                    display: "flex",
-                  }}
-                >
+                <li key={i} className="border-b border-gray-200 py-1.5 flex">
                   <Link href={{ pathname: "/ink/" + e.inkId }}>
-                    <div style={{ position: "relative", top: "0", left: "0" }}>
+                    <div className="relative top-0 left-0">
                       <img
                         src={`https://ipfs.nifty.ink/${e.inkId}`}
                         alt="ink"
-                        style={{
-                          width: "70px",
-                          border: "1px solid #f0f0f0",
-                          borderRadius: "5px",
-                          padding: "5px",
-                          position: "relative",
-                          top: "0",
-                          left: "0",
-                        }}
+                        className="w-[70px] border border-gray-300 rounded-[5px] p-[5px] relative top-0 left-0"
                       ></img>
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: "42px",
-                          left: "0",
-                          border: "2px solid #f0f0f0",
-                          background: "white",
-                          borderRadius: "5px",
-                          padding: "1px",
-                        }}
-                      >
+                      <span className="absolute top-[42px] left-0 border-2 border-gray-200 bg-white rounded-[5px] p-[1px]">
                         {e.emoji}
                       </span>
                     </div>
@@ -215,11 +184,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                       <Typography.Text className="inline-flex">
                         Bought by <Address address={e.buyer} disableAddressLink={true} format="short" size="xs" />
                         for {formatEther(BigInt(e.price!))}{" "}
-                        <img
-                          src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
-                          alt="xdai"
-                          style={{ marginLeft: 1, marginRight: 3 }}
-                        />{" "}
+                        <img src={xDai.src} alt="xdai" className="ml-[1px] mr-[3px]" />{" "}
                         <a
                           href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
                           target="_blank"
@@ -280,7 +245,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
             <div className="flex justify-center text-gray-600">
               {`Since ${new Date(startFrom * 1000).toISOString().slice(0, 10)}`}
             </div>
-            {activity[activity.length - 1].createdAt <= userFirstActivity ? null : (
+            {activity[activity.length - 1].createdAt > userFirstActivity && (
               <Button type="dashed" size="large" block onClick={() => onLoadMore()}>
                 Load more
               </Button>
