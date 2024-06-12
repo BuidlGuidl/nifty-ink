@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const ARTISTS_QUERY = gql`
   query artists($address: Bytes!) {
@@ -12,12 +12,7 @@ export const ARTISTS_QUERY = gql`
       lastInkAt
       likeCount
       saleCount
-      inks(
-        first: 999
-        orderBy: createdAt
-        orderDirection: desc
-        where: { burned: false }
-      ) {
+      inks(first: 999, orderBy: createdAt, orderDirection: desc, where: { burned: false }) {
         id
         jsonUrl
         limit
@@ -46,13 +41,7 @@ export const TOP_ARTISTS_QUERY = gql`
     $createdAt: Int
     $filters: Artist_filter
   ) {
-    artists(
-      first: $first
-      skip: $skip
-      where: $filters
-      orderBy: $orderBy
-      orderDirection: $orderDirection
-    ) {
+    artists(first: $first, skip: $skip, where: $filters, orderBy: $orderBy, orderDirection: $orderDirection) {
       inkCount
       earnings
       address
@@ -120,19 +109,8 @@ export const TOTALS = gql`
 `;
 
 export const TOP_COLLECTORS_QUERY = gql`
-  query users(
-    $first: Int
-    $orderBy: String
-    $orderDirection: String
-    $createdAt: Int
-    $filters: User_filter
-  ) {
-    users(
-      first: $first
-      orderBy: $orderBy
-      orderDirection: $orderDirection
-      where: $filters
-    ) {
+  query users($first: Int, $orderBy: String, $orderDirection: String, $createdAt: Int, $filters: User_filter) {
+    users(first: $first, orderBy: $orderBy, orderDirection: $orderDirection, where: $filters) {
       tokenCount
       saleCount
       purchaseCount
@@ -156,13 +134,7 @@ export const TOP_COLLECTORS_QUERY = gql`
 
 export const INKS_QUERY = gql`
   query inks($first: Int, $skip: Int) {
-    inks(
-      first: $first
-      skip: $skip
-      orderBy: createdAt
-      orderDirection: desc
-      where: { burned: false }
-    ) {
+    inks(first: $first, skip: $skip, orderBy: createdAt, orderDirection: desc, where: { burned: false }) {
       id
       inkNumber
       createdAt
@@ -176,21 +148,8 @@ export const INKS_QUERY = gql`
 `;
 
 export const EXPLORE_QUERY = gql`
-  query inks(
-    $first: Int
-    $skip: Int
-    $orderBy: String
-    $orderDirection: String
-    $filters: Ink_filter
-    $liker: String
-  ) {
-    inks(
-      first: $first
-      skip: $skip
-      where: $filters
-      orderBy: $orderBy
-      orderDirection: $orderDirection
-    ) {
+  query inks($first: Int, $skip: Int, $orderBy: String, $orderDirection: String, $filters: Ink_filter, $liker: String) {
+    inks(first: $first, skip: $skip, where: $filters, orderBy: $orderBy, orderDirection: $orderDirection) {
       id
       inkNumber
       createdAt
@@ -234,13 +193,7 @@ export const HOLDINGS_QUERY = gql`
     user(id: $owner) {
       tokenCount
     }
-    tokens(
-      first: $first
-      skip: $skip
-      where: { owner: $owner }
-      orderBy: createdAt
-      orderDirection: desc
-    ) {
+    tokens(first: $first, skip: $skip, where: { owner: $owner }, orderBy: createdAt, orderDirection: desc) {
       owner {
         id
       }
@@ -326,12 +279,7 @@ export const INK_MAIN_QUERY = gql`
 
 export const HOLDINGS_MAIN_QUERY = gql`
   query tokens($owner: Bytes!) {
-    tokens(
-      first: 999
-      where: { owner: $owner }
-      orderBy: createdAt
-      orderDirection: desc
-    ) {
+    tokens(first: 999, where: { owner: $owner }, orderBy: createdAt, orderDirection: desc) {
       id
       owner
       network
@@ -358,25 +306,14 @@ export const HOLDINGS_MAIN_INKS_QUERY = gql`
 `;
 
 export const ARTIST_RECENT_ACTIVITY_QUERY = gql`
-  query artists(
-    $createdAt: Int
-    $address: String
-    $skipLikes: Int
-    $skipSales: Int
-    $skipTransfers: Int
-  ) {
+  query artists($createdAt: Int, $address: String, $skipLikes: Int, $skipSales: Int, $skipTransfers: Int) {
     artists(where: { address: $address }) {
       id
       lastLikeAt
       lastSaleAt
       lastInkAt
       createdAt
-      sales(
-        skip: $skipSales
-        orderBy: createdAt
-        orderDirection: desc
-        where: { createdAt_gt: $createdAt }
-      ) {
+      sales(skip: $skipSales, orderBy: createdAt, orderDirection: desc, where: { createdAt_gt: $createdAt }) {
         ink {
           id
           jsonUrl
@@ -392,12 +329,7 @@ export const ARTIST_RECENT_ACTIVITY_QUERY = gql`
         price
         transactionHash
       }
-      likes(
-        skip: $skipLikes
-        orderBy: createdAt
-        orderDirection: desc
-        where: { createdAt_gt: $createdAt }
-      ) {
+      likes(skip: $skipLikes, orderBy: createdAt, orderDirection: desc, where: { createdAt_gt: $createdAt }) {
         id
         ink {
           id
@@ -436,6 +368,18 @@ export const ARTIST_RECENT_ACTIVITY_QUERY = gql`
           id
         }
       }
+    }
+  }
+`;
+
+export const FIRST_ARTIST_ACTIVITY_QUERY = gql`
+  query MyQuery($first: Int = 10) {
+    artists(first: $first, where: { address: $address }, orderBy: createdAt) {
+      id
+      createdAt
+      lastInkAt
+      lastLikeAt
+      lastSaleAt
     }
   }
 `;

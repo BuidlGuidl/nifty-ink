@@ -20,3 +20,10 @@ export const createQueryString = (name: string, value: string, searchParams: URL
 
   return params.toString();
 };
+
+export const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
+  const response = await fetch(`https://gateway.nifty.ink:42069/ipfs/${jsonURL}`);
+  const data: InkMetadata = await response.json();
+  data.image = data.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/");
+  return data;
+};
