@@ -3,12 +3,14 @@ import dayjs from "dayjs";
 export const calculateStartingDate = (period: string) => {
   const startOfDay = dayjs().startOf("day");
   switch (period) {
-    case "month":
-      return startOfDay.subtract(28, "day").unix();
-    case "week":
-      return startOfDay.subtract(1, "week").unix();
     case "year":
       return startOfDay.subtract(1, "year").unix();
+    case "threemonth":
+      return startOfDay.subtract(3, "month").unix();
+    case "month":
+      return startOfDay.subtract(1, "month").unix();
+    case "week":
+      return startOfDay.subtract(1, "week").unix();
     default:
       return startOfDay.unix();
   }

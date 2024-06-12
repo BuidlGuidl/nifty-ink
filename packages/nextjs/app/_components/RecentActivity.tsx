@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { LinkOutlined, SearchOutlined } from "@ant-design/icons";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { LinkOutlined } from "@ant-design/icons";
+import { useQuery } from "@apollo/client";
 import { Button, Typography } from "antd";
 import dayjs from "dayjs";
 import { formatEther } from "viem";
-import { ARTIST_RECENT_ACTIVITY_QUERY } from "~~/apollo/queries";
+import { ARTIST_RECENT_ACTIVITY_QUERY, FIRST_ARTIST_ACTIVITY_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
-import { Address, AddressInput } from "~~/components/scaffold-eth";
-import { AddressType } from "~~/types/abitype/abi";
+import { Address } from "~~/components/scaffold-eth";
+import { calculateStartingDate } from "~~/utils/helpers";
 
 interface SearchAddressProps {
   address: string;
@@ -98,36 +98,59 @@ const createActivityArray = (user: any) => {
 };
 
 export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
-  const [inputAddress, setInputAddress] = useState<AddressType>();
   const [activity, setActivity] = useState<Activity[]>([]);
-
-  //   const [fetchRecentActivity, { data: dataActivity, fetchMore, error: dataError }] =
-  // useLazyQuery(ARTIST_RECENT_ACTIVITY_QUERY);
+  const [startFrom, setStartFrom] = useState<number>(calculateStartingDate("threemonth"));
+  const dateRange = 7776000; // three months
+  const [userFirstActivity, setUserFirstActivity] = useState<number>(calculateStartingDate("threemonth"));
 
   const {
-    loading,
-    error,
+    loading: isLoadingDataActivity,
+    error: errorDataActivity,
     data: dataActivity,
   } = useQuery(ARTIST_RECENT_ACTIVITY_QUERY, {
     variables: {
       address: address,
-      createdAt: 1636802314,
+      createdAt: startFrom,
       skipLikes: 0,
       skipSales: 0,
       skipTransfers: 0,
     },
   });
 
+  const {
+    loading: isLoadingDataFirstActivity,
+    error: errorFirstActivity,
+    data: dataFirstActivity,
+  } = useQuery(FIRST_ARTIST_ACTIVITY_QUERY, {
+    variables: {
+      address: address,
+    },
+  });
+
+  useEffect(() => {
+    setUserFirstActivity(
+      Math.min(
+        Number(dataFirstActivity?.artists[0]?.lastInkAt),
+        Number(dataFirstActivity?.artists[0]?.lastSaleAt),
+        Number(dataFirstActivity?.artists[0]?.lastLikeAt),
+        Number(dataFirstActivity?.artists[0]?.createdAt),
+      ),
+    );
+  }, [dataFirstActivity]);
+
   useEffect(() => {
     const getActivity = (dataActivity: any) => {
       const activityArray = createActivityArray(dataActivity);
       setActivity(activityArray);
     };
-    console.log(dataActivity);
     dataActivity !== undefined && dataActivity.artists.length && dataActivity.artists[0].createdAt !== "0"
       ? getActivity(dataActivity.artists[0])
       : console.log("loading activity");
   }, [dataActivity]);
+
+  const onLoadMore = () => {
+    setStartFrom(startFrom - dateRange);
+  };
 
   return (
     <div className="mt-5 mr-10 flex justify-end gap-14 text-black">
@@ -254,24 +277,14 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                   </div>
                 </li>
               ))}
-            {/* <Row justify="center">
-                  <span style={{ textAlign: "center" }}>
-                    {`Since ${new Date(activityCreatedAt.current * 1000)
-                      .toISOString()
-                      .slice(0, 10)}`}
-                  </span>
-                </Row> */}
-            {/* {Object.values(activity)[Object.values(activity).length - 1]
-                  .createdAt <= userFirstActivity ? null : (
-                  <Button
-                    type="dashed"
-                    size="large"
-                    block
-                    onClick={() => onLoadMore()}
-                  >
-                    Load more
-                  </Button>
-                )} */}
+            <div className="flex justify-center text-gray-600">
+              {`Since ${new Date(startFrom * 1000).toISOString().slice(0, 10)}`}
+            </div>
+            {activity[activity.length - 1].createdAt <= userFirstActivity ? null : (
+              <Button type="dashed" size="large" block onClick={() => onLoadMore()}>
+                Load more
+              </Button>
+            )}
           </ul>
         </div>
       ) : (

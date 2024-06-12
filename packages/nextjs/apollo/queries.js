@@ -373,13 +373,12 @@ export const ARTIST_RECENT_ACTIVITY_QUERY = gql`
 `;
 
 export const FIRST_ARTIST_ACTIVITY_QUERY = gql`
-  query MyQuery($first: Int = 10) {
-    artists(first: $first, where: { address: $address }, orderBy: createdAt) {
-      id
-      createdAt
+  query firstActivity($address: Bytes) {
+    artists(where: { address: $address }) {
       lastInkAt
       lastLikeAt
       lastSaleAt
+      createdAt
     }
   }
 `;
