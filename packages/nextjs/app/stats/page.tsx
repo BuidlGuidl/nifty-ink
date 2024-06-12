@@ -2,9 +2,10 @@
 
 import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import TotalStats from "../_components/TotalStats";
+import HistoryStats from "../_components/stats/HistoryStats";
+import TotalStats from "../_components/stats/TotalStats";
 import { useQuery } from "@apollo/client";
-import { TOTALS, TOTALS_UP_TO_DATE } from "~~/apollo/queries";
+import { LAST_30_DAILY_TOTALS, TOTALS, TOTALS_UP_TO_DATE } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { calculateStartingDate, createQueryString } from "~~/utils/helpers";
 
@@ -17,6 +18,19 @@ const Stats = () => {
   const [startingDate, setStartingDate] = useState<number>(
     calculateStartingDate(searchParams.get("period") || "month"),
   );
+
+  const {
+    loading: isLoadingLastMonthData,
+    error: errorLastMonthData,
+    data: lastMonthData,
+  } = useQuery(LAST_30_DAILY_TOTALS, {
+    variables: {
+      date: calculateStartingDate("month"),
+    },
+  });
+
+  console.log(lastMonthData);
+  console.log(lastMonthData?.dailyTotals);
 
   const {
     loading: isLoadingTotalDataBefore,
@@ -48,7 +62,8 @@ const Stats = () => {
   if (errorTotalDataBefore) return `Error! ${errorTotalDataBefore.message}`;
 
   return (
-    <div className="max-w-xl">
+    <div className="max-w-screen-xl">
+      {lastMonthData && lastMonthData?.dailyTotals && <HistoryStats lastMonthData={lastMonthData?.dailyTotals} />}
       <TotalStats
         totalDataNow={totalDataNow?.totals?.[0]}
         totalDataBefore={totalDataBefore?.totals?.[0]}
