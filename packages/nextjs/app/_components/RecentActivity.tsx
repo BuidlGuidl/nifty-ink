@@ -185,18 +185,12 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
 
                   <div style={{ margin: "10px 12px", color: "#525252" }}>
                     {e.type === "like" ? (
-                      <Typography.Text style={{ margin: 0 }}>
-                        <Link href={{ pathname: "/holdings/" + e.liker }}>
-                          <Address address={e.liker} disableAddressLink={true} format="short" size="xs" />
-                        </Link>{" "}
-                        liked this ink
+                      <Typography.Text className="inline-flex">
+                        <Address address={e.liker} disableAddressLink={true} format="short" size="xs" /> liked this ink
                       </Typography.Text>
                     ) : e.type === "sale" ? (
-                      <Typography.Text style={{ margin: 0 }}>
-                        Bought by{" "}
-                        <Link href={{ pathname: "/holdings/" + e.buyer }}>
-                          <Address address={e.buyer} disableAddressLink={true} format="short" size="xs" />
-                        </Link>{" "}
+                      <Typography.Text className="inline-flex">
+                        Bought by <Address address={e.buyer} disableAddressLink={true} format="short" size="xs" />
                         for {formatEther(BigInt(e.price!))}{" "}
                         <img
                           src="https://gateway.pinata.cloud/ipfs/QmQicgCRLfrrvdvioiPHL55mk5QFaQiX544b4tqBLzbfu6"
@@ -212,27 +206,20 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                         </a>
                       </Typography.Text>
                     ) : e.type === "send" ? (
-                      <span style={{ display: "flex" }}>
-                        <Typography.Text style={{ margin: 0, verticalAlign: "middle" }}>
-                          <Link href={{ pathname: "/holdings/" + e.from }}>
-                            <Address address={e.from} disableAddressLink={true} format="short" size="xs" />
-                          </Link>{" "}
-                          sent to{" "}
-                          <Link href={{ pathname: "/holdings/" + e.to }}>
-                            <Address address={e.to} disableAddressLink={true} format="short" size="xs" />
-                          </Link>{" "}
-                          <a
-                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <LinkOutlined />
-                          </a>
-                        </Typography.Text>
-                      </span>
+                      <Typography.Text className="inline-flex">
+                        <Address address={e.from} disableAddressLink={true} format="short" size="xs" />
+                        sent to <Address address={e.to} disableAddressLink={true} format="short" size="xs" />
+                        <a
+                          href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <LinkOutlined />
+                        </a>
+                      </Typography.Text>
                     ) : e.type === "burn" ? (
-                      <>
-                        <span style={{ margin: 0 }}>{`Ink burned by `}</span>
+                      <Typography.Text className="inline-flex">
+                        Ink burned by
                         <Address
                           address={e.from === zeroAddress ? address : e.from}
                           disableAddressLink={true}
@@ -246,14 +233,12 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                         >
                           <LinkOutlined />
                         </a>
-                      </>
+                      </Typography.Text>
                     ) : e.type === "create" ? (
-                      <Link href={{ pathname: "/ink/" + e.inkId }}>
-                        <span style={{ margin: 0 }}>Created a new ink</span>
-                      </Link>
+                      <Link href={{ pathname: "/ink/" + e.inkId }}>Created a new ink</Link>
                     ) : (
-                      <>
-                        <span style={{ margin: 0 }}>Ink minted</span>{" "}
+                      <Typography.Text className="inline-flex">
+                        Ink minted
                         <a
                           href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
                           target="_blank"
@@ -261,16 +246,9 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                         >
                           <LinkOutlined />
                         </a>
-                      </>
+                      </Typography.Text>
                     )}
-                    <p
-                      style={{
-                        margin: 0,
-                        color: "#8c8c8c",
-                        fontSize: "0.8rem",
-                        marginTop: "2px",
-                      }}
-                    >
+                    <p className="m-0 text-gray-500 text-xs mt-0.5">
                       {dayjs.unix(e.createdAt).format("DD MMM YYYY, HH:mma")}
                     </p>
                   </div>
