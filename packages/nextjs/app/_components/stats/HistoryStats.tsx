@@ -43,7 +43,7 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, metric, hand
 
   useEffect(() => {
     if (lastMonthData) setFinalData(formatData(lastMonthData, metric));
-  }, [metric]);
+  }, [metric, lastMonthData]);
 
   const handleChartHover = (hoverLoc: number | null, activePoint: any) => {
     setHoverLoc(hoverLoc);

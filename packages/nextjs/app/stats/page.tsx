@@ -58,9 +58,10 @@ const Stats = () => {
     }
   };
 
-  if (isLoadingTotalDataBefore || isLoadingTotalDataNow) return <Loader />;
+  if (isLoadingTotalDataBefore || isLoadingTotalDataNow || isLoadingLastMonthData) return <Loader />;
   if (errorTotalDataNow) return `Error! ${errorTotalDataNow.message}`;
   if (errorTotalDataBefore) return `Error! ${errorTotalDataBefore.message}`;
+  if (errorLastMonthData) return `Error! ${errorLastMonthData.message}`;
 
   return (
     <div className="max-w-screen-xl">
