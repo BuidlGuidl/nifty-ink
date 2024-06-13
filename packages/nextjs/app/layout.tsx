@@ -1,3 +1,4 @@
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "@rainbow-me/rainbowkit/styles.css";
 import { ApolloWrapper } from "~~/apollo/ApolloWrapper";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
@@ -16,7 +17,9 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
       <body>
         <ApolloWrapper>
           <ThemeProvider enableSystem>
-            <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
+            <AntdRegistry>
+              <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
+            </AntdRegistry>
           </ThemeProvider>
         </ApolloWrapper>
       </body>
