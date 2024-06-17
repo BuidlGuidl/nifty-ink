@@ -213,6 +213,21 @@ export const HOLDINGS_QUERY = gql`
   }
 `;
 
+export const FIRST_HOLDING_QUERY = gql`
+  query tokens($first: Int = 10, $address: Bytes = "", $owner: String = "") {
+    tokens(where: { owner: $owner }, first: 1, orderBy: createdAt, orderDirection: asc) {
+      ink {
+        id
+        inkNumber
+        jsonUrl
+      }
+      owner {
+        id
+      }
+    }
+  }
+`;
+
 export const INK_QUERY = gql`
   query ink($inkUrl: String!, $liker: String) {
     metaData(id: "blockNumber") {
