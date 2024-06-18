@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
-import { Popover, Row } from "antd";
+import { Button, Popover, Row } from "antd";
 import { FIRST_HOLDING_QUERY, HOLDINGS_MAIN_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
 import { Address } from "~~/components/scaffold-eth";
 import { getMetadata } from "~~/utils/helpers";
@@ -37,14 +37,12 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
   const {
     loading: loadingFirst,
     error: errorFirst,
-    data: firstActivity,
+    data: firstHoldingActivity,
   } = useQuery(FIRST_HOLDING_QUERY, {
     variables: {
       owner: address.toLowerCase(),
     },
   });
-
-  console.log(firstActivity);
 
   useEffect(() => {
     const getHoldings = async (_data: any) => {
@@ -89,9 +87,18 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
     if (data) console.log(data?.tokens);
   }, [data]);
 
-  console.log(dataRaw);
-  console.log(data);
-  console.log(tokens);
+  const onLoadMore = () => {
+    fetchMore({
+      variables: {
+        skip: tokens.length,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return fetchMoreResult;
+      },
+    });
+  };
+
   return (
     <div className="flex justify-center ">
       <div className="inks-grid max-w-xl">
@@ -101,7 +108,6 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                 .sort(function (a, b) {
                   return Number(b.id) - Number(a.id);
                 })
-                // .filter(id => id in tokens)
                 .map((token, id) => (
                   <li
                     key={id}
@@ -207,6 +213,11 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                 ))
             : null}
         </ul>
+        {tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id && (
+          <Button type="dashed" size="large" block className="mt-5 flex items-center" onClick={() => onLoadMore()}>
+            Load more
+          </Button>
+        )}
       </div>
     </div>
   );
