@@ -24,15 +24,15 @@ const Holdings = ({ params }: { params: { address: string } }) => {
       <Profile address={address} />
 
       <Divider className="border-gray-300 min-w-4" />
-      <div className="mb-5">
-        <SearchAddress redirectToPage="artist" />
-      </div>
       <Tabs defaultActiveKey="1" size="large" type="card" className="mt-5flex items-center">
         <TabPane tab="Gnosis Chain" key="1">
           <GnosisChainInks address={address} />
           {/* <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} /> */}
         </TabPane>
         <TabPane tab="Ethereum Mainnet" key="2"></TabPane>
+        <TabPane tab="🔍 Search collector" key="5">
+          <SearchAddress redirectToPage="artist" placeholderText="Search collector" />
+        </TabPane>
       </Tabs>
     </div>
   );

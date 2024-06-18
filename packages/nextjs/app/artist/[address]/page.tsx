@@ -85,7 +85,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
           <RecentActivity address={address} />
         </TabPane>
         <TabPane tab="🔍 Search artists" key="5">
-          <SearchAddress redirectToPage="artist" />
+          <SearchAddress redirectToPage="artist" placeholderText="Search artist" />
         </TabPane>
       </Tabs>
     </div>
