@@ -61,7 +61,11 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
       );
 
       if (processedTokens.length > 0) {
-        setTokens(tokens => [...tokens, ...processedTokens]);
+        setTokens(tokens => {
+          const tokenIds = new Set(tokens.map(token => token.id));
+          const filteredProcessedTokens = processedTokens.filter(token => !tokenIds.has(token.id));
+          return [...tokens, ...filteredProcessedTokens];
+        });
       }
     } catch (error) {
       console.error(error);

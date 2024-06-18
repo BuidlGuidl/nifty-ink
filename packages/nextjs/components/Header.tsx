@@ -3,6 +3,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
@@ -26,7 +27,7 @@ export const menuLinks: HeaderMenuLink[] = [
   },
   {
     label: "🖼 inks",
-    href: "/inks",
+    href: "/artist",
   },
   {
     label: "👛 holdings",
@@ -42,10 +43,10 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "📊 stats",
     href: "/stats",
   },
-  {
-    label: "💡 help",
-    href: "/help",
-  },
+  // {
+  //   label: "💡 help",
+  //   href: "/help",
+  // },
   // {
   //   label: "Debug Contracts",
   //   href: "/debug",
@@ -55,6 +56,7 @@ export const menuLinks: HeaderMenuLink[] = [
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
+  const { address: connectedAddress } = useAccount();
 
   return (
     <>
@@ -91,7 +93,7 @@ export const HeaderMenuLinks = () => {
         ) : (
           <li key={href}>
             <Link
-              href={href}
+              href={["/artist", "/holdings"].find(item => href === item) ? `${href}/${connectedAddress}` : href}
               passHref
               className={`${
                 isActive ? "bg-secondary shadow-md" : ""
