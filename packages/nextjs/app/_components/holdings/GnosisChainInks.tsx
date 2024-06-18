@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { RocketOutlined, SendOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Popover, Row } from "antd";
-import { FIRST_HOLDING_QUERY, HOLDINGS_MAIN_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
-import { Address } from "~~/components/scaffold-eth";
+import { FIRST_HOLDING_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
 import { getMetadata } from "~~/utils/helpers";
 
 interface Token {
@@ -16,7 +16,6 @@ interface Token {
 }
 
 export const GnosisChainInks = ({ address }: { address: string }) => {
-  const [data, setData] = useState<any>(); // Data filtered for latest block update that we have seen
   const [tokens, setTokens] = useState<Token[]>([]); // Object holding information about relevant tokens
 
   const {
@@ -44,19 +43,6 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
     },
   });
 
-  useEffect(() => {
-    const getHoldings = async (_data: any) => {
-      const _blockNumber = parseInt(_data.metaData.value);
-      console.log(_blockNumber);
-      //   if (_blockNumber >= blockNumber) {
-      setData(_data);
-      //   setBlockNumber(_blockNumber);
-      //   }
-    };
-
-    dataRaw ? getHoldings(dataRaw) : console.log("loading data");
-  }, [dataRaw]);
-
   const getTokens = async (data: Token[]): Promise<void> => {
     try {
       const processedTokens: Token[] = await Promise.all(
@@ -83,9 +69,9 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
   };
 
   useEffect(() => {
-    data ? getTokens(data?.tokens) : console.log("loading tokens");
-    if (data) console.log(data?.tokens);
-  }, [data]);
+    dataRaw ? getTokens(dataRaw?.tokens) : console.log("loading tokens");
+    if (dataRaw) console.log(dataRaw?.tokens);
+  }, [dataRaw]);
 
   const onLoadMore = () => {
     fetchMore({
@@ -146,38 +132,42 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                         Edition: {token.ink.count}/{token.ink.limit}
                       </p>
                     </Link>
-                    {/* <Row justify={"center"}>
+                    <Row justify={"center"}>
                       {tokens[id].network === "xDai" ? (
                         <>
-                          {address == props.address && (
+                          {address == address && (
                             <>
                               <Popover
-                                content={
-                                  <SendInkForm
-                                    tokenId={tokens[id].id}
-                                    address={props.address}
-                                    mainnetProvider={props.mainnetProvider}
-                                    injectedProvider={props.injectedProvider}
-                                    transactionConfig={props.transactionConfig}
-                                  />
-                                }
+                                // content={
+                                //   <SendInkForm
+                                //     tokenId={tokens[id].id}
+                                //     address={props.address}
+                                //     mainnetProvider={props.mainnetProvider}
+                                //     injectedProvider={props.injectedProvider}
+                                //     transactionConfig={props.transactionConfig}
+                                //   />
+                                // }
+                                placement="left"
                                 title="Send Ink"
                               >
-                                <Button size="small" type="secondary" style={{ margin: 4, marginBottom: 12 }}>
-                                  <SendOutlined /> Send
+                                <Button size="small" icon={<SendOutlined />} className="m-1 mb-2">
+                                  Send
                                 </Button>
                               </Popover>
-                              <UpgradeInkButton
+                              <Button size="small" disabled className="m-1 mb-2">
+                                Upgrade
+                              </Button>
+                              {/* <UpgradeInkButton
                                 tokenId={tokens[id].id}
                                 injectedProvider={props.injectedProvider}
                                 gasPrice={props.gasPrice}
                                 upgradePrice={props.upgradePrice}
                                 transactionConfig={props.transactionConfig}
                                 buttonSize="small"
-                              />
+                              /> */}
                             </>
                           )}
-                          <NiftyShop
+                          {/* <NiftyShop
                             injectedProvider={props.injectedProvider}
                             metaProvider={props.metaProvider}
                             type={"token"}
@@ -190,7 +180,7 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                             visible={true}
                             transactionConfig={props.transactionConfig}
                             buttonSize="small"
-                          />
+                          /> */}
                         </>
                       ) : (
                         <Button
@@ -208,7 +198,7 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                           <RocketOutlined /> View on OpenSea
                         </Button>
                       )}
-                    </Row> */}
+                    </Row>
                   </li>
                 ))
             : null}
