@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { NiftyShop } from "../NiftyShop";
+import SendInkForm from "../SendInkForm";
 import { RocketOutlined, SendOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Popover, Row } from "antd";
@@ -144,15 +145,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                           {address == connectedAddress && (
                             <>
                               <Popover
-                                // content={
-                                //   <SendInkForm
-                                //     tokenId={tokens[id].id}
-                                //     address={props.address}
-                                //     mainnetProvider={props.mainnetProvider}
-                                //     injectedProvider={props.injectedProvider}
-                                //     transactionConfig={props.transactionConfig}
-                                //   />
-                                // }
+                                content={<SendInkForm connectedAddress={connectedAddress} tokenId={token.id} />}
                                 placement="left"
                                 title="Send Ink"
                               >
@@ -170,10 +163,10 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                                 upgradePrice={props.upgradePrice}
                                 transactionConfig={props.transactionConfig}
                                 buttonSize="small"
-                              /> */}
+                              /> */}{" "}
+                              <NiftyShop price={token.price} itemForSale={token.id} />
                             </>
                           )}
-                          <NiftyShop price={token.price} itemForSale={token.id} />
                         </>
                       ) : (
                         <Button
