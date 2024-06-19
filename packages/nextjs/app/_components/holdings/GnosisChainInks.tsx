@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { NiftyShop } from "../NiftyShop";
 import { RocketOutlined, SendOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Popover, Row } from "antd";
@@ -13,9 +14,10 @@ interface Token {
   network?: string;
   ink: Ink;
   owner: { id: string; __typename: string };
+  price: number;
 }
 
-export const GnosisChainInks = ({ address }: { address: string }) => {
+export const GnosisChainInks = ({ address, connectedAddress }: { address: string; connectedAddress: string }) => {
   const [tokens, setTokens] = useState<Token[]>([]); // Object holding information about relevant tokens
 
   const {
@@ -136,10 +138,10 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                         Edition: {token.ink.count}/{token.ink.limit}
                       </p>
                     </Link>
-                    <Row justify={"center"}>
+                    <div className="flex flex-col gap-0">
                       {tokens[id].network === "xDai" ? (
                         <>
-                          {address == address && (
+                          {address == connectedAddress && (
                             <>
                               <Popover
                                 // content={
@@ -154,11 +156,11 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                                 placement="left"
                                 title="Send Ink"
                               >
-                                <Button size="small" icon={<SendOutlined />} className="m-1 mb-2">
+                                <Button size="small" icon={<SendOutlined />} className="m-1">
                                   Send
                                 </Button>
                               </Popover>
-                              <Button size="small" disabled className="m-1 mb-2">
+                              <Button size="small" disabled className="m-1">
                                 Upgrade
                               </Button>
                               {/* <UpgradeInkButton
@@ -171,20 +173,7 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                               /> */}
                             </>
                           )}
-                          {/* <NiftyShop
-                            injectedProvider={props.injectedProvider}
-                            metaProvider={props.metaProvider}
-                            type={"token"}
-                            ink={tokens[id].ink.id}
-                            itemForSale={tokens[id].id}
-                            gasPrice={props.gasPrice}
-                            address={props.address ? props.address.toLowerCase() : null}
-                            ownerAddress={address.toLowerCase()}
-                            price={tokens[id].price}
-                            visible={true}
-                            transactionConfig={props.transactionConfig}
-                            buttonSize="small"
-                          /> */}
+                          <NiftyShop price={token.price} itemForSale={token.id} />
                         </>
                       ) : (
                         <Button
@@ -202,7 +191,7 @@ export const GnosisChainInks = ({ address }: { address: string }) => {
                           <RocketOutlined /> View on OpenSea
                         </Button>
                       )}
-                    </Row>
+                    </div>
                   </li>
                 ))
             : null}
