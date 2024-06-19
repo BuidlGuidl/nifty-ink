@@ -38,7 +38,6 @@ export const MainnetChainInks = ({ address, connectedAddress }: { address: strin
           const _token = Object.assign({}, token);
           const _tokenInk = inks.filter(ink => ink.id === (token.ink as unknown as string));
           _token.ink = _tokenInk[0];
-          console.log(_token);
 
           const updatedToken = {
             ..._token,
@@ -161,7 +160,6 @@ export const MainnetChainInks = ({ address, connectedAddress }: { address: strin
                           borderColor: "#722ed1",
                         }}
                         onClick={() => {
-                          console.log("item", token.id);
                           window.open(
                             "https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" + token.id,
                           );

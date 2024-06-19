@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { NiftyShop } from "../NiftyShop";
 import SendInkForm from "../SendInkForm";
-import { RocketOutlined, SendOutlined } from "@ant-design/icons";
+import { SendOutlined, UploadOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Popover, Switch } from "antd";
 import { FIRST_HOLDING_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
@@ -152,7 +152,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                     </p>
                   </Link>
                   <div className="flex flex-col gap-0">
-                    {tokens[id].network === "xDai" ? (
+                    {tokens[id].network === "xDai" && (
                       <>
                         {address == connectedAddress && (
                           <>
@@ -165,7 +165,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                                 Send
                               </Button>
                             </Popover>
-                            <Button size="small" disabled className="m-1">
+                            <Button size="small" icon={<UploadOutlined />} disabled className="m-1">
                               Upgrade
                             </Button>
                             {/* <UpgradeInkButton
@@ -180,21 +180,6 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                           </>
                         )}
                       </>
-                    ) : (
-                      <Button
-                        type="primary"
-                        style={{
-                          margin: 8,
-                          background: "#722ed1",
-                          borderColor: "#722ed1",
-                        }}
-                        onClick={() => {
-                          console.log("item", id);
-                          window.open("https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" + id);
-                        }}
-                      >
-                        <RocketOutlined /> View on OpenSea
-                      </Button>
                     )}
                   </div>
                 </li>
