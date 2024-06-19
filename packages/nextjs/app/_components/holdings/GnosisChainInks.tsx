@@ -8,6 +8,7 @@ import { RocketOutlined, SendOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Popover, Switch } from "antd";
 import { FIRST_HOLDING_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
+import Loader from "~~/components/Loader";
 import { getMetadata } from "~~/utils/helpers";
 
 export const GnosisChainInks = ({ address, connectedAddress }: { address: string; connectedAddress: string }) => {
@@ -84,6 +85,8 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
       },
     });
   };
+
+  if (loading) return <Loader />;
 
   return (
     <div className="flex flex-col justify-center">
