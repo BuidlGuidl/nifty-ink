@@ -2,54 +2,50 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { NiftyShop } from "../NiftyShop";
-import SendInkForm from "../SendInkForm";
-import { RocketOutlined, SendOutlined } from "@ant-design/icons";
-import { useQuery } from "@apollo/client";
-import { Button, Popover, Switch } from "antd";
-import { FIRST_HOLDING_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
+import { RocketOutlined } from "@ant-design/icons";
+import { ApolloClient, InMemoryCache, useLazyQuery, useQuery } from "@apollo/client";
+import { Button, Switch } from "antd";
+import { HOLDINGS_MAIN_INKS_QUERY, HOLDINGS_MAIN_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { getMetadata } from "~~/utils/helpers";
 
-export const GnosisChainInks = ({ address, connectedAddress }: { address: string; connectedAddress: string }) => {
+const mainClient = new ApolloClient({
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT_MAINNET,
+  cache: new InMemoryCache(),
+});
+
+export const MainnetChainInks = ({ address, connectedAddress }: { address: string; connectedAddress: string }) => {
   const [tokens, setTokens] = useState<Token[]>([]); // Object holding information about relevant tokens
   const [holderCreationOnly, setHolderCreationOnly] = useState<boolean>(false);
 
   const {
-    loading,
-    error,
+    loading: loadingMain,
+    error: errorMain,
     data: dataRaw,
-    fetchMore,
-  } = useQuery(HOLDINGS_QUERY, {
-    variables: {
-      first: 15,
-      skip: 0,
-      orderBy: "createdAt",
-      orderDirection: "desc",
-      owner: address.toLowerCase(),
-    },
+  } = useQuery(HOLDINGS_MAIN_QUERY, {
+    variables: { owner: address },
+    client: mainClient,
+    pollInterval: 15000,
   });
 
-  const {
-    loading: loadingFirst,
-    error: errorFirst,
-    data: firstHoldingActivity,
-  } = useQuery(FIRST_HOLDING_QUERY, {
-    variables: {
-      owner: address.toLowerCase(),
-    },
-  });
+  const [mainInksQuery, { loading: loadingMainInks, error: errorMainInks, data: dataMainInks }] =
+    useLazyQuery(HOLDINGS_MAIN_INKS_QUERY);
 
-  const getTokens = async (data: Token[]): Promise<void> => {
+  const getTokens = async (data: Token[], inks: Ink[]): Promise<void> => {
     try {
       const processedTokens: Token[] = await Promise.all(
         data.map(async token => {
+          const _token = Object.assign({}, token);
+          const _tokenInk = inks.filter(ink => ink.id === (token.ink as unknown as string));
+          _token.ink = _tokenInk[0];
+          console.log(_token);
+
           const updatedToken = {
-            ...token,
-            network: "xDai",
+            ..._token,
+            network: "mainnet",
             ink: {
-              ...token.ink,
-              metadata: await getMetadata(token.ink.jsonUrl),
+              ..._token.ink,
+              metadata: await getMetadata(_token.ink.jsonUrl),
             },
           };
 
@@ -59,7 +55,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
 
       if (processedTokens.length > 0) {
         setTokens(tokens => {
-          const tokenIds = new Set(tokens.map(token => token.id)); // avoid duplication of inks
+          const tokenIds = new Set(tokens.map(token => token.id));
           const filteredProcessedTokens = processedTokens.filter(token => !tokenIds.has(token.id));
           return [...tokens, ...filteredProcessedTokens];
         });
@@ -70,29 +66,28 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
   };
 
   useEffect(() => {
-    dataRaw ? getTokens(dataRaw?.tokens) : console.log("loading tokens");
-    if (dataRaw) console.log(dataRaw?.tokens);
+    dataRaw ? getMainInks(dataRaw.tokens) : console.log("loading main inks");
   }, [dataRaw]);
 
-  const onLoadMore = () => {
-    fetchMore({
-      variables: {
-        skip: tokens.length,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return fetchMoreResult;
-      },
+  useEffect(() => {
+    dataRaw && dataMainInks ? getTokens(dataRaw?.tokens, dataMainInks.inks) : console.log("loading tokens");
+    if (dataRaw) console.log(dataRaw?.tokens);
+  }, [dataMainInks]);
+
+  const getMainInks = async (_data: Token[]) => {
+    const _inkList = _data.map(a => a.ink);
+    await mainInksQuery({
+      variables: { inkList: _inkList },
     });
   };
 
-  if (loading) return <Loader />;
+  if (loadingMain || loadingMainInks) return <Loader />;
 
   return (
     <div className="flex flex-col justify-center">
       <div className="flex justify-center gap-8 text-center mb-5">
         <div>
-          <b>All Holdings:</b> {dataRaw && dataRaw.user ? parseInt(dataRaw.user.tokenCount) : 0}
+          <b>All Holdings:</b> {dataRaw && dataRaw.tokens ? parseInt(dataRaw.tokens.length) : 0}
         </div>
         <div>
           {`Created by ${connectedAddress == address ? "me" : "holder"}:  `}
@@ -126,7 +121,11 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                     fontWeight: "bold",
                   }}
                 >
-                  <Link href={{ pathname: "/ink/" + token.ink.id }} style={{ color: "black" }}>
+                  <Link
+                    href={{ pathname: "/ink/" + token.ink.id }}
+                    style={{ color: "black" }}
+                    className="flex flex-col items-center"
+                  >
                     <img
                       src={token?.ink?.metadata?.image}
                       alt={token?.ink?.metadata?.name}
@@ -152,59 +151,30 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                     </p>
                   </Link>
                   <div className="flex flex-col gap-0">
-                    {tokens[id].network === "xDai" ? (
-                      <>
-                        {address == connectedAddress && (
-                          <>
-                            <Popover
-                              content={<SendInkForm connectedAddress={connectedAddress} tokenId={token.id} />}
-                              placement="left"
-                              title="Send Ink"
-                            >
-                              <Button size="small" icon={<SendOutlined />} className="m-1">
-                                Send
-                              </Button>
-                            </Popover>
-                            <Button size="small" disabled className="m-1">
-                              Upgrade
-                            </Button>
-                            {/* <UpgradeInkButton
-                                tokenId={tokens[id].id}
-                                injectedProvider={props.injectedProvider}
-                                gasPrice={props.gasPrice}
-                                upgradePrice={props.upgradePrice}
-                                transactionConfig={props.transactionConfig}
-                                buttonSize="small"
-                              /> */}{" "}
-                            <NiftyShop price={token.price} itemForSale={token.id} />
-                          </>
-                        )}
-                      </>
-                    ) : (
+                    {tokens[id].network === "mainnet" && (
                       <Button
                         type="primary"
+                        size="small"
                         style={{
                           margin: 8,
                           background: "#722ed1",
                           borderColor: "#722ed1",
                         }}
                         onClick={() => {
-                          console.log("item", id);
-                          window.open("https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" + id);
+                          console.log("item", token.id);
+                          window.open(
+                            "https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" + token.id,
+                          );
                         }}
+                        icon={<RocketOutlined />}
                       >
-                        <RocketOutlined /> View on OpenSea
+                        View on OpenSea
                       </Button>
                     )}
                   </div>
                 </li>
               ))}
         </ul>
-        {tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id && (
-          <Button type="dashed" size="large" block className="mt-5 flex items-center" onClick={() => onLoadMore()}>
-            Load more
-          </Button>
-        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 import { Profile } from "~~/app/_components/Profile";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
 import { GnosisChainInks } from "~~/app/_components/holdings/GnosisChainInks";
+import { MainnetChainInks } from "~~/app/_components/holdings/MainnetChainInks";
 
 const { Option } = Select;
 
@@ -21,9 +22,10 @@ const Holdings = ({ params }: { params: { address: string } }) => {
       <Tabs defaultActiveKey="1" size="large" type="card" className="mt-5flex items-center">
         <TabPane tab="Gnosis Chain" key="1">
           {connectedAddress && <GnosisChainInks address={address} connectedAddress={connectedAddress} />}
-          {/* <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} /> */}
         </TabPane>
-        <TabPane tab="Ethereum Mainnet" key="2"></TabPane>
+        <TabPane tab="Ethereum Mainnet" key="2">
+          {connectedAddress && <MainnetChainInks address={address} connectedAddress={connectedAddress} />}
+        </TabPane>
         <TabPane tab="🔍 Search collector" key="5">
           <SearchAddress redirectToPage="holdings" placeholderText="Search collector" />
         </TabPane>
