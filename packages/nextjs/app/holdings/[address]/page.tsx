@@ -9,12 +9,6 @@ import { GnosisChainInks } from "~~/app/_components/holdings/GnosisChainInks";
 
 const { Option } = Select;
 
-interface Token {
-  id: string;
-  network?: string;
-  ink: Ink;
-}
-
 const Holdings = ({ params }: { params: { address: string } }) => {
   const address = params?.address;
   const { address: connectedAddress } = useAccount();

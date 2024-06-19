@@ -49,6 +49,14 @@ interface InkMetadataAttribute {
   value: string;
 }
 
+interface Token {
+  id: string;
+  network?: string;
+  ink: Ink;
+  owner: { id: string; __typename: string };
+  price: number;
+}
+
 interface User {
   __typename?: string;
   address: string;

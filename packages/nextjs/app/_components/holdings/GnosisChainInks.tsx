@@ -6,20 +6,13 @@ import { NiftyShop } from "../NiftyShop";
 import SendInkForm from "../SendInkForm";
 import { RocketOutlined, SendOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Popover, Row } from "antd";
+import { Button, Popover, Switch } from "antd";
 import { FIRST_HOLDING_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
 import { getMetadata } from "~~/utils/helpers";
 
-interface Token {
-  id: string;
-  network?: string;
-  ink: Ink;
-  owner: { id: string; __typename: string };
-  price: number;
-}
-
 export const GnosisChainInks = ({ address, connectedAddress }: { address: string; connectedAddress: string }) => {
   const [tokens, setTokens] = useState<Token[]>([]); // Object holding information about relevant tokens
+  const [holderCreationOnly, setHolderCreationOnly] = useState<boolean>(false);
 
   const {
     loading,
@@ -94,72 +87,85 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
 
   return (
     <div className="flex flex-col justify-center">
-      <div className="text-center mb-5">
-        <b>All Holdings:</b> {dataRaw && dataRaw.user ? parseInt(dataRaw.user.tokenCount) : 0}
+      <div className="flex justify-center gap-8 text-center mb-5">
+        <div>
+          <b>All Holdings:</b> {dataRaw && dataRaw.user ? parseInt(dataRaw.user.tokenCount) : 0}
+        </div>
+        <div>
+          {`Created by ${connectedAddress == address ? "me" : "holder"}:  `}
+          <Switch
+            defaultChecked={holderCreationOnly}
+            onChange={() => {
+              setHolderCreationOnly(!holderCreationOnly);
+            }}
+          />
+        </div>
       </div>
-      <div className="inks-grid max-w-xl">
-        <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
-          {tokens
-            ? tokens
-                .sort(function (a, b) {
-                  return Number(b.id) - Number(a.id);
-                })
-                .map((token, id) => (
-                  <li
-                    key={id}
-                    style={{
-                      display: "inline-block",
-                      verticalAlign: "top",
-                      margin: 4,
-                      padding: 5,
-                      border: "1px solid #e5e5e6",
-                      borderRadius: "10px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    <Link href={{ pathname: "/ink/" + token.ink.id }} style={{ color: "black" }}>
-                      <img
-                        src={token?.ink?.metadata?.image}
-                        alt={token?.ink?.metadata?.name}
-                        width="150"
-                        style={{
-                          border: "1px solid #e5e5e6",
-                          borderRadius: "10px",
-                        }}
-                      />
-                      <h3
-                        style={{
-                          margin: "10px 0px 5px 0px",
-                          fontWeight: "700",
-                        }}
-                      >
-                        {token?.ink?.metadata && token?.ink?.metadata?.name?.length > 18
-                          ? token.ink.metadata?.name.slice(0, 15).concat("...")
-                          : token.ink.metadata?.name}
-                      </h3>
 
-                      <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
-                        Edition: {token.ink.count}/{token.ink.limit}
-                      </p>
-                    </Link>
-                    <div className="flex flex-col gap-0">
-                      {tokens[id].network === "xDai" ? (
-                        <>
-                          {address == connectedAddress && (
-                            <>
-                              <Popover
-                                content={<SendInkForm connectedAddress={connectedAddress} tokenId={token.id} />}
-                                placement="left"
-                                title="Send Ink"
-                              >
-                                <Button size="small" icon={<SendOutlined />} className="m-1">
-                                  Send
-                                </Button>
-                              </Popover>
-                              <Button size="small" disabled className="m-1">
-                                Upgrade
+      <div className="max-w-xl">
+        <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
+          {tokens &&
+            tokens
+              .sort(function (a, b) {
+                return Number(b.id) - Number(a.id);
+              })
+              .filter(token => !holderCreationOnly || token.ink.artist.address === address.toLowerCase())
+              .map((token, id) => (
+                <li
+                  key={id}
+                  style={{
+                    display: "inline-block",
+                    verticalAlign: "top",
+                    margin: 4,
+                    padding: 5,
+                    border: "1px solid #e5e5e6",
+                    borderRadius: "10px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <Link href={{ pathname: "/ink/" + token.ink.id }} style={{ color: "black" }}>
+                    <img
+                      src={token?.ink?.metadata?.image}
+                      alt={token?.ink?.metadata?.name}
+                      width="150"
+                      style={{
+                        border: "1px solid #e5e5e6",
+                        borderRadius: "10px",
+                      }}
+                    />
+                    <h3
+                      style={{
+                        margin: "10px 0px 5px 0px",
+                        fontWeight: "700",
+                      }}
+                    >
+                      {token?.ink?.metadata && token?.ink?.metadata?.name?.length > 18
+                        ? token.ink.metadata?.name.slice(0, 15).concat("...")
+                        : token.ink.metadata?.name}
+                    </h3>
+
+                    <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
+                      Edition: {token.ink.count}/{token.ink.limit}
+                    </p>
+                  </Link>
+                  <div className="flex flex-col gap-0">
+                    {tokens[id].network === "xDai" ? (
+                      <>
+                        {address == connectedAddress && (
+                          <>
+                            <Popover
+                              content={<SendInkForm connectedAddress={connectedAddress} tokenId={token.id} />}
+                              placement="left"
+                              title="Send Ink"
+                            >
+                              <Button size="small" icon={<SendOutlined />} className="m-1">
+                                Send
                               </Button>
-                              {/* <UpgradeInkButton
+                            </Popover>
+                            <Button size="small" disabled className="m-1">
+                              Upgrade
+                            </Button>
+                            {/* <UpgradeInkButton
                                 tokenId={tokens[id].id}
                                 injectedProvider={props.injectedProvider}
                                 gasPrice={props.gasPrice}
@@ -167,30 +173,29 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                                 transactionConfig={props.transactionConfig}
                                 buttonSize="small"
                               /> */}{" "}
-                              <NiftyShop price={token.price} itemForSale={token.id} />
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <Button
-                          type="primary"
-                          style={{
-                            margin: 8,
-                            background: "#722ed1",
-                            borderColor: "#722ed1",
-                          }}
-                          onClick={() => {
-                            console.log("item", id);
-                            window.open("https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" + id);
-                          }}
-                        >
-                          <RocketOutlined /> View on OpenSea
-                        </Button>
-                      )}
-                    </div>
-                  </li>
-                ))
-            : null}
+                            <NiftyShop price={token.price} itemForSale={token.id} />
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <Button
+                        type="primary"
+                        style={{
+                          margin: 8,
+                          background: "#722ed1",
+                          borderColor: "#722ed1",
+                        }}
+                        onClick={() => {
+                          console.log("item", id);
+                          window.open("https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" + id);
+                        }}
+                      >
+                        <RocketOutlined /> View on OpenSea
+                      </Button>
+                    )}
+                  </div>
+                </li>
+              ))}
         </ul>
         {tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id && (
           <Button type="dashed" size="large" block className="mt-5 flex items-center" onClick={() => onLoadMore()}>
