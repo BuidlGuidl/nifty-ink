@@ -93,7 +93,10 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
   };
 
   return (
-    <div className="flex justify-center ">
+    <div className="flex flex-col justify-center">
+      <div className="text-center mb-5">
+        <b>All Holdings:</b> {dataRaw && dataRaw.user ? parseInt(dataRaw.user.tokenCount) : 0}
+      </div>
       <div className="inks-grid max-w-xl">
         <ul style={{ padding: 0, textAlign: "center", listStyle: "none" }}>
           {tokens
