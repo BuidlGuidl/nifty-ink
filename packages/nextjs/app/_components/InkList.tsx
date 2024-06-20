@@ -17,13 +17,6 @@ type InkListProps = {
 };
 
 export const InkList = ({ inks, orderBy, orderDirection, layout, connectedAddress, onLoadMore }: InkListProps) => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-    onLoadMore(page * 5);
-  };
-
   return (
     <div>
       <div className="flex items-center flex-col flex-grow">
@@ -73,19 +66,10 @@ export const InkList = ({ inks, orderBy, orderDirection, layout, connectedAddres
                                   )}
                                   <div className="mx-2">
                                     <LikeButton
-                                      // metaProvider={props.metaProvider}
-                                      // metaSigner={props.metaSigner}
-                                      // injectedGsnSigner={props.injectedGsnSigner}
-                                      // signingProvider={props.injectedProvider}
-                                      // localProvider={props.kovanProvider}
-                                      // contractAddress={props.contractAddress}
                                       targetId={inks[ink].inkNumber}
                                       likerAddress={connectedAddress}
-                                      // transactionConfig={props.transactionConfig}
                                       likeCount={inks[ink]?.likeCount || 0}
-                                      hasLiked={false}
-                                      // hasLiked={(likeInfo && likeInfo.likes.length > 0) || false}
-                                      // marginBottom="0"
+                                      hasLiked={inks[ink]?.likes.length > 0}
                                     />
                                   </div>
                                 </div>
@@ -107,7 +91,7 @@ export const InkList = ({ inks, orderBy, orderDirection, layout, connectedAddres
             <button
               className="relative block rounded bg-transparent px-3 py-1.5 text-md transition duration-300 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-700 dark:hover:text-white"
               onClick={() => {
-                goToPage(currentPage + 1);
+                onLoadMore(Object.values(inks).length);
               }}
             >
               Load More

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { InkList } from "./_components/InkList";
 import { useQuery } from "@apollo/client";
-import { DatePicker, Form, Row, Select } from "antd";
+import { DatePicker, Form, Radio, Row, Select } from "antd";
 import dayjs from "dayjs";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
@@ -18,7 +18,8 @@ const Home: NextPage = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const layout = "cards";
+  const [layout, setLayout] = useState<string>("cards");
+
   // let [allInks, setAllInks] = useState<Ink[]>([]);
   const [inks, setInks] = useState<Record<number, Ink>>({});
 
@@ -50,7 +51,7 @@ const Home: NextPage = () => {
     fetchMore: fetchMoreInks,
   } = useQuery(EXPLORE_QUERY, {
     variables: {
-      first: 5,
+      first: 20,
       skip: 0,
       orderBy: orderBy,
       orderDirection: orderDirection,
@@ -70,6 +71,7 @@ const Home: NextPage = () => {
   const onLoadMore = (skip: number) => {
     fetchMoreInks({
       variables: {
+        first: 10,
         skip: skip,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
@@ -124,18 +126,18 @@ const Home: NextPage = () => {
             forSale: forSale,
           }}
         >
-          {/* <Form.Item name="layout">
-              <Radio.Group
-                size="large"
-                value={layout}
-                onChange={v => {
-                  setLayout(v.target.value);
-                }}
-              >
-                <Radio.Button value={"cards"}>Cards</Radio.Button>
-                <Radio.Button value={"tiles"}>Tiles</Radio.Button>
-              </Radio.Group>
-            </Form.Item> */}
+          <Form.Item name="layout">
+            <Radio.Group
+              size="large"
+              value={layout}
+              onChange={v => {
+                setLayout(v.target.value);
+              }}
+            >
+              <Radio.Button value={"cards"}>Cards</Radio.Button>
+              <Radio.Button value={"tiles"}>Tiles</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
           {layout == "cards" && (
             <>
               <Form.Item name="dateRange">
