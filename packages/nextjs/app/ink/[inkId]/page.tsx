@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { InkHistory } from "./InkHistory";
 import { useQuery } from "@apollo/client";
-import { Divider, Row, Tabs } from "antd";
+import { Divider, Row, Tabs, Typography } from "antd";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { ARTISTS_QUERY, INK_MAIN_QUERY, INK_QUERY } from "~~/apollo/queries";
@@ -11,6 +13,7 @@ import { Profile } from "~~/app/_components/Profile";
 import { RecentActivity } from "~~/app/_components/RecentActivity";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
 import StatCard from "~~/app/_components/StatCard";
+import { Address } from "~~/components/scaffold-eth";
 import { getMetadata } from "~~/utils/helpers";
 
 const { TabPane } = Tabs;
@@ -19,6 +22,10 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
   const inkId = params?.inkId;
   const [inks, setInks] = useState<Ink[]>([]);
   const { address: connectedAddress } = useAccount();
+  const [data, setData] = useState();
+  const [blockNumber, setBlockNumber] = useState(0);
+  const [inkJson, setInkJson] = useState({});
+  const [inkTokenTransfers, setInkTokenTransfers] = useState([]);
 
   //   const {
   //     loading: loadingMain,
@@ -39,34 +46,33 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
       inkUrl: inkId,
       // liker: connectedAddress ? connectedAddress.toLowerCase() : "",
     },
-    pollInterval: 2500,
   });
 
   console.log(params);
   console.log(inkId);
   console.log(dataRaw);
 
-  //   useEffect(() => {
-  //       const getInk = async (_data: any) => {
-  //       let _blockNumber = parseInt(_data.metaData.value);
-  //       //console.log(blockNumber, _blockNumber)
-  //       if (_blockNumber >= blockNumber) {
-  //         let tIpfsConfig = { ...props.ipfsConfig };
-  //         tIpfsConfig["timeout"] = 10000;
-  //         let newInkJson = await getFromIPFS(_data.ink.jsonUrl, tIpfsConfig);
+  useEffect(() => {
+    const getInk = async (_data: any) => {
+      const _blockNumber = parseInt(_data.metaData.value);
+      //console.log(blockNumber, _blockNumber)
+      if (_blockNumber >= blockNumber) {
+        // let tIpfsConfig = { ...props.ipfsConfig };
+        // tIpfsConfig["timeout"] = 10000;
+        // let newInkJson = await getFromIPFS(_data.ink.jsonUrl, tIpfsConfig);
 
-  //         setData(_data);
-  //         setBlockNumber(_blockNumber);
-  //         setInkJson(JSON.parse(uint8arrays.toString(newInkJson)));
-  //       }
-  //     };
+        setData(_data);
+        setBlockNumber(_blockNumber);
+        // setInkJson(JSON.parse(uint8arrays.toString(newInkJson)));
+      }
+    };
 
-  //     dataRaw && dataRaw.ink ? getInk(dataRaw) : console.log("loading");
-  //     dataRaw && dataRaw.ink ? setInkTokenTransfers(dataRaw.ink.tokenTransfers) : console.log();
-  //   }, [dataRaw, props.address]);
+    dataRaw && dataRaw.ink ? getInk(dataRaw) : console.log("loading");
+    dataRaw && dataRaw.ink ? setInkTokenTransfers(dataRaw.ink.tokenTransfers) : console.log();
+  }, [dataRaw]);
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl flex flex-col">
       <Row
         style={{
           width: "90vmin",
@@ -143,6 +149,34 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
           </Button>
         )} */}
       </Row>
+
+      <div className="flex flex-col items-center text-center mb-5">
+        <Typography>
+          <span style={{ verticalAlign: "middle", fontSize: 16 }}>{" artist: "}</span>
+        </Typography>
+        <Link href={`/artist/${dataRaw?.ink?.artist?.id}`}>
+          <Address address={dataRaw?.ink?.artist?.id} size="2xl" disableAddressLink />
+        </Link>
+        <Typography>
+          <span className="text-base">
+            {dataRaw?.ink.createdAt &&
+              new Date(parseInt(dataRaw?.ink.createdAt) * 1000).toLocaleString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+          </span>
+        </Typography>
+      </div>
+
+      <Tabs centered defaultActiveKey="2" size="large" type="card">
+        <TabPane tab="Details" key="1">
+          {/* <RecentActivity address={address} /> */}
+        </TabPane>
+        <TabPane tab="History" key="2" className="w-full">
+          <InkHistory inkTokenTransfers={dataRaw?.ink?.tokenTransfers} />
+        </TabPane>
+      </Tabs>
     </div>
   );
 };
