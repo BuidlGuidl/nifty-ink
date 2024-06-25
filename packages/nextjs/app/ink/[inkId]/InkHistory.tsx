@@ -9,83 +9,34 @@ export const InkHistory = ({ inkTokenTransfers }: { inkTokenTransfers: any }) =>
     <div className="h-full w-full">
       {inkTokenTransfers && inkTokenTransfers.length > 0 ? (
         <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "left" }}>
-          <ul style={{ listStyle: "none", padding: "5px", margin: "0" }}>
-            <li
-              style={{
-                padding: "2px 6px",
-                display: "flex",
-                justifyContent: "space-between",
-                fontWeight: "bold",
-                background: "#f5f5f5",
-              }}
-            >
-              <span
-                style={{
-                  flexBasis: "10%",
-                  flexGrow: "1",
-                  fontWeight: "bold",
-                }}
-              >
+          <ul className="list-none p-1 m-0">
+            <li className="py-0.5 px-1.5 flex justify-between font-bold bg-gray-100">
+              <span className="flex-1 font-bold" style={{ flexBasis: "10%" }}>
                 Edition
               </span>
-              <span
-                style={{
-                  flexBasis: "10%",
-                  flexGrow: "1",
-                  fontWeight: "bold",
-                }}
-              >
+              <span className="flex-1 font-bold" style={{ flexBasis: "10%" }}>
                 Action
               </span>
-              <span
-                style={{
-                  flexBasis: "25%",
-                  flexGrow: "1",
-                  fontWeight: "bold",
-                }}
-              >
+              <span className="flex-1 font-bold" style={{ flexBasis: "25%" }}>
                 From
               </span>
-              <span
-                style={{
-                  flexBasis: "25%",
-                  flexGrow: "1",
-                  fontWeight: "bold",
-                }}
-              >
+              <span className="flex-1 font-bold" style={{ flexBasis: "25%" }}>
                 To
               </span>
-              <span style={{ flexBasis: "8%", flexGrow: "1", fontWeight: "bold" }}>Price</span>
-              <span
-                style={{
-                  flexBasis: "12%",
-                  flexGrow: "1",
-                  fontWeight: "bold",
-                }}
-              >
+              <span className="flex-1 font-bold" style={{ flexBasis: "8%" }}>
+                Price
+              </span>
+              <span className="flex-1 font-bold" style={{ flexBasis: "12%" }}>
                 Date
               </span>
             </li>
           </ul>
           {inkTokenTransfers.map((transfer: any) => (
-            <li
-              key={transfer.id}
-              style={{
-                padding: "2px 6px",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <span
-                style={{
-                  flexBasis: "10%",
-                  flexGrow: "1",
-                  fontWeight: "bold",
-                }}
-              >
+            <li key={transfer.id} className="py-0.5 px-1.5 flex justify-between">
+              <span className="flex-1 font-bold" style={{ flexBasis: "10%" }}>
                 {transfer.token.edition}
               </span>
-              <span style={{ flexBasis: "10%", flexGrow: "1" }}>
+              <span className="flex-1" style={{ flexBasis: "10%" }}>
                 <Link
                   href={{
                     pathname: `https://blockscout.com/xdai/mainnet/tx/${transfer.transactionHash}`,
@@ -105,24 +56,22 @@ export const InkHistory = ({ inkTokenTransfers }: { inkTokenTransfers: any }) =>
                     : "Transfer"}
                 </Link>
               </span>
-              <span style={{ flexBasis: "25%", flexGrow: "1" }} className="token-transfer-table-address">
+              <span className="flex-1" style={{ flexBasis: "25%" }}>
                 {transfer.from.id === "0x0000000000000000000000000000000000000000" ? null : (
                   <Link href={`/holdings/${transfer.from.id}`}>
                     <Address address={transfer.to.id} size="xs" disableAddressLink />
                   </Link>
                 )}
               </span>
-              <span style={{ flexBasis: "25%", flexGrow: "1" }} className="token-transfer-table-address">
-                {
-                  <Link href={`/holdings/${transfer.to.id}`}>
-                    <Address address={transfer.to.id} size="xs" disableAddressLink />
-                  </Link>
-                }
+              <span className="flex-1" style={{ flexBasis: "25%" }}>
+                <Link href={`/holdings/${transfer.to.id}`}>
+                  <Address address={transfer.to.id} size="xs" disableAddressLink />
+                </Link>
               </span>
-              <span style={{ flexBasis: "8%", flexGrow: "1" }}>
+              <span className="flex-1" style={{ flexBasis: "8%" }}>
                 {transfer.sale && transfer.sale.price ? "$" + (parseInt(transfer.sale.price) / 1e18).toFixed(2) : "-"}
               </span>
-              <span style={{ flexBasis: "12%", flexGrow: "1" }}>
+              <span className="flex-1" style={{ flexBasis: "12%" }}>
                 {transfer.createdAt &&
                   new Date(parseInt(transfer.createdAt) * 1000).toLocaleString("en-US", {
                     year: "numeric",
