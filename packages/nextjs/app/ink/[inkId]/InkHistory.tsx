@@ -59,7 +59,7 @@ export const InkHistory = ({ inkTokenTransfers }: { inkTokenTransfers: any }) =>
               <span className="flex-1" style={{ flexBasis: "25%" }}>
                 {transfer.from.id === "0x0000000000000000000000000000000000000000" ? null : (
                   <Link href={`/holdings/${transfer.from.id}`}>
-                    <Address address={transfer.to.id} size="xs" disableAddressLink />
+                    <Address address={transfer.from.id} size="xs" disableAddressLink />
                   </Link>
                 )}
               </span>
