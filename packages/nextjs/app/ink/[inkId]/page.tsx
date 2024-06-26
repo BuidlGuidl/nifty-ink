@@ -6,6 +6,7 @@ import { InkDetails } from "./InkDetails";
 import { InkHistory } from "./InkHistory";
 import { useQuery } from "@apollo/client";
 import { Divider, Row, Tabs, Typography } from "antd";
+import * as uint8arrays from "uint8arrays";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { ARTISTS_QUERY, INK_MAIN_QUERY, INK_QUERY } from "~~/apollo/queries";
@@ -16,6 +17,7 @@ import { SearchAddress } from "~~/app/_components/SearchAddress";
 import StatCard from "~~/app/_components/StatCard";
 import { Address } from "~~/components/scaffold-eth";
 import { getMetadata } from "~~/utils/helpers";
+import { getFromIPFS } from "~~/utils/ipfs";
 
 const { TabPane } = Tabs;
 
@@ -45,20 +47,22 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
   useEffect(() => {
     const getInk = async (_data: any) => {
       const _blockNumber = parseInt(_data.metaData.value);
-      //console.log(blockNumber, _blockNumber)
       if (_blockNumber >= blockNumber) {
-        // let tIpfsConfig = { ...props.ipfsConfig };
-        // tIpfsConfig["timeout"] = 10000;
-        // let newInkJson = await getFromIPFS(_data.ink.jsonUrl, tIpfsConfig);
+        const timeout = 10000;
+        const newInkJson = await getFromIPFS(_data.ink.jsonUrl, timeout);
+        console.log(newInkJson);
+        console.log(JSON.parse(uint8arrays.toString(newInkJson)));
 
         setData(_data);
         setBlockNumber(_blockNumber);
-        // setInkJson(JSON.parse(uint8arrays.toString(newInkJson)));
+        setInkJson(JSON.parse(uint8arrays.toString(newInkJson)));
       }
     };
 
     dataRaw && dataRaw.ink ? getInk(dataRaw) : console.log("loading");
   }, [dataRaw]);
+
+  console.log(inkJson);
 
   return (
     <div className="max-w-3xl flex flex-col">
