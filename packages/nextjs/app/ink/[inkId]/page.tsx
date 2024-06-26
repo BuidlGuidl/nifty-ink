@@ -161,7 +161,9 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
       <Tabs centered defaultActiveKey="1" size="large" type="card">
         <TabPane tab="Details" key="1">
           {/* <RecentActivity address={address} /> */}
-          {connectedAddress && <InkDetails ink={dataRaw?.ink} inkId={inkId} connectedAddress={connectedAddress} />}
+          {connectedAddress && dataRaw?.ink && (
+            <InkDetails ink={dataRaw?.ink} inkId={inkId} connectedAddress={connectedAddress} />
+          )}
         </TabPane>
         <TabPane tab="History" key="2" className="w-full">
           <InkHistory inkTokenTransfers={dataRaw?.ink?.tokenTransfers} />

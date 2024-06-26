@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import MintButton from "./MintButton";
 import {
   LikeTwoTone,
   LinkOutlined,
@@ -27,6 +28,7 @@ const mainClient = new ApolloClient({
 });
 
 export const InkDetails = ({ ink, inkId, connectedAddress }: { ink: Ink; inkId: string; connectedAddress: string }) => {
+  const isConnectedAddressArtist = connectedAddress.toLowerCase() === ink.artist.id;
   const [mainnetTokens, setMainnetTokens] = useState<Record<string, string>>({});
 
   const {
@@ -83,73 +85,73 @@ export const InkDetails = ({ ink, inkId, connectedAddress }: { ink: Ink; inkId: 
 
   return (
     <>
-      {ink && (
-        <Row style={{ justifyContent: "center" }}>
-          <List
-            header={
-              <Row
+      <Row style={{ justifyContent: "center" }}>
+        <List
+          header={
+            <Row
+              style={{
+                display: "inline-flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {" "}
+              <Space>
+                <Typography.Title level={3} style={{ marginBottom: "0px" }}>
+                  {mintDescription}
+                </Typography.Title>{" "}
+                {/* {mintFlow}
+                {buyButton} */}
+                {isConnectedAddressArtist && <MintButton inkId={inkId} />}
+              </Space>
+            </Row>
+          }
+          itemLayout="horizontal"
+          dataSource={ink.tokens}
+          renderItem={item => {
+            const openseaButton = (
+              <Button
+                type="primary"
                 style={{
-                  display: "inline-flex",
-                  justifyContent: "center",
-                  alignItems: "center",
+                  margin: 8,
+                  background: "#722ed1",
+                  borderColor: "#722ed1",
+                }}
+                onClick={() => {
+                  console.log("item", item);
+                  window.open("https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" + item.id);
                 }}
               >
-                {" "}
-                <Space>
-                  <Typography.Title level={3} style={{ marginBottom: "0px" }}>
-                    {mintDescription}
-                  </Typography.Title>{" "}
-                  {/* {mintFlow}
-                  {buyButton} */}
-                </Space>
-              </Row>
-            }
-            itemLayout="horizontal"
-            dataSource={ink.tokens}
-            renderItem={item => {
-              const openseaButton = (
-                <Button
-                  type="primary"
-                  style={{
-                    margin: 8,
-                    background: "#722ed1",
-                    borderColor: "#722ed1",
-                  }}
-                  onClick={() => {
-                    console.log("item", item);
-                    window.open("https://opensea.io/assets/0xc02697c417ddacfbe5edbf23edad956bc883f4fb/" + item.id);
-                  }}
-                >
-                  <RocketOutlined /> View on OpenSea
-                </Button>
-              );
+                <RocketOutlined /> View on OpenSea
+              </Button>
+            );
 
-              return (
-                <List.Item>
-                  <Link href={`/holdings/${mainnetTokens[item.id] ?? item.owner.id}`}>
-                    <Address address={mainnetTokens[item.id] ?? item.owner.id} size="sm" disableAddressLink />
-                  </Link>
-                  <a
-                    href={
-                      "https://blockscout.com/poa/xdai/tokens/0xCF964c89f509a8c0Ac36391c5460dF94B91daba5/instance/" +
-                      item.id
-                    }
-                    target="_blank"
-                  >
-                    <LinkOutlined className="mx-1 text-md" />
-                  </a>
-                  {mainnetTokens[item.id] ? (
-                    openseaButton
-                  ) : item.network === "mainnet" ? (
-                    <Typography.Title level={4} style={{ marginLeft: 16 }}>
-                      Upgrading to Ethereum <SyncOutlined spin />
-                    </Typography.Title>
-                  ) : (
-                    <></>
-                  )}
-                  {sendInkButton(item.owner.id, item.id)}
-                  {relayTokenButton(item.network === "mainnet", item.owner.id, item.id)}
-                  {/* <div style={{ marginLeft: 4, marginTop: 4 }}>
+            return (
+              <List.Item>
+                <Link href={`/holdings/${mainnetTokens[item.id] ?? item.owner.id}`}>
+                  <Address address={mainnetTokens[item.id] ?? item.owner.id} size="sm" disableAddressLink />
+                </Link>
+                <a
+                  href={
+                    "https://blockscout.com/poa/xdai/tokens/0xCF964c89f509a8c0Ac36391c5460dF94B91daba5/instance/" +
+                    item.id
+                  }
+                  target="_blank"
+                >
+                  <LinkOutlined className="mx-1 text-md" />
+                </a>
+                {mainnetTokens[item.id] ? (
+                  openseaButton
+                ) : item.network === "mainnet" ? (
+                  <Typography.Title level={4} style={{ marginLeft: 16 }}>
+                    Upgrading to Ethereum <SyncOutlined spin />
+                  </Typography.Title>
+                ) : (
+                  <></>
+                )}
+                {sendInkButton(item.owner.id, item.id)}
+                {relayTokenButton(item.network === "mainnet", item.owner.id, item.id)}
+                {/* <div style={{ marginLeft: 4, marginTop: 4 }}>
                     <NiftyShop
                       injectedProvider={props.injectedProvider}
                       metaProvider={props.metaProvider}
@@ -164,12 +166,11 @@ export const InkDetails = ({ ink, inkId, connectedAddress }: { ink: Ink; inkId: 
                       transactionConfig={props.transactionConfig}
                     />
                   </div> */}
-                </List.Item>
-              );
-            }}
-          />
-        </Row>
-      )}
+              </List.Item>
+            );
+          }}
+        />
+      </Row>
     </>
   );
 };
