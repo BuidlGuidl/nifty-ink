@@ -82,7 +82,7 @@ export const InkListArtist = ({ inks, layout = "cards", connectedAddress, onLoad
                             </div>
                             <Divider className="my-2" />
                             <p className="text-gray-600 m-0 text-sm">
-                              {"Edition: " + ink.count + (ink.limit > 0 ? "/" + ink.limit : "")}
+                              {"Edition: " + ink?.count + (Number(ink?.limit) > 0 ? "/" + ink?.limit : "")}
                             </p>
                           </div>
                         </>

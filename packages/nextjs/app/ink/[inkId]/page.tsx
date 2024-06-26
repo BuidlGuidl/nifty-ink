@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { InkDetails } from "./InkDetails";
 import { InkHistory } from "./InkHistory";
 import { useQuery } from "@apollo/client";
 import { Divider, Row, Tabs, Typography } from "antd";
@@ -25,17 +26,6 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
   const [data, setData] = useState();
   const [blockNumber, setBlockNumber] = useState(0);
   const [inkJson, setInkJson] = useState({});
-  const [inkTokenTransfers, setInkTokenTransfers] = useState([]);
-
-  //   const {
-  //     loading: loadingMain,
-  //     error: errorMain,
-  //     data: dataMain,
-  //   } = useQuery(INK_MAIN_QUERY, {
-  //     variables: { inkUrl: hash },
-  //     pollInterval: 15000,
-  //     client: mainClient,
-  //   });
 
   const {
     loading,
@@ -68,7 +58,6 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
     };
 
     dataRaw && dataRaw.ink ? getInk(dataRaw) : console.log("loading");
-    dataRaw && dataRaw.ink ? setInkTokenTransfers(dataRaw.ink.tokenTransfers) : console.log();
   }, [dataRaw]);
 
   return (
@@ -169,9 +158,10 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
         </Typography>
       </div>
 
-      <Tabs centered defaultActiveKey="2" size="large" type="card">
+      <Tabs centered defaultActiveKey="1" size="large" type="card">
         <TabPane tab="Details" key="1">
           {/* <RecentActivity address={address} /> */}
+          {connectedAddress && <InkDetails ink={dataRaw?.ink} inkId={inkId} connectedAddress={connectedAddress} />}
         </TabPane>
         <TabPane tab="History" key="2" className="w-full">
           <InkHistory inkTokenTransfers={dataRaw?.ink?.tokenTransfers} />

@@ -31,8 +31,9 @@ interface Ink {
   jsonUrl: string;
   likeCount?: number;
   likes: any[];
-  limit: number;
+  limit?: number | string;
   metadata?: InkMetadata;
+  tokens?: Token[];
 }
 
 interface InkMetadata {
