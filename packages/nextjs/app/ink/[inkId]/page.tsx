@@ -40,18 +40,12 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
     },
   });
 
-  console.log(params);
-  console.log(inkId);
-  console.log(dataRaw);
-
   useEffect(() => {
     const getInk = async (_data: any) => {
       const _blockNumber = parseInt(_data.metaData.value);
       if (_blockNumber >= blockNumber) {
         const timeout = 10000;
         const newInkJson = await getFromIPFS(_data.ink.jsonUrl, timeout);
-        console.log(newInkJson);
-        console.log(JSON.parse(uint8arrays.toString(newInkJson)));
 
         setData(_data);
         setBlockNumber(_blockNumber);
@@ -61,8 +55,6 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
 
     dataRaw && dataRaw.ink ? getInk(dataRaw) : console.log("loading");
   }, [dataRaw]);
-
-  console.log(inkJson);
 
   return (
     <div className="max-w-3xl flex flex-col">
@@ -164,7 +156,6 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
 
       <Tabs centered defaultActiveKey="1" size="large" type="card">
         <TabPane tab="Details" key="1">
-          {/* <RecentActivity address={address} /> */}
           {connectedAddress && dataRaw?.ink && (
             <InkDetails ink={dataRaw?.ink} inkId={inkId} connectedAddress={connectedAddress} />
           )}

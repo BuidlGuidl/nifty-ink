@@ -51,9 +51,6 @@ export const InkDetails = ({ ink, inkId, connectedAddress }: { ink: Ink; inkId: 
     }
   }, [dataMain]);
 
-  console.log(dataMain);
-  console.log(mainnetTokens);
-
   let mintDescription;
   if (ink && ink?.limit === "0") {
     mintDescription = (ink.count ? ink.count : "0") + " minted";

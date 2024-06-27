@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Address } from "~~/components/scaffold-eth";
 
 export const InkHistory = ({ inkTokenTransfers }: { inkTokenTransfers: any }) => {
-  console.log(inkTokenTransfers);
   return (
     <div className="h-full w-full">
       {inkTokenTransfers && inkTokenTransfers.length > 0 ? (

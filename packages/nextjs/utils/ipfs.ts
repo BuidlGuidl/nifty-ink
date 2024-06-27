@@ -11,9 +11,7 @@ const ipfsConfig = {
 
 export async function getFromIPFS(hashToGet: string, timeout: number) {
   const ipfs = create({ ...ipfsConfig, timeout });
-  console.log(ipfs);
   const data = uint8arrays.concat(await all(ipfs.cat(hashToGet)));
-  console.log(data);
   return data;
 }
 

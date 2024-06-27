@@ -33,9 +33,6 @@ const MintButton: React.FC<MintButton> = ({ inkId }) => {
       setMinting(false);
     }
   };
-  console.log(form);
-
-  console.log(form.getFieldValue("to"));
 
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
