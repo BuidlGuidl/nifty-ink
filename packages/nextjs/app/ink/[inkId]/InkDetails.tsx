@@ -3,22 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import MintButton from "./MintButton";
-import {
-  LikeTwoTone,
-  LinkOutlined,
-  PlaySquareOutlined,
-  QuestionCircleOutlined,
-  RocketOutlined,
-  SendOutlined,
-  ShopOutlined,
-  ShoppingCartOutlined,
-  StarTwoTone,
-  SyncOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { LinkOutlined, RocketOutlined, SendOutlined, SyncOutlined, UploadOutlined } from "@ant-design/icons";
 import { ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
 import { Button, List, Popover, Row, Space, Typography } from "antd";
 import { INK_MAIN_QUERY } from "~~/apollo/queries";
+import { NiftyShop } from "~~/app/_components/NiftyShop";
+import { NiftyShopBuy } from "~~/app/_components/NiftyShopBuy";
 import SendInkForm from "~~/app/_components/SendInkForm";
 import { Address } from "~~/components/scaffold-eth";
 
@@ -27,8 +17,20 @@ const mainClient = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-export const InkDetails = ({ ink, inkId, connectedAddress }: { ink: Ink; inkId: string; connectedAddress: string }) => {
+export const InkDetails = ({
+  ink,
+  inkId,
+  connectedAddress,
+  inkJson,
+}: {
+  ink: Ink;
+  inkId: string;
+  connectedAddress: string;
+  inkJson: any;
+}) => {
   const isConnectedAddressArtist = connectedAddress.toLowerCase() === ink.artist.id;
+  const isBuyButtonVisible =
+    ink?.count && ink?.limit && (parseInt(ink.count) < parseInt(ink.limit) || ink.limit === "0");
   const [mainnetTokens, setMainnetTokens] = useState<Record<string, string>>({});
 
   const {
@@ -97,15 +99,20 @@ export const InkDetails = ({ ink, inkId, connectedAddress }: { ink: Ink; inkId: 
                 <Typography.Title level={3} style={{ marginBottom: "0px" }}>
                   {mintDescription}
                 </Typography.Title>{" "}
-                {/* {mintFlow}
-                {buyButton} */}
                 {isConnectedAddressArtist && <MintButton inkId={inkId} />}
+                {isConnectedAddressArtist && isBuyButtonVisible ? (
+                  <NiftyShop type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} placement="top" />
+                ) : (
+                  <NiftyShopBuy type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} inkName={inkJson.name} />
+                )}
               </Space>
             </Row>
           }
           itemLayout="horizontal"
           dataSource={ink.tokens}
           renderItem={item => {
+            const isConnectedAddressOwner =
+              connectedAddress && item?.owner?.id && connectedAddress.toLowerCase() === item?.owner?.id;
             const openseaButton = (
               <Button
                 type="primary"
@@ -148,21 +155,12 @@ export const InkDetails = ({ ink, inkId, connectedAddress }: { ink: Ink; inkId: 
                 )}
                 {sendInkButton(item.owner.id, item.id)}
                 {relayTokenButton(item.network === "mainnet", item.owner.id, item.id)}
-                {/* <div style={{ marginLeft: 4, marginTop: 4 }}>
-                    <NiftyShop
-                      injectedProvider={props.injectedProvider}
-                      metaProvider={props.metaProvider}
-                      type={"token"}
-                      ink={inkJson}
-                      itemForSale={item.id}
-                      gasPrice={props.gasPrice}
-                      address={props.address ? props.address.toLowerCase() : null}
-                      ownerAddress={item.owner.id}
-                      price={item.price}
-                      visible={!(item.network === "mainnet")}
-                      transactionConfig={props.transactionConfig}
-                    />
-                  </div> */}
+                {item.network !== "mainnet" &&
+                  (isConnectedAddressOwner ? (
+                    <NiftyShop type={"token"} price={item.price} itemForSale={item.id} placement="top" />
+                  ) : (
+                    <NiftyShopBuy type={"token"} price={item.price} itemForSale={item.id} inkName={inkJson.name} />
+                  ))}
               </List.Item>
             );
           }}

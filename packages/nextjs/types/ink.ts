@@ -31,8 +31,9 @@ interface Ink {
   jsonUrl: string;
   likeCount?: number;
   likes: any[];
-  limit?: number | string;
+  limit?: string;
   metadata?: InkMetadata;
+  mintPrice?: number;
   tokens?: Token[];
 }
 
