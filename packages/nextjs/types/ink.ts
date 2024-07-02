@@ -24,6 +24,7 @@ interface Ink {
   bestPrice: number;
   bestPrceSetAt?: string;
   bestPriceSource?: string;
+  burned?: boolean;
   count: string;
   createdAt: string;
   id: string;

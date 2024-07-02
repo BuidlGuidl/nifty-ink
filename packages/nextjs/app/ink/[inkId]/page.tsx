@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { InkCanvas } from "./InkCanvas";
 import { InkDetails } from "./InkDetails";
 import { InkHistory } from "./InkHistory";
 import { useQuery } from "@apollo/client";
@@ -23,6 +24,7 @@ const { TabPane } = Tabs;
 
 const ViewInk = ({ params }: { params: { inkId: string } }) => {
   const inkId = params?.inkId;
+  const calculatedVmin = Math.min(window.document.body.clientHeight, window.document.body.clientWidth);
   const [inks, setInks] = useState<Ink[]>([]);
   const { address: connectedAddress } = useAccount();
   const [data, setData] = useState();
@@ -134,6 +136,16 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
           </Button>
         )} */}
       </Row>
+
+      {calculatedVmin && connectedAddress && (
+        <InkCanvas
+          ink={dataRaw?.ink}
+          inkJson={inkJson}
+          calculatedVmin={calculatedVmin}
+          connectedAddress={connectedAddress}
+          inkId={inkId}
+        />
+      )}
 
       <div className="flex flex-col items-center text-center mb-5">
         <Typography>
