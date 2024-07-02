@@ -24,7 +24,7 @@ const { TabPane } = Tabs;
 
 const ViewInk = ({ params }: { params: { inkId: string } }) => {
   const inkId = params?.inkId;
-  const calculatedVmin = Math.min(window.document.body.clientHeight, window.document.body.clientWidth);
+  const { clientHeight, clientWidth } = document.body;
   const [inks, setInks] = useState<Ink[]>([]);
   const { address: connectedAddress } = useAccount();
   const [data, setData] = useState();
@@ -137,14 +137,8 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
         )} */}
       </Row>
 
-      {calculatedVmin && connectedAddress && (
-        <InkCanvas
-          ink={dataRaw?.ink}
-          inkJson={inkJson}
-          calculatedVmin={calculatedVmin}
-          connectedAddress={connectedAddress}
-          inkId={inkId}
-        />
+      {connectedAddress && (
+        <InkCanvas ink={dataRaw?.ink} inkJson={inkJson} connectedAddress={connectedAddress} inkId={inkId} />
       )}
 
       <div className="flex flex-col items-center text-center mb-5">

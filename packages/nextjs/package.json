@@ -30,6 +30,7 @@
     "dayjs": "^1.11.11",
     "graphql": "^16.8.2",
     "ipfs-http-client": "^60.0.1",
+    "lz-string": "^1.5.0",
     "next": "^14.0.4",
     "next-themes": "^0.2.1",
     "nprogress": "^0.2.0",
