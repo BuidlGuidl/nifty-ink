@@ -4,15 +4,13 @@ import React, { useState } from "react";
 // import { notification, Badge } from "antd";
 import { LikeOutlined, LikeTwoTone } from "@ant-design/icons";
 import { Badge, Button } from "antd";
-import { parseEther } from "viem";
+import { formatEther, parseEther } from "viem";
 import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 interface LikeButtonProps {
   likeCount?: number;
   hasLiked?: boolean;
-  contractAddress?: string;
   targetId?: number;
-  likerAddress?: string;
 }
 
 export const LikeButton = ({ likeCount, hasLiked, targetId }: LikeButtonProps) => {
@@ -28,11 +26,12 @@ export const LikeButton = ({ likeCount, hasLiked, targetId }: LikeButtonProps) =
       try {
         await writeYourContractAsync({
           functionName: "like",
-          args: [niftyInkContract?.data?.address, parseEther(String(targetId))],
+          args: [niftyInkContract?.data?.address, BigInt(String(targetId))],
         });
       } catch (e) {
-        setMinting(false);
         console.log(e);
+      } finally {
+        setMinting(false);
       }
     }
   };

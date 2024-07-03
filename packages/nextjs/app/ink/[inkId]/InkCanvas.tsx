@@ -6,6 +6,7 @@ import { Button, InputNumber, Popover, Row, Spin, Typography } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { useLocalStorage } from "usehooks-ts";
+import { LikeButton } from "~~/app/_components/LikeButton";
 import Loader from "~~/components/Loader";
 import { getFromIPFS } from "~~/utils/ipfs";
 
@@ -211,6 +212,9 @@ export const InkCanvas = ({
               />
             }
           </div>
+        </div>
+        <div style={{ marginLeft: calculatedCanvaSize - 10, marginTop: calculatedCanvaSize - 20 }}>
+          <LikeButton likeCount={ink?.likeCount} hasLiked={ink?.likes?.length > 0} targetId={ink?.inkNumber} />
         </div>
       </div>
     </>

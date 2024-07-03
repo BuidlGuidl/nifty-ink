@@ -67,7 +67,6 @@ export const InkList = ({ inks, orderBy, orderDirection, layout, connectedAddres
                                   <div className="mx-2">
                                     <LikeButton
                                       targetId={inks[ink].inkNumber}
-                                      likerAddress={connectedAddress}
                                       likeCount={inks[ink]?.likeCount || 0}
                                       hasLiked={inks[ink]?.likes.length > 0}
                                     />
