@@ -50,7 +50,7 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
 
   return (
     <div className="max-w-3xl flex flex-col mt-2">
-      {connectedAddress && (
+      {connectedAddress && dataRaw?.ink && (
         <InkCanvas ink={dataRaw?.ink} inkJson={inkJson} connectedAddress={connectedAddress} inkId={inkId} />
       )}
 

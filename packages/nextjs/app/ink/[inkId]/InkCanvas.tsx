@@ -22,7 +22,7 @@ export const InkCanvas = ({
   connectedAddress: string;
   inkId: string;
 }) => {
-  const drawingCanvas = useRef(null);
+  const drawingCanvas = useRef<CanvasDraw>(null);
   const calculatedCanvaSize = Math.round(0.7 * Math.min(window.innerWidth, window.innerHeight));
   const size = [calculatedCanvaSize, calculatedCanvaSize];
   const [drawingSize, setDrawingSize] = useState(10000);
@@ -52,17 +52,13 @@ export const InkCanvas = ({
         console.log(`finding length ${new Date().toISOString()}`);
         const parsedDrawing = JSON.parse(decompressed);
         const points = parsedDrawing.lines.reduce((acc: number, line: any) => acc + line.points.length, 0);
-
+        drawingCanvas.current?.loadSaveData(decompressed, true);
         console.log(`saving ${new Date().toISOString()}`);
         setDrawingSize(points);
         totalLines.current = parsedDrawing.lines.length;
-
+        console.log(drawingSize);
         setDrawing(decompressed);
-        setCanvasState(points < 10000 ? "drawing" : "ready");
-        if (points < 10000) {
-          // @ts-ignore:next-line
-          drawingCanvas.current?.loadSaveData(decompressed, false);
-        }
+        setCanvasState("ready");
 
         console.log(`done ${new Date().toISOString()}`);
       } catch (e) {
@@ -227,7 +223,6 @@ export const InkCanvas = ({
                 hideGrid={true}
                 hideInterface={true}
                 // saveData={drawing}
-                immediateLoading={drawingSize >= 10000}
                 loadTimeOffset={10 - playSpeed}
                 onChange={() => {
                   try {
