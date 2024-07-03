@@ -1,33 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { InkCanvas } from "./InkCanvas";
 import { InkDetails } from "./InkDetails";
 import { InkHistory } from "./InkHistory";
 import { useQuery } from "@apollo/client";
-import { Divider, Row, Tabs, Typography } from "antd";
+import { Tabs, Typography } from "antd";
 import * as uint8arrays from "uint8arrays";
-import { formatEther } from "viem";
 import { useAccount } from "wagmi";
-import { ARTISTS_QUERY, INK_MAIN_QUERY, INK_QUERY } from "~~/apollo/queries";
-import { InkListArtist } from "~~/app/_components/InkListArtist";
-import { Profile } from "~~/app/_components/Profile";
-import { RecentActivity } from "~~/app/_components/RecentActivity";
-import { SearchAddress } from "~~/app/_components/SearchAddress";
-import StatCard from "~~/app/_components/StatCard";
+import { INK_QUERY } from "~~/apollo/queries";
 import { Address } from "~~/components/scaffold-eth";
-import { getMetadata } from "~~/utils/helpers";
 import { getFromIPFS } from "~~/utils/ipfs";
 
 const { TabPane } = Tabs;
 
 const ViewInk = ({ params }: { params: { inkId: string } }) => {
   const inkId = params?.inkId;
-  const { clientHeight, clientWidth } = document.body;
-  const [inks, setInks] = useState<Ink[]>([]);
   const { address: connectedAddress } = useAccount();
-  const [data, setData] = useState();
   const [blockNumber, setBlockNumber] = useState(0);
   const [inkJson, setInkJson] = useState({});
 
@@ -50,7 +40,6 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
         const timeout = 10000;
         const newInkJson = await getFromIPFS(_data.ink.jsonUrl, timeout);
 
-        setData(_data);
         setBlockNumber(_blockNumber);
         setInkJson(JSON.parse(uint8arrays.toString(newInkJson)));
       }

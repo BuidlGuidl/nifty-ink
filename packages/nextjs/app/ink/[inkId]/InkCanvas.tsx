@@ -114,16 +114,9 @@ export const InkCanvas = ({
 
   return (
     <>
-      <Row
-        style={{
-          width: "90vmin",
-          margin: "0 auto",
-          marginTop: "1vh",
-          justifyContent: "center",
-        }}
-      >
+      <Row className="w-[90vmin] mx-auto mt-[1vh] flex justify-center">
         {ink && ink?.burned ? (
-          <Typography.Text style={{ verticalAlign: "middle", paddingLeft: 5, fontSize: 28 }}>
+          <Typography.Text className="align-middle pl-[5px] text-[28px]">
             <span role="img" aria-label="Fire">
               🔥🔥This ink has been burned🔥🔥
             </span>
@@ -131,7 +124,7 @@ export const InkCanvas = ({
         ) : (
           <Typography.Text
             copyable={{ text: inkJson ? inkJson.external_url : "" }}
-            style={{ verticalAlign: "middle", paddingLeft: 5, fontSize: 28 }}
+            className="align-middle pl-[5px] text-[28px]"
           >
             <a href={"/" + inkId} style={{ color: "#222222" }}>
               {inkJson ? inkJson.name : <Spin />}
@@ -142,7 +135,7 @@ export const InkCanvas = ({
         <Button
           loading={canvasState !== "ready"}
           disabled={canvasState !== "ready"}
-          style={{ marginTop: 4, marginLeft: 4 }}
+          className="mt-1 ml-1"
           onClick={() => {
             setDrawingSize(0);
             // @ts-ignore:next-line
@@ -176,7 +169,7 @@ export const InkCanvas = ({
 
         {ink && connectedAddress && connectedAddress.toLowerCase() == ink.artist.id && (
           <Button
-            style={{ marginTop: 4, marginLeft: 4 }}
+            className="mt-1 ml-1"
             onClick={() => {
               // let _savedData = LZ.compress(drawing);
               // props.setDrawing(_savedData);
@@ -212,7 +205,7 @@ export const InkCanvas = ({
               {inkJson.image ? (
                 <object
                   type="image/png"
-                  style={{ width: "100%", height: "100%" }}
+                  className="w-full h-full"
                   data={inkJson.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/")}
                 >
                   <img src={inkJson.image} />
@@ -222,7 +215,7 @@ export const InkCanvas = ({
               )}
             </div>
           )}
-          <div style={{ width: "100%", height: "100%", position: "absolute" }}>
+          <div className="w-full h-full absolute">
             {
               <CanvasDraw
                 key={canvasKey}
@@ -255,12 +248,7 @@ export const InkCanvas = ({
         <div style={{ marginLeft: calculatedCanvaSize - 10, marginTop: calculatedCanvaSize - 20 }}>
           <LikeButton likeCount={ink?.likeCount} hasLiked={ink?.likes?.length > 0} targetId={ink?.inkNumber} />
         </div>
-        <div
-          style={{
-            marginTop: -10,
-            opacity: 0.3,
-          }}
-        >
+        <div className="-mt-[10px] opacity-30">
           <Popover
             content={detailContent}
             title="Ink Details"
