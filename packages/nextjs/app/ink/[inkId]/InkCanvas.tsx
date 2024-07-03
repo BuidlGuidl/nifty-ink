@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PlaySquareOutlined, QuestionCircleOutlined } from "@ant-design/icons";
-import { Button, InputNumber, Popover, Row, Spin, Typography } from "antd";
+import { Button, Descriptions, InputNumber, Popover, Row, Spin, Typography } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { useLocalStorage } from "usehooks-ts";
+import { formatEther } from "viem";
 import { LikeButton } from "~~/app/_components/LikeButton";
 import Loader from "~~/components/Loader";
 import { getFromIPFS } from "~~/utils/ipfs";
@@ -23,7 +24,7 @@ export const InkCanvas = ({
 }) => {
   const drawingCanvas = useRef(null);
   const calculatedCanvaSize = Math.round(0.7 * Math.min(window.innerWidth, window.innerHeight));
-  const [size, setSize] = useState([calculatedCanvaSize, calculatedCanvaSize]);
+  const size = [calculatedCanvaSize, calculatedCanvaSize];
   const [drawingSize, setDrawingSize] = useState(10000);
   const [drawing, setDrawing] = useState<string | undefined>();
   const drawnLines = useRef([]);
@@ -72,6 +73,44 @@ export const InkCanvas = ({
     setCanvasKey(Date.now());
     fetchAndShowDrawing();
   }, [inkId]);
+
+  const detailContent = (
+    <Descriptions
+      column={1}
+      labelStyle={{
+        fontSize: 12,
+        lineHeight: 0,
+        margin: 0,
+      }}
+      contentStyle={{
+        fontSize: 10,
+        lineHeight: 0,
+        margin: 0,
+      }}
+    >
+      <Descriptions.Item label="Name">{inkJson?.name}</Descriptions.Item>
+      <Descriptions.Item label="Artist">{ink?.artist?.id}</Descriptions.Item>
+      <Descriptions.Item label="drawingHash">
+        {inkId}
+        {/* {clickAndSave} */}
+      </Descriptions.Item>
+      <Descriptions.Item label="id">{ink?.inkNumber}</Descriptions.Item>
+      <Descriptions.Item label="jsonUrl">{ink?.jsonUrl}</Descriptions.Item>
+      <Descriptions.Item label="Image">
+        {
+          <a href={inkJson.image} target="_blank">
+            {inkJson.image}
+          </a>
+        }
+      </Descriptions.Item>
+      <Descriptions.Item label="Count">{ink?.count ? ink?.count : "0"}</Descriptions.Item>
+      <Descriptions.Item label="Limit">{ink?.limit}</Descriptions.Item>
+      <Descriptions.Item label="Description">{inkJson.description}</Descriptions.Item>
+      <Descriptions.Item label="Price">
+        {ink?.mintPrice && ink?.mintPrice > 0 ? formatEther(BigInt(ink?.mintPrice)) : "No price set"}
+      </Descriptions.Item>
+    </Descriptions>
+  );
 
   return (
     <>
@@ -215,6 +254,24 @@ export const InkCanvas = ({
         </div>
         <div style={{ marginLeft: calculatedCanvaSize - 10, marginTop: calculatedCanvaSize - 20 }}>
           <LikeButton likeCount={ink?.likeCount} hasLiked={ink?.likes?.length > 0} targetId={ink?.inkNumber} />
+        </div>
+        <div
+          style={{
+            marginTop: -10,
+            opacity: 0.3,
+          }}
+        >
+          <Popover
+            content={detailContent}
+            title="Ink Details"
+            placement="topLeft"
+            arrow={false}
+            overlayStyle={{
+              maxWidth: 700,
+            }}
+          >
+            <QuestionCircleOutlined />
+          </Popover>
         </div>
       </div>
     </>
