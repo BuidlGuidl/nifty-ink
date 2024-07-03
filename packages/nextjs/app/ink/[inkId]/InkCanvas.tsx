@@ -5,7 +5,7 @@ import { PlaySquareOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { Button, InputNumber, Popover, Row, Spin, Typography } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
-// import { useLocalStorage } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
 import Loader from "~~/components/Loader";
 import { getFromIPFS } from "~~/utils/ipfs";
 
@@ -29,8 +29,9 @@ export const InkCanvas = ({
   const [canvasState, setCanvasState] = useState("downloading");
   const totalLines = useRef([]);
   const [canvasKey, setCanvasKey] = useState(Date.now());
-  //   const [playSpeed, setPlaySpeed] = useLocalStorage("playspeed", 7);
-  const [playSpeed, setPlaySpeed] = useState(7);
+  const [playSpeed, setPlaySpeed] = useLocalStorage("playspeed", 7, {
+    initializeWithValue: false,
+  });
 
   useEffect(() => {
     const fetchAndShowDrawing = async () => {
@@ -108,8 +109,9 @@ export const InkCanvas = ({
             drawingCanvas.current.loadSaveData(drawing, false);
             setCanvasState("drawing");
           }}
+          icon={<PlaySquareOutlined />}
         >
-          <PlaySquareOutlined /> {canvasState === "ready" ? "PLAY" : canvasState}
+          {canvasState === "ready" ? "PLAY" : canvasState}
         </Button>
 
         <div>
