@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import "./styles.css";
 import {
   BgColorsOutlined,
@@ -664,8 +664,8 @@ const CreateInk = () => {
           //  hideInterface={props.mode !== "edit"}
           onChange={() => {
             // @ts-ignore:next-line
-            drawnLines?.current = drawingCanvas?.current?.lines;
-            if (drawnLines.current.length >= currentLines.current.length && canvasDisabled) {
+            // drawnLines?.current = drawingCanvas?.current?.lines;
+            if (drawingCanvas?.current?.lines.length >= currentLines.current.length && canvasDisabled) {
               console.log("enabling it!");
               setCanvasDisabled(false);
             }
@@ -722,7 +722,7 @@ const CreateInk = () => {
               onConfirm={async () => {
                 await uploadCanvas(canvasFile);
                 // @ts-ignore:next-line
-                uploadRef?.current?.value = "";
+                // uploadRef?.current?.value = "";
               }}
             >
               <Button>
