@@ -36,12 +36,12 @@ import {
 } from "antd";
 import * as Hash from "ipfs-only-hash";
 import LZ from "lz-string";
-// import { useLocalStorage } from "./hooks";
 // import { addToIPFS } from "./helpers";
 import CanvasDraw from "react-canvas-draw";
 import { AlphaPicker, CirclePicker, SketchPicker, TwitterPicker } from "react-color";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
+import Loader from "~~/components/Loader";
 import { getColorOptions, shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
 
 // const Hash = require("ipfs-only-hash");
@@ -91,6 +91,7 @@ interface Lines {
 
 const CreateInk = () => {
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
   const calculatedCanvaSize = Math.round(0.85 * Math.min(width, height));
@@ -128,8 +129,12 @@ const CreateInk = () => {
   const portraitRatio = 1.7;
   const portraitCalc = width / size[0] < portraitRatio;
 
-  const [portrait, setPortrait] = useState(portraitCalc);
-  console.log(drawingCanvas);
+  const [portrait, setPortrait] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // To avoid hydration error
+    setPortrait(portraitCalc);
+  }, []);
 
   useEffect(() => {
     setPortrait(portraitCalc);
@@ -141,9 +146,9 @@ const CreateInk = () => {
   // useHotkeys("shift+]", () => updateBrushRadius(brushRadius + 10), { ignoreModifiers: true, preventDefault: true });
   useHotkeys("[", () => updateBrushRadius(brushRadius - 1));
   // useHotkeys("shift+[", () => updateBrushRadius(brushRadius - 10));
-  // useHotkeys(".", () => updateOpacity(0.01));
+  useHotkeys(".", () => updateOpacity(0.01));
   // useHotkeys("shift+.", () => updateOpacity(0.1));
-  // useHotkeys(",", () => updateOpacity(-0.01));
+  useHotkeys(",", () => updateOpacity(-0.01));
   // useHotkeys("shift+,", () => updateOpacity(-0.1));
 
   const updateBrushRadius = useCallback((value: number | null) => {
@@ -153,7 +158,6 @@ const CreateInk = () => {
   }, []);
 
   const updateColor = (value: any) => {
-    console.log(value);
     setColor(`rgba(${value.rgb.r},${value.rgb.g},${value.rgb.b},${value.rgb.a})`);
     console.log(`rgba(${value.rgb.r},${value.rgb.g},${value.rgb.b},${value.rgb.a})`);
   };
@@ -217,7 +221,6 @@ const CreateInk = () => {
   useEffect(() => {
     const loadPage = async () => {
       console.log("loadpage");
-      console.log(drawing);
       if (drawing && drawing !== "") {
         console.log("Loading ink");
         try {
@@ -548,7 +551,7 @@ const CreateInk = () => {
             alignItems: "middle",
           }}
         >
-          <AlphaPicker onChangeComplete={() => updateColor} color={color} />
+          <AlphaPicker onChangeComplete={updateColor} color={color} />
         </Row>
         <Row
           style={{
@@ -625,54 +628,6 @@ const CreateInk = () => {
       </>
     );
 
-    const saveCanvas = () => {
-      if (canvasDisabled) {
-        console.log("Canvas disabled");
-      } else {
-        saveDrawing(drawingCanvas.current, false);
-      }
-    };
-
-    canvas = (
-      <div
-        style={{
-          backgroundColor: "#666666",
-          width: size[0],
-          margin: "auto",
-          border: "1px solid #999999",
-          boxShadow: "2px 2px 8px #AAAAAA",
-          cursor: "pointer",
-        }}
-        onMouseUp={saveCanvas}
-        onTouchEnd={saveCanvas}
-      >
-        {!loaded && <span>Loading...</span>}
-        <CanvasDraw
-          key={mode + "" + canvasKey}
-          ref={drawingCanvas}
-          canvasWidth={size[0]}
-          canvasHeight={size[1]}
-          brushColor={color}
-          lazyRadius={1}
-          brushRadius={brushRadius}
-          disabled={canvasDisabled}
-          //  hideGrid={props.mode !== "edit"}
-          //  hideInterface={props.mode !== "edit"}
-          onChange={() => {
-            if (drawingCanvas && drawingCanvas.current) {
-              if (drawingCanvas?.current?.lines.length >= currentLines.current.length && canvasDisabled) {
-                console.log("enabling it!");
-                setCanvasDisabled(false);
-              }
-            }
-          }}
-          saveData={initialDrawing}
-          immediateLoading={true} //drawingSize >= 10000}
-          loadTimeOffset={3}
-        />
-      </div>
-    );
-
     draftSaver = (
       <div>
         <Popconfirm
@@ -731,37 +686,74 @@ const CreateInk = () => {
     );
   }
 
-  return (
-    <div
-      className="create-ink-container mt-5"
-      //   onClick={
-      //   () => {
-      //     if(props.mode=="mint"){
-      //       drawingCanvas.current.loadSaveData(LZ.decompress(props.drawing), false)
-      //     }
-      //   }
-      // }
-    >
-      {
-        <>
-          {portrait && <div className="title-top">${top}</div>}
-          {width > 0 && height > 0 && <div className="canvas">{canvas}</div>}
-          {portrait ? (
-            <div className="edit-tools-bottom">
-              {bottom}
-              {draftSaver}
-            </div>
-          ) : (
-            <div className="edit-tools">
-              {/* {top} */}
-              <div className="edit-tools-side">
-                {bottom}
-                {draftSaver}
-              </div>
-            </div>
-          )}
-        </>
+  const saveCanvas = () => {
+    if (canvasDisabled) {
+      console.log("Canvas disabled");
+    } else {
+      saveDrawing(drawingCanvas.current, false);
+    }
+  };
+
+  const handleCanvasChange = () => {
+    if (drawingCanvas && drawingCanvas.current) {
+      if (drawingCanvas?.current?.lines.length >= currentLines.current.length && canvasDisabled) {
+        console.log("enabling it!");
+        setCanvasDisabled(false);
       }
+    }
+  };
+
+  return (
+    <div className="create-ink-container mt-5">
+      {portrait && <div className="title-top">{top}</div>}
+      {width > 0 && height > 0 && isClient && (
+        <div className="canvas">
+          <div
+            style={{
+              backgroundColor: "#666666",
+              width: size[0],
+              margin: "auto",
+              border: "1px solid #999999",
+              boxShadow: "2px 2px 8px #AAAAAA",
+              cursor: "pointer",
+            }}
+            onMouseUp={saveCanvas}
+            onTouchEnd={saveCanvas}
+          >
+            {!loaded && <Loader />}
+            <CanvasDraw
+              key={mode + "" + canvasKey}
+              ref={drawingCanvas}
+              canvasWidth={size[0]}
+              canvasHeight={size[1]}
+              brushColor={color}
+              lazyRadius={1}
+              brushRadius={brushRadius}
+              disabled={canvasDisabled}
+              //  hideGrid={props.mode !== "edit"}
+              //  hideInterface={props.mode !== "edit"}
+              onChange={handleCanvasChange}
+              saveData={initialDrawing}
+              immediateLoading={true} //drawingSize >= 10000}
+              loadTimeOffset={3}
+            />
+          </div>
+        </div>
+      )}
+      {portrait ? (
+        <div className="edit-tools-bottom">
+          {bottom}
+          {draftSaver}
+        </div>
+      ) : (
+        <div className="edit-tools">
+          {top}
+          <div className="edit-tools-side">
+            {bottom}
+            {draftSaver}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
