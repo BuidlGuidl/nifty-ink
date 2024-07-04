@@ -102,7 +102,6 @@ const CreateInk = () => {
   const [_, setDrafts] = useLocalStorage<any>("drafts", []);
   const [canvasFile, setCanvasFile] = useState<any>(null);
   const [drawing, setDrawing] = useLocalStorage("drawing", "");
-  // const [mode, setMode] = useState("edit");
   const mode = "edit";
   const [canvasKey, setCanvasKey] = useState(Date.now());
   const [ink, setInk] = useState({});
@@ -120,7 +119,6 @@ const CreateInk = () => {
 
   const [initialDrawing, setInitialDrawing] = useState<string>("");
   const currentLines = useRef<Lines[]>([]);
-  const drawnLines = useRef<Lines[]>([]);
   const [canvasDisabled, setCanvasDisabled] = useState(false);
   const [loaded, setLoaded] = useState(true);
   //const [loadedLines, setLoadedLines] = useState()
@@ -309,7 +307,7 @@ const CreateInk = () => {
     };
   };
 
-  const uploadRef = useRef();
+  const uploadRef = useRef<HTMLInputElement | null>(null);
 
   const uploadCanvas = (uploadedDrawing: any) => {
     drawingCanvas?.current?.loadSaveData(uploadedDrawing);
@@ -406,8 +404,6 @@ const CreateInk = () => {
           labelAlign={"left"}
           style={{ justifyContent: "center" }}
         >
-          <Form.Item></Form.Item>
-
           <Form.Item name="title" rules={[{ required: true, message: "What is this work of art called?" }]}>
             <Input placeholder={"name"} style={{ fontSize: 16 }} />
           </Form.Item>
@@ -663,11 +659,11 @@ const CreateInk = () => {
           //  hideGrid={props.mode !== "edit"}
           //  hideInterface={props.mode !== "edit"}
           onChange={() => {
-            // @ts-ignore:next-line
-            // drawnLines?.current = drawingCanvas?.current?.lines;
-            if (drawingCanvas?.current?.lines.length >= currentLines.current.length && canvasDisabled) {
-              console.log("enabling it!");
-              setCanvasDisabled(false);
+            if (drawingCanvas && drawingCanvas.current) {
+              if (drawingCanvas?.current?.lines.length >= currentLines.current.length && canvasDisabled) {
+                console.log("enabling it!");
+                setCanvasDisabled(false);
+              }
             }
           }}
           saveData={initialDrawing}
@@ -714,15 +710,15 @@ const CreateInk = () => {
           My Drafts
         </Button>
         <div style={{ marginTop: 16 }}>
-          {/* @ts-ignore:next-line */}
           <input type="file" onChange={uploadFileChange} ref={uploadRef} />
           {canvasFile && (
             <Popconfirm
               title="This will replace your current drawing"
               onConfirm={async () => {
                 await uploadCanvas(canvasFile);
-                // @ts-ignore:next-line
-                // uploadRef?.current?.value = "";
+                if (uploadRef.current) {
+                  uploadRef.current.value = "";
+                }
               }}
             >
               <Button>
@@ -748,8 +744,8 @@ const CreateInk = () => {
     >
       {
         <>
-          {portrait && <div className="title-top">{top}</div>}
-          <div className="canvas">{canvas}</div>
+          {portrait && <div className="title-top">${top}</div>}
+          {width > 0 && height > 0 && <div className="canvas">{canvas}</div>}
           {portrait ? (
             <div className="edit-tools-bottom">
               {bottom}
@@ -757,7 +753,7 @@ const CreateInk = () => {
             </div>
           ) : (
             <div className="edit-tools">
-              {top}
+              {/* {top} */}
               <div className="edit-tools-side">
                 {bottom}
                 {draftSaver}
