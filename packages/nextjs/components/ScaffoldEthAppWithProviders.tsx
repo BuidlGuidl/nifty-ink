@@ -28,7 +28,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
     <>
       <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="flex justify-center">{children}</main>
+        <main className="">{children}</main>
         <Footer />
       </div>
       <Toaster />
