@@ -10,6 +10,7 @@ import { Profile } from "~~/app/_components/Profile";
 import { RecentActivity } from "~~/app/_components/RecentActivity";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
 import StatCard from "~~/app/_components/StatCard";
+import Loader from "~~/components/Loader";
 import { getMetadata } from "~~/utils/helpers";
 
 const { TabPane } = Tabs;
@@ -74,7 +75,11 @@ const Artist = ({ params }: { params: { address: string } }) => {
           style={{ textAlign: "center" }}
         >
           <TabPane tab="🖼️ Inks" key="1">
-            <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} />
+            {loading ? (
+              <Loader />
+            ) : (
+              <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} />
+            )}
           </TabPane>
           <TabPane tab="📈 Statistics" key="3">
             <div className="flex flex-wrap justify-center p-0 my-0 mx-5">

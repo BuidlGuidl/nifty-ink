@@ -103,6 +103,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
   const [startFrom, setStartFrom] = useState<number>(calculateStartingDate("threemonth"));
   const dateRange = 7776000; // three months
   const [userFirstActivity, setUserFirstActivity] = useState<number>(calculateStartingDate("threemonth"));
+  const [isActivityLoading, setIsActivityLoading] = useState<boolean>(true);
 
   const {
     loading: isLoadingDataActivity,
@@ -143,10 +144,14 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
     const getActivity = (dataActivity: any) => {
       const activityArray = createActivityArray(dataActivity);
       setActivity(activityArray);
+      setIsActivityLoading(false);
     };
     dataActivity !== undefined && dataActivity.artists.length && dataActivity.artists[0].createdAt !== "0"
       ? getActivity(dataActivity.artists[0])
       : console.log("loading activity");
+    if (dataActivity !== undefined && dataActivity.artists) {
+      setIsActivityLoading(false);
+    }
   }, [dataActivity]);
 
   const onLoadMore = () => {
@@ -155,105 +160,110 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
 
   return (
     <div className="ml-10 flex justify-end gap-14 text-black">
-      {activity !== undefined && activity?.length > 0 ? (
-        <div className="">
-          <ul className="list-none p-0 text-left mt-5">
-            {activity
-              .sort((a, b) => b.createdAt - a.createdAt)
-              .map((e, i) => (
-                <li key={i} className="border-b border-gray-200 py-1.5 flex">
-                  <Link href={{ pathname: "/ink/" + e.inkId }}>
-                    <div className="relative top-0 left-0">
-                      <img
-                        src={`https://ipfs.nifty.ink/${e.inkId}`}
-                        alt="ink"
-                        className="w-[70px] border border-gray-300 rounded-[5px] p-[5px] relative top-0 left-0"
-                      ></img>
-                      <span className="absolute top-[42px] left-0 border-2 border-gray-200 bg-white rounded-[5px] p-[1px]">
-                        {e.emoji}
-                      </span>
-                    </div>
-                  </Link>
-
-                  <div style={{ margin: "10px 12px", color: "#525252" }}>
-                    {e.type === "like" ? (
-                      <Typography.Text className="inline-flex">
-                        <Address address={e.liker} disableAddressLink={true} format="short" size="xs" /> liked this ink
-                      </Typography.Text>
-                    ) : e.type === "sale" ? (
-                      <Typography.Text className="inline-flex">
-                        Bought by <Address address={e.buyer} disableAddressLink={true} format="short" size="xs" />
-                        for {formatEther(BigInt(e.price!))}{" "}
-                        <img src={xDai.src} alt="xdai" className="ml-[1px] mr-[3px]" />{" "}
-                        <a
-                          href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <LinkOutlined />
-                        </a>
-                      </Typography.Text>
-                    ) : e.type === "send" ? (
-                      <Typography.Text className="inline-flex">
-                        <Address address={e.from} disableAddressLink={true} format="short" size="xs" />
-                        sent to <Address address={e.to} disableAddressLink={true} format="short" size="xs" />
-                        <a
-                          href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <LinkOutlined />
-                        </a>
-                      </Typography.Text>
-                    ) : e.type === "burn" ? (
-                      <Typography.Text className="inline-flex">
-                        Ink burned by
-                        <Address
-                          address={e.from === zeroAddress ? address : e.from}
-                          disableAddressLink={true}
-                          format="short"
-                          size="xs"
-                        />
-                        <a
-                          href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <LinkOutlined />
-                        </a>
-                      </Typography.Text>
-                    ) : e.type === "create" ? (
-                      <Link href={{ pathname: "/ink/" + e.inkId }}>Created a new ink</Link>
-                    ) : (
-                      <Typography.Text className="inline-flex">
-                        Ink minted
-                        <a
-                          href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <LinkOutlined />
-                        </a>
-                      </Typography.Text>
-                    )}
-                    <p className="m-0 text-gray-500 text-xs mt-0.5">
-                      {dayjs.unix(e.createdAt).format("DD MMM YYYY, HH:mma")}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            <div className="flex justify-center text-gray-600">
-              {`Since ${new Date(startFrom * 1000).toISOString().slice(0, 10)}`}
-            </div>
-            {activity[activity.length - 1].createdAt > userFirstActivity && (
-              <Button type="dashed" size="large" block onClick={() => onLoadMore()}>
-                Load more
-              </Button>
-            )}
-          </ul>
-        </div>
-      ) : (
+      {isActivityLoading ? (
         <Loader />
+      ) : (
+        <div className="">
+          {activity?.length > 0 ? (
+            <ul className="list-none p-0 text-left mt-5">
+              {activity
+                .sort((a, b) => b.createdAt - a.createdAt)
+                .map((e, i) => (
+                  <li key={i} className="border-b border-gray-200 py-1.5 flex">
+                    <Link href={{ pathname: "/ink/" + e.inkId }}>
+                      <div className="relative top-0 left-0">
+                        <img
+                          src={`https://ipfs.nifty.ink/${e.inkId}`}
+                          alt="ink"
+                          className="w-[70px] border border-gray-300 rounded-[5px] p-[5px] relative top-0 left-0"
+                        ></img>
+                        <span className="absolute top-[42px] left-0 border-2 border-gray-200 bg-white rounded-[5px] p-[1px]">
+                          {e.emoji}
+                        </span>
+                      </div>
+                    </Link>
+
+                    <div style={{ margin: "10px 12px", color: "#525252" }}>
+                      {e.type === "like" ? (
+                        <Typography.Text className="inline-flex">
+                          <Address address={e.liker} disableAddressLink={true} format="short" size="xs" /> liked this
+                          ink
+                        </Typography.Text>
+                      ) : e.type === "sale" ? (
+                        <Typography.Text className="inline-flex">
+                          Bought by <Address address={e.buyer} disableAddressLink={true} format="short" size="xs" />
+                          for {formatEther(BigInt(e.price!))}{" "}
+                          <img src={xDai.src} alt="xdai" className="ml-[1px] mr-[3px]" />{" "}
+                          <a
+                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <LinkOutlined />
+                          </a>
+                        </Typography.Text>
+                      ) : e.type === "send" ? (
+                        <Typography.Text className="inline-flex">
+                          <Address address={e.from} disableAddressLink={true} format="short" size="xs" />
+                          sent to <Address address={e.to} disableAddressLink={true} format="short" size="xs" />
+                          <a
+                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <LinkOutlined />
+                          </a>
+                        </Typography.Text>
+                      ) : e.type === "burn" ? (
+                        <Typography.Text className="inline-flex">
+                          Ink burned by
+                          <Address
+                            address={e.from === zeroAddress ? address : e.from}
+                            disableAddressLink={true}
+                            format="short"
+                            size="xs"
+                          />
+                          <a
+                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <LinkOutlined />
+                          </a>
+                        </Typography.Text>
+                      ) : e.type === "create" ? (
+                        <Link href={{ pathname: "/ink/" + e.inkId }}>Created a new ink</Link>
+                      ) : (
+                        <Typography.Text className="inline-flex">
+                          Ink minted
+                          <a
+                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <LinkOutlined />
+                          </a>
+                        </Typography.Text>
+                      )}
+                      <p className="m-0 text-gray-500 text-xs mt-0.5">
+                        {dayjs.unix(e.createdAt).format("DD MMM YYYY, HH:mma")}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              <div className="flex justify-center text-gray-600">
+                {`Since ${new Date(startFrom * 1000).toISOString().slice(0, 10)}`}
+              </div>
+              {activity[activity.length - 1].createdAt > userFirstActivity && (
+                <Button type="dashed" size="large" block onClick={() => onLoadMore()}>
+                  Load more
+                </Button>
+              )}
+            </ul>
+          ) : (
+            <Typography.Title level={4}>No activities found for this address</Typography.Title>
+          )}
+        </div>
       )}
     </div>
   );
