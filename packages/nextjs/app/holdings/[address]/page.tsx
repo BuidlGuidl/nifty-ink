@@ -15,21 +15,23 @@ const Holdings = ({ params }: { params: { address: string } }) => {
   const { address: connectedAddress } = useAccount();
 
   return (
-    <div className="min-w-xl">
-      <Profile address={address} />
+    <div className="flex justify-center">
+      <div className="min-w-xl">
+        <Profile address={address} />
 
-      <Divider className="border-gray-300 min-w-4" />
-      <Tabs defaultActiveKey="1" size="large" type="card" className="mt-5flex items-center">
-        <TabPane tab="Gnosis Chain" key="1">
-          {connectedAddress && <GnosisChainInks address={address} connectedAddress={connectedAddress} />}
-        </TabPane>
-        <TabPane tab="Ethereum Mainnet" key="2">
-          {connectedAddress && <MainnetChainInks address={address} connectedAddress={connectedAddress} />}
-        </TabPane>
-        <TabPane tab="🔍 Search collector" key="5">
-          <SearchAddress redirectToPage="holdings" placeholderText="Search collector" />
-        </TabPane>
-      </Tabs>
+        <Divider className="border-gray-300 min-w-4" />
+        <Tabs defaultActiveKey="1" size="large" type="card" className="mt-5flex items-center">
+          <TabPane tab="Gnosis Chain" key="1">
+            {connectedAddress && <GnosisChainInks address={address} connectedAddress={connectedAddress} />}
+          </TabPane>
+          <TabPane tab="Ethereum Mainnet" key="2">
+            {connectedAddress && <MainnetChainInks address={address} connectedAddress={connectedAddress} />}
+          </TabPane>
+          <TabPane tab="🔍 Search collector" key="5">
+            <SearchAddress redirectToPage="holdings" placeholderText="Search collector" />
+          </TabPane>
+        </Tabs>
+      </div>
     </div>
   );
 };

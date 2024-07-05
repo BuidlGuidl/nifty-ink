@@ -15,9 +15,8 @@ export async function getFromIPFS(hashToGet: string, timeout: number) {
   return data;
 }
 
-// export async function addToIPFS(fileToUpload, ipfsConfig) {
-//   const ipfs = ipfsAPI(ipfsConfig);
-//   for await (const result of ipfs.add(fileToUpload)) {
-//     return result;
-//   }
-// }
+export async function addToIPFS(fileToUpload: any) {
+  const ipfs = create(ipfsConfig);
+  const result = await ipfs.add(fileToUpload);
+  return result;
+}

@@ -49,40 +49,42 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
   }, [dataRaw]);
 
   return (
-    <div className="max-w-3xl flex flex-col mt-2">
-      {connectedAddress && dataRaw?.ink && (
-        <InkCanvas ink={dataRaw?.ink} inkJson={inkJson} connectedAddress={connectedAddress} inkId={inkId} />
-      )}
+    <div className="flex justify-center">
+      <div className="max-w-3xl flex flex-col mt-2">
+        {connectedAddress && dataRaw?.ink && (
+          <InkCanvas ink={dataRaw?.ink} inkJson={inkJson} connectedAddress={connectedAddress} inkId={inkId} />
+        )}
 
-      <div className="flex flex-col items-center text-center mb-5 mt-3">
-        <Typography>
-          <span style={{ verticalAlign: "middle", fontSize: 16 }}>{" artist: "}</span>
-        </Typography>
-        <Link href={`/artist/${dataRaw?.ink?.artist?.id}`}>
-          <Address address={dataRaw?.ink?.artist?.id} size="2xl" disableAddressLink />
-        </Link>
-        <Typography>
-          <span className="text-base">
-            {dataRaw?.ink.createdAt &&
-              new Date(parseInt(dataRaw?.ink.createdAt) * 1000).toLocaleString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-          </span>
-        </Typography>
+        <div className="flex flex-col items-center text-center mb-5 mt-3">
+          <Typography>
+            <span style={{ verticalAlign: "middle", fontSize: 16 }}>{" artist: "}</span>
+          </Typography>
+          <Link href={`/artist/${dataRaw?.ink?.artist?.id}`}>
+            <Address address={dataRaw?.ink?.artist?.id} size="2xl" disableAddressLink />
+          </Link>
+          <Typography>
+            <span className="text-base">
+              {dataRaw?.ink.createdAt &&
+                new Date(parseInt(dataRaw?.ink.createdAt) * 1000).toLocaleString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+            </span>
+          </Typography>
+        </div>
+
+        <Tabs centered defaultActiveKey="1" size="large" type="card">
+          <TabPane tab="Details" key="1">
+            {connectedAddress && dataRaw?.ink && (
+              <InkDetails ink={dataRaw?.ink} inkId={inkId} connectedAddress={connectedAddress} inkJson={inkJson} />
+            )}
+          </TabPane>
+          <TabPane tab="History" key="2" className="w-full">
+            <InkHistory inkTokenTransfers={dataRaw?.ink?.tokenTransfers} />
+          </TabPane>
+        </Tabs>
       </div>
-
-      <Tabs centered defaultActiveKey="1" size="large" type="card">
-        <TabPane tab="Details" key="1">
-          {connectedAddress && dataRaw?.ink && (
-            <InkDetails ink={dataRaw?.ink} inkId={inkId} connectedAddress={connectedAddress} inkJson={inkJson} />
-          )}
-        </TabPane>
-        <TabPane tab="History" key="2" className="w-full">
-          <InkHistory inkTokenTransfers={dataRaw?.ink?.tokenTransfers} />
-        </TabPane>
-      </Tabs>
     </div>
   );
 };

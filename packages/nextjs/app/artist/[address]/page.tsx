@@ -60,34 +60,46 @@ const Artist = ({ params }: { params: { address: string } }) => {
   }, [data]);
 
   return (
-    <div className="max-w-3xl">
-      <Profile address={address} />
+    <div className="flex justify-center">
+      <div className="max-w-3xl">
+        <Profile address={address} />
 
-      <Divider className="border-gray-300 min-w-4" />
+        <Divider className="border-gray-300 min-w-4" />
 
-      <Tabs defaultActiveKey="1" size="large" type="card" className="flex items-center" style={{ textAlign: "center" }}>
-        <TabPane tab="🖼️ Inks" key="1">
-          <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} />
-        </TabPane>
-        <TabPane tab="📈 Statistics" key="3">
-          <div className="flex flex-wrap justify-center p-0 my-0 mx-5">
-            <StatCard name={"Inks created"} value={data?.artists.length ? data?.artists[0].inkCount : 0} emoji={"🖼️"} />
-            <StatCard name={"Inks sold"} value={data?.artists.length ? data?.artists[0].saleCount : 0} emoji={"🖼️"} />
-            <StatCard name={"Likes"} value={data?.artists.length ? data?.artists?.[0].likeCount : 0} emoji={"👍"} />
-            <StatCard
-              name={"Earnings"}
-              value={`$${data?.artists.length ? parseFloat(formatEther(data?.artists[0].earnings)).toFixed(2) : 0}`}
-              emoji={"💲"}
-            />
-          </div>
-        </TabPane>
-        <TabPane tab="🕗 Recent activity" key="4">
-          <RecentActivity address={address} />
-        </TabPane>
-        <TabPane tab="🔍 Search artists" key="5">
-          <SearchAddress redirectToPage="artist" placeholderText="Search artist" />
-        </TabPane>
-      </Tabs>
+        <Tabs
+          defaultActiveKey="1"
+          size="large"
+          type="card"
+          className="flex items-center"
+          style={{ textAlign: "center" }}
+        >
+          <TabPane tab="🖼️ Inks" key="1">
+            <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} />
+          </TabPane>
+          <TabPane tab="📈 Statistics" key="3">
+            <div className="flex flex-wrap justify-center p-0 my-0 mx-5">
+              <StatCard
+                name={"Inks created"}
+                value={data?.artists.length ? data?.artists[0].inkCount : 0}
+                emoji={"🖼️"}
+              />
+              <StatCard name={"Inks sold"} value={data?.artists.length ? data?.artists[0].saleCount : 0} emoji={"🖼️"} />
+              <StatCard name={"Likes"} value={data?.artists.length ? data?.artists?.[0].likeCount : 0} emoji={"👍"} />
+              <StatCard
+                name={"Earnings"}
+                value={`$${data?.artists.length ? parseFloat(formatEther(data?.artists[0].earnings)).toFixed(2) : 0}`}
+                emoji={"💲"}
+              />
+            </div>
+          </TabPane>
+          <TabPane tab="🕗 Recent activity" key="4">
+            <RecentActivity address={address} />
+          </TabPane>
+          <TabPane tab="🔍 Search artists" key="5">
+            <SearchAddress redirectToPage="artist" placeholderText="Search artist" />
+          </TabPane>
+        </Tabs>
+      </div>
     </div>
   );
 };

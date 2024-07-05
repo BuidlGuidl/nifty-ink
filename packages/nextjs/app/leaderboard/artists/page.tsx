@@ -116,59 +116,61 @@ const Home: NextPage = () => {
   if (error) return `Error! ${error.message}`;
 
   return (
-    <div className="max-w-screen-xl">
-      <Row align="top" gutter={16} className="mt-5 text-center justify-center">
-        <Col>
-          <Typography.Title level={3}>Artists</Typography.Title>
-        </Col>
-        <Col>
-          <Form layout={"inline"} initialValues={{ orderBy: orderBy, period: period }}>
-            <Form.Item name="orderBy">
-              <Select value={orderBy} size="large" className="min-w-28" onChange={handleOrderByChange}>
-                <Option value="earnings">Sales</Option>
-                <Option value="likeCount">Likes</Option>
-                <Option value="inkCount">Inks count</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name="period">
-              <Select value={period} size="large" onChange={handlePeriodChange}>
-                <Option value="alltime">All-time</Option>
-                <Option value="lastmonth">Last 30 days</Option>
-                <Option value="lastweek">Last 7 days</Option>
-              </Select>
-            </Form.Item>
-          </Form>
-        </Col>
-      </Row>
-      {loading ? (
-        <Loader />
-      ) : (
-        <Row justify="center">
-          <div className="artists-leaderboard">
-            <ul>
-              {artists.length > 0
-                ? artists.map((artist, i) => (
-                    <li key={artist?.address} className="artists-leadboard-entry">
-                      <div className="artists-leadboard-entry-rank">
-                        <h3>{emojifyTop3(i + 1)}</h3>
-                      </div>
-                      <div className="artists-leadboard-entry-address">
-                        <Link href={`/artist/${artist?.address}`}>
-                          <Address key={artist?.address} address={artist.address} disableAddressLink={true} />
-                        </Link>
-                      </div>
-                      <div className="artists-leadboard-entry-stats">
-                        <p>💲 Earnings: ${parseFloat(formatUnits(artist?.earnings || 0n, 18)).toFixed(2)}</p>
-                        <p>🖼️ Total Inks: {artist.inkCount}</p>
-                        <p>👍 Total likes: {artist.likeCount}</p>
-                      </div>
-                    </li>
-                  ))
-                : null}
-            </ul>
-          </div>
+    <div className="flex justify-center">
+      <div className="max-w-screen-xl">
+        <Row align="top" gutter={16} className="mt-5 text-center justify-center">
+          <Col>
+            <Typography.Title level={3}>Artists</Typography.Title>
+          </Col>
+          <Col>
+            <Form layout={"inline"} initialValues={{ orderBy: orderBy, period: period }}>
+              <Form.Item name="orderBy">
+                <Select value={orderBy} size="large" className="min-w-28" onChange={handleOrderByChange}>
+                  <Option value="earnings">Sales</Option>
+                  <Option value="likeCount">Likes</Option>
+                  <Option value="inkCount">Inks count</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item name="period">
+                <Select value={period} size="large" onChange={handlePeriodChange}>
+                  <Option value="alltime">All-time</Option>
+                  <Option value="lastmonth">Last 30 days</Option>
+                  <Option value="lastweek">Last 7 days</Option>
+                </Select>
+              </Form.Item>
+            </Form>
+          </Col>
         </Row>
-      )}
+        {loading ? (
+          <Loader />
+        ) : (
+          <Row justify="center">
+            <div className="artists-leaderboard">
+              <ul>
+                {artists.length > 0
+                  ? artists.map((artist, i) => (
+                      <li key={artist?.address} className="artists-leadboard-entry">
+                        <div className="artists-leadboard-entry-rank">
+                          <h3>{emojifyTop3(i + 1)}</h3>
+                        </div>
+                        <div className="artists-leadboard-entry-address">
+                          <Link href={`/artist/${artist?.address}`}>
+                            <Address key={artist?.address} address={artist.address} disableAddressLink={true} />
+                          </Link>
+                        </div>
+                        <div className="artists-leadboard-entry-stats">
+                          <p>💲 Earnings: ${parseFloat(formatUnits(artist?.earnings || 0n, 18)).toFixed(2)}</p>
+                          <p>🖼️ Total Inks: {artist.inkCount}</p>
+                          <p>👍 Total likes: {artist.likeCount}</p>
+                        </div>
+                      </li>
+                    ))
+                  : null}
+              </ul>
+            </div>
+          </Row>
+        )}
+      </div>
     </div>
   );
 };

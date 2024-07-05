@@ -64,16 +64,18 @@ const Stats = () => {
   if (errorLastMonthData) return `Error! ${errorLastMonthData.message}`;
 
   return (
-    <div className="max-w-screen-xl">
-      {lastMonthData && lastMonthData?.dailyTotals && (
-        <HistoryStats lastMonthData={lastMonthData?.dailyTotals} metric={metric} handleChangeMetric={handleChange} />
-      )}
-      <TotalStats
-        totalDataNow={totalDataNow?.totals?.[0]}
-        totalDataBefore={totalDataBefore?.totals?.[0]}
-        period={period}
-        handleChangePeriod={handleChange}
-      />
+    <div className="flex justify-center">
+      <div className="max-w-screen-xl">
+        {lastMonthData && lastMonthData?.dailyTotals && (
+          <HistoryStats lastMonthData={lastMonthData?.dailyTotals} metric={metric} handleChangeMetric={handleChange} />
+        )}
+        <TotalStats
+          totalDataNow={totalDataNow?.totals?.[0]}
+          totalDataBefore={totalDataBefore?.totals?.[0]}
+          period={period}
+          handleChangePeriod={handleChange}
+        />
+      </div>
     </div>
   );
 };

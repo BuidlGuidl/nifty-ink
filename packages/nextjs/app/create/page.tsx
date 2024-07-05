@@ -32,7 +32,6 @@ import {
   Table,
   Tooltip,
   message,
-  notification,
 } from "antd";
 import * as Hash from "ipfs-only-hash";
 import LZ from "lz-string";
@@ -41,8 +40,12 @@ import CanvasDraw from "react-canvas-draw";
 import { AlphaPicker, CirclePicker, SketchPicker, TwitterPicker } from "react-color";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
+import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { getColorOptions, shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
+import { addToIPFS } from "~~/utils/ipfs";
+import { notification } from "~~/utils/scaffold-eth";
 
 // const Hash = require("ipfs-only-hash");
 const pickers = [SketchPicker, CirclePicker];
@@ -92,6 +95,7 @@ interface Lines {
 const CreateInk = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const { address: connectedAddress } = useAccount();
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
   const calculatedCanvaSize = Math.round(0.85 * Math.min(width, height));
@@ -115,8 +119,7 @@ const CreateInk = () => {
 
   const [size, setSize] = useState([calculatedCanvaSize, calculatedCanvaSize]); //["70vmin", "70vmin"]) //["50vmin", "50vmin"][750, 500]
 
-  const [sending, setSending] = useState();
-  const [drawingSize, setDrawingSize] = useState(0);
+  const [sending, setSending] = useState<boolean>(false);
 
   const [initialDrawing, setInitialDrawing] = useState<string>("");
   const currentLines = useRef<Lines[]>([]);
@@ -130,7 +133,7 @@ const CreateInk = () => {
   const portraitCalc = width / size[0] < portraitRatio;
 
   const [portrait, setPortrait] = useState(false);
-
+  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("NiftyInk");
   useEffect(() => {
     setIsClient(true); // To avoid hydration error
     setPortrait(portraitCalc);
@@ -234,7 +237,6 @@ const CreateInk = () => {
           }
 
           console.log("Drawing points", currentLines.current.length, points);
-          setDrawingSize(points);
           setInitialDrawing(decompressed);
         } catch (e) {
           console.log(e);
@@ -250,10 +252,111 @@ const CreateInk = () => {
   const PickerDisplay: React.ComponentType<any> = pickers[pickerIndex];
   // const colors = colorOptions && colorOptions[colorArray] ? colorOptions[colorArray] : [];
 
-  //   const mintInk = async (inkUrl: string, jsonUrl: string, limit: number) => {};
+  const mintInk = async (inkUrl: string, jsonUrl: string, limit: number, currentInk: any) => {
+    let writeTxResult;
+
+    try {
+      writeTxResult = await writeYourContractAsync({
+        functionName: "createInk",
+        args: [inkUrl, jsonUrl, currentInk?.attributes[0]["value"]],
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    return writeTxResult;
+  };
 
   const createInk = async (values: any) => {
-    console.log(values);
+    if (!drawingCanvas?.current) {
+      notification.error("Your canvas is empty");
+      return;
+    }
+    console.log("Inking:", values);
+
+    setSending(true);
+
+    const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
+
+    saveDrawing(drawingCanvas.current, true);
+
+    //let decompressed = LZ.decompress(props.drawing)
+    //let compressedArray = LZ.compressToUint8Array(decompressed)
+    const compressedArray = LZ.compressToUint8Array(drawingCanvas?.current?.getSaveData());
+
+    const drawingBuffer = Buffer.from(compressedArray);
+    const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
+
+    const drawingHash = await Hash.of(drawingBuffer);
+    console.log("drawingHash", drawingHash);
+
+    const imageHash = await Hash.of(imageBuffer);
+    console.log("imageHash", imageHash);
+
+    const timeInMs = new Date();
+
+    const currentInk = {
+      // ...ink,
+      attributes: [
+        {
+          trait_type: "Limit",
+          value: values.limit.toString(),
+        },
+      ],
+      name: values.title,
+      description: `A Nifty Ink by ${connectedAddress} on ${timeInMs}`,
+      drawing: drawingHash,
+      image: `https://ipfs.io/ipfs/${imageHash}`,
+      external_url: `https://nifty.ink/${drawingHash}`,
+    };
+
+    const inkStr = JSON.stringify(currentInk);
+    const inkBuffer = Buffer.from(inkStr);
+
+    const jsonHash = await Hash.of(inkBuffer);
+    console.log("jsonHash", jsonHash);
+
+    let drawingResultInfura;
+    let imageResultInfura;
+    let inkResultInfura;
+
+    try {
+      const drawingResult = addToIPFS(drawingBuffer);
+      const imageResult = addToIPFS(imageBuffer);
+      const inkResult = addToIPFS(inkBuffer);
+
+      // drawingResultInfura = addToIPFS(drawingBuffer, props.ipfsConfigInfura);
+      // imageResultInfura = addToIPFS(imageBuffer, props.ipfsConfigInfura);
+      // inkResultInfura = addToIPFS(inkBuffer, props.ipfsConfigInfura);
+
+      await Promise.all([drawingResult, imageResult, inkResult]).then(values => {
+        console.log("FINISHED UPLOADING TO PINNER", values);
+        message.destroy();
+      });
+    } catch (e) {
+      console.log(e);
+      setSending(false);
+      notification.error("📛 Ink upload failed. Please wait a moment and try again ${e.message}");
+
+      return;
+    }
+
+    try {
+      await writeYourContractAsync({
+        functionName: "createInk",
+        args: [drawingHash, jsonHash, values.limit.toString()],
+      });
+
+      Promise.all([drawingResultInfura, imageResultInfura, inkResultInfura]).then(values => {
+        console.log("INFURA FINISHED UPLOADING!", values);
+      });
+
+      router.push("/ink/" + drawingHash);
+      setSending(false);
+      setDrawing("");
+    } catch (e) {
+      console.log(e);
+      setSending(false);
+    }
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -706,8 +809,8 @@ const CreateInk = () => {
   return (
     <div className="create-ink-container mt-5">
       {portrait && <div className="title-top">{top}</div>}
-      {width > 0 && height > 0 && isClient && (
-        <div className="canvas">
+      <div className="canvas">
+        {width > 0 && height > 0 && isClient ? (
           <div
             style={{
               backgroundColor: "#666666",
@@ -738,8 +841,10 @@ const CreateInk = () => {
               loadTimeOffset={3}
             />
           </div>
-        </div>
-      )}
+        ) : (
+          <Loader />
+        )}
+      </div>
       {portrait ? (
         <div className="edit-tools-bottom">
           {bottom}

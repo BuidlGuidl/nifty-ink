@@ -121,81 +121,83 @@ const Home: NextPage = () => {
   if (error) return `Error! ${error.message}`;
 
   return (
-    <div className="max-w-screen-xl">
-      <Row align="top" gutter={16} className="mt-5 text-center justify-center">
-        <Col>
-          <Typography.Title level={3}>Collectors</Typography.Title>
-        </Col>
-        <Col>
-          <Form layout={"inline"} initialValues={{ orderBy: orderBy, period: period }}>
-            <Form.Item name="orderBy">
-              <Select value={orderBy} size="large" className="min-w-28" onChange={handleOrderByChange}>
-                <Option value="collectionCount">Collected</Option>
-                <Option value="saleCount">Sale count</Option>
-                <Option value="purchaseCount">Purchase count</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name="period">
-              <Select value={period} size="large" onChange={handlePeriodChange}>
-                <Option value="alltime">All-time</Option>
-                <Option value="lastmonth">Last 30 days</Option>
-                <Option value="lastweek">Last 7 days</Option>
-              </Select>
-            </Form.Item>
-          </Form>
-        </Col>
-      </Row>
-      {loading ? (
-        <Loader />
-      ) : (
-        <Row justify="center">
-          <div className="artists-leaderboard">
-            <ul>
-              {collectors.length > 0
-                ? collectors
-                    .filter(
-                      collector =>
-                        collector.address !== "0x000000000000000000000000000000000000dead" &&
-                        collector.address !== "0xdead000000000000000042069420694206942069",
-                    )
-                    .map((artist, i) => (
-                      <li key={artist.address} className="artists-leadboard-entry">
-                        <div className="artists-leadboard-entry-rank">
-                          <h3>{emojifyTop3(i + 1)}</h3>
-                        </div>
-
-                        <div className="artists-leadboard-entry-address">
-                          <Link href={`/artist/${artist?.address}`}>
-                            <Address key={artist?.address} address={artist.address} disableAddressLink={true} />
-                          </Link>
-                        </div>
-                        <div className="artists-leadboard-entry-stats">
-                          <p>
-                            <span role="img" aria-label="Framed Picture">
-                              🖼️
-                            </span>{" "}
-                            Total collected: {artist.collectionCount}
-                          </p>
-                          <p>
-                            <span role="img" aria-label="Framed Picture">
-                              💰
-                            </span>{" "}
-                            Sale count: {artist.saleCount}
-                          </p>
-                          <p>
-                            <span role="img" aria-label="Framed Picture">
-                              💸
-                            </span>{" "}
-                            Purchase count: {artist.purchaseCount}
-                          </p>
-                        </div>
-                      </li>
-                    ))
-                : null}
-            </ul>
-          </div>
+    <div className="flex justify-center">
+      <div className="max-w-screen-xl">
+        <Row align="top" gutter={16} className="mt-5 text-center justify-center">
+          <Col>
+            <Typography.Title level={3}>Collectors</Typography.Title>
+          </Col>
+          <Col>
+            <Form layout={"inline"} initialValues={{ orderBy: orderBy, period: period }}>
+              <Form.Item name="orderBy">
+                <Select value={orderBy} size="large" className="min-w-28" onChange={handleOrderByChange}>
+                  <Option value="collectionCount">Collected</Option>
+                  <Option value="saleCount">Sale count</Option>
+                  <Option value="purchaseCount">Purchase count</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item name="period">
+                <Select value={period} size="large" onChange={handlePeriodChange}>
+                  <Option value="alltime">All-time</Option>
+                  <Option value="lastmonth">Last 30 days</Option>
+                  <Option value="lastweek">Last 7 days</Option>
+                </Select>
+              </Form.Item>
+            </Form>
+          </Col>
         </Row>
-      )}
+        {loading ? (
+          <Loader />
+        ) : (
+          <Row justify="center">
+            <div className="artists-leaderboard">
+              <ul>
+                {collectors.length > 0
+                  ? collectors
+                      .filter(
+                        collector =>
+                          collector.address !== "0x000000000000000000000000000000000000dead" &&
+                          collector.address !== "0xdead000000000000000042069420694206942069",
+                      )
+                      .map((artist, i) => (
+                        <li key={artist.address} className="artists-leadboard-entry">
+                          <div className="artists-leadboard-entry-rank">
+                            <h3>{emojifyTop3(i + 1)}</h3>
+                          </div>
+
+                          <div className="artists-leadboard-entry-address">
+                            <Link href={`/artist/${artist?.address}`}>
+                              <Address key={artist?.address} address={artist.address} disableAddressLink={true} />
+                            </Link>
+                          </div>
+                          <div className="artists-leadboard-entry-stats">
+                            <p>
+                              <span role="img" aria-label="Framed Picture">
+                                🖼️
+                              </span>{" "}
+                              Total collected: {artist.collectionCount}
+                            </p>
+                            <p>
+                              <span role="img" aria-label="Framed Picture">
+                                💰
+                              </span>{" "}
+                              Sale count: {artist.saleCount}
+                            </p>
+                            <p>
+                              <span role="img" aria-label="Framed Picture">
+                                💸
+                              </span>{" "}
+                              Purchase count: {artist.purchaseCount}
+                            </p>
+                          </div>
+                        </li>
+                      ))
+                  : null}
+              </ul>
+            </div>
+          </Row>
+        )}
+      </div>
     </div>
   );
 };

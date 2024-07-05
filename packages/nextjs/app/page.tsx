@@ -114,100 +114,102 @@ const Home: NextPage = () => {
   console.log(inks);
 
   return (
-    <div className="max-w-screen-xl">
-      <Row className="mt-5 mb-3 justify-center">
-        <Form
-          layout={"inline"}
-          initialValues={{
-            layout: layout,
-            dateRange: [startDate, endDate],
-            orderBy: orderBy,
-            orderDirection: orderDirection,
-            forSale: forSale,
-          }}
-        >
-          <Form.Item name="layout">
-            <Radio.Group
-              size="large"
-              value={layout}
-              onChange={v => {
-                setLayout(v.target.value);
-              }}
-            >
-              <Radio.Button value={"cards"}>Cards</Radio.Button>
-              <Radio.Button value={"tiles"}>Tiles</Radio.Button>
-            </Radio.Group>
-          </Form.Item>
-          {layout == "cards" && (
-            <>
-              <Form.Item name="dateRange">
-                <DatePicker.RangePicker
-                  size="large"
-                  value={[startDate, endDate]}
-                  onChange={(moments, dateStrings) => {
-                    updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
-                    setStartDate(dayjs(dateStrings[0]));
-                    setEndDate(dayjs(dateStrings[1]));
-                  }}
-                />
-              </Form.Item>
-              <Form.Item name="orderBy">
-                <Select
-                  value={orderBy}
-                  size="large"
-                  onChange={val => {
-                    updateSearchParams(["orderBy"], [val]);
-                    setOrderBy(val);
-                  }}
-                >
-                  <Option value="createdAt">Created At</Option>
-                  <Option value="bestPrice">Price</Option>
-                  <Option value="likeCount">Likes</Option>
-                  <Option value="count">Token Count</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item name="orderDirection">
-                <Select
-                  value={orderDirection}
-                  style={{ width: 120 }}
-                  size="large"
-                  onChange={val => {
-                    updateSearchParams(["orderDirection"], [val]);
-                    setOrderDirection(val);
-                  }}
-                >
-                  <Option value="desc">Descending</Option>
-                  <Option value="asc">Ascending</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item name="forSale">
-                <Select
-                  value={forSale}
-                  style={{ width: 120 }}
-                  size="large"
-                  onChange={val => {
-                    updateSearchParams(["forSale"], [val]);
-                    setForSale(val);
-                  }}
-                >
-                  <Option value={"for-sale"}>For sale</Option>
-                  <Option value={"all-inks"}>All inks</Option>
-                </Select>
-              </Form.Item>
-            </>
-          )}
-        </Form>
-      </Row>
+    <div className="flex justify-center">
+      <div className="max-w-screen-xl">
+        <Row className="mt-5 mb-3 justify-center">
+          <Form
+            layout={"inline"}
+            initialValues={{
+              layout: layout,
+              dateRange: [startDate, endDate],
+              orderBy: orderBy,
+              orderDirection: orderDirection,
+              forSale: forSale,
+            }}
+          >
+            <Form.Item name="layout">
+              <Radio.Group
+                size="large"
+                value={layout}
+                onChange={v => {
+                  setLayout(v.target.value);
+                }}
+              >
+                <Radio.Button value={"cards"}>Cards</Radio.Button>
+                <Radio.Button value={"tiles"}>Tiles</Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+            {layout == "cards" && (
+              <>
+                <Form.Item name="dateRange">
+                  <DatePicker.RangePicker
+                    size="large"
+                    value={[startDate, endDate]}
+                    onChange={(moments, dateStrings) => {
+                      updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
+                      setStartDate(dayjs(dateStrings[0]));
+                      setEndDate(dayjs(dateStrings[1]));
+                    }}
+                  />
+                </Form.Item>
+                <Form.Item name="orderBy">
+                  <Select
+                    value={orderBy}
+                    size="large"
+                    onChange={val => {
+                      updateSearchParams(["orderBy"], [val]);
+                      setOrderBy(val);
+                    }}
+                  >
+                    <Option value="createdAt">Created At</Option>
+                    <Option value="bestPrice">Price</Option>
+                    <Option value="likeCount">Likes</Option>
+                    <Option value="count">Token Count</Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item name="orderDirection">
+                  <Select
+                    value={orderDirection}
+                    style={{ width: 120 }}
+                    size="large"
+                    onChange={val => {
+                      updateSearchParams(["orderDirection"], [val]);
+                      setOrderDirection(val);
+                    }}
+                  >
+                    <Option value="desc">Descending</Option>
+                    <Option value="asc">Ascending</Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item name="forSale">
+                  <Select
+                    value={forSale}
+                    style={{ width: 120 }}
+                    size="large"
+                    onChange={val => {
+                      updateSearchParams(["forSale"], [val]);
+                      setForSale(val);
+                    }}
+                  >
+                    <Option value={"for-sale"}>For sale</Option>
+                    <Option value={"all-inks"}>All inks</Option>
+                  </Select>
+                </Form.Item>
+              </>
+            )}
+          </Form>
+        </Row>
 
-      <InkList
-        inks={inks}
-        orderDirection={orderDirection}
-        orderBy={orderBy as keyof Ink}
-        layout={layout}
-        connectedAddress={connectedAddress}
-        isInksLoading={isInksLoading}
-        onLoadMore={onLoadMore}
-      />
+        <InkList
+          inks={inks}
+          orderDirection={orderDirection}
+          orderBy={orderBy as keyof Ink}
+          layout={layout}
+          connectedAddress={connectedAddress}
+          isInksLoading={isInksLoading}
+          onLoadMore={onLoadMore}
+        />
+      </div>
     </div>
   );
 };
