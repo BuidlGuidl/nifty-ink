@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { PlaySquareOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { Button, Descriptions, InputNumber, Popover, Row, Spin, Typography } from "antd";
 import LZ from "lz-string";
@@ -22,6 +23,7 @@ export const InkCanvas = ({
   connectedAddress: string;
   inkId: string;
 }) => {
+  const router = useRouter();
   const drawingCanvas = useRef<CanvasDraw>(null);
   const calculatedCanvaSize = Math.round(0.7 * Math.min(window.innerWidth, window.innerHeight));
   const size = [calculatedCanvaSize, calculatedCanvaSize];
@@ -30,6 +32,8 @@ export const InkCanvas = ({
   const drawnLines = useRef([]);
   const [canvasState, setCanvasState] = useState("downloading");
   const totalLines = useRef([]);
+  const [drawingLocalStorage, setDrawingLocalStorage] = useLocalStorage("drawing", "");
+
   const [canvasKey, setCanvasKey] = useState(Date.now());
   const [playSpeed, setPlaySpeed] = useLocalStorage("playspeed", 7, {
     initializeWithValue: false,
@@ -167,9 +171,10 @@ export const InkCanvas = ({
           <Button
             className="mt-1 ml-1"
             onClick={() => {
-              // let _savedData = LZ.compress(drawing);
-              // props.setDrawing(_savedData);
-              // history.push("/create");
+              if (!drawing) return;
+              const _savedData = LZ.compress(drawing);
+              setDrawingLocalStorage(_savedData);
+              router.push("/create");
             }}
           >
             <span style={{ marginRight: 12 }} role="img" aria-label="Fork">
