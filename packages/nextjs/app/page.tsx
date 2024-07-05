@@ -7,8 +7,10 @@ import { useQuery } from "@apollo/client";
 import { DatePicker, Form, Radio, Row, Select } from "antd";
 import dayjs from "dayjs";
 import type { NextPage } from "next";
+import { useDebounce } from "usehooks-ts";
 import { useAccount } from "wagmi";
-import { EXPLORE_QUERY } from "~~/apollo/queries";
+import { EXPLORE_QUERY, INK_LIKES_QUERY } from "~~/apollo/queries";
+import { getMetadata } from "~~/utils/helpers";
 
 const { Option } = Select;
 
@@ -60,13 +62,22 @@ const Home: NextPage = () => {
     },
   });
 
-  const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
-    const response = await fetch(`https://gateway.nifty.ink:42069/ipfs/${jsonURL}`);
-    const data: InkMetadata = await response.json();
-    console.log(data);
-    data.image = data.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/");
-    return data;
-  };
+  const debouncedInks = useDebounce(
+    Object.keys(inks).map(x => parseInt(x)),
+    2000,
+  );
+
+  const {
+    loading: likesLoading,
+    error: likesError,
+    data: likesData,
+  } = useQuery(INK_LIKES_QUERY, {
+    variables: {
+      inks: debouncedInks,
+      liker: connectedAddress ? connectedAddress.toLowerCase() : "",
+    },
+    pollInterval: 6000,
+  });
 
   const onLoadMore = (skip: number) => {
     fetchMoreInks({
@@ -110,8 +121,6 @@ const Home: NextPage = () => {
       console.log("loading");
     }
   }, [data]);
-
-  console.log(inks);
 
   return (
     <div className="flex justify-center">
@@ -202,6 +211,7 @@ const Home: NextPage = () => {
 
         <InkList
           inks={inks}
+          likesData={likesData?.inks}
           orderDirection={orderDirection}
           orderBy={orderBy as keyof Ink}
           layout={layout}

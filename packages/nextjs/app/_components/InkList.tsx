@@ -11,12 +11,21 @@ type InkListProps = {
   orderBy: keyof Ink;
   orderDirection: string;
   layout: string;
+  likesData: Ink[];
   connectedAddress: string | undefined;
   isInksLoading: boolean;
   onLoadMore: (skip: number) => void;
 };
 
-export const InkList = ({ inks, orderBy, orderDirection, layout, connectedAddress, onLoadMore }: InkListProps) => {
+export const InkList = ({
+  inks,
+  orderBy,
+  orderDirection,
+  layout,
+  likesData,
+  connectedAddress,
+  onLoadMore,
+}: InkListProps) => {
   return (
     <div>
       <div className="flex items-center flex-col flex-grow">
@@ -31,6 +40,8 @@ export const InkList = ({ inks, orderBy, orderDirection, layout, connectedAddres
                   })
                   .map(inkKey => {
                     const ink = Number(inkKey);
+                    const likeInfo =
+                      likesData?.length > 0 && likesData.find(element => element.inkNumber === inks[ink].inkNumber);
                     return (
                       <li
                         key={inks[ink].id}
@@ -67,8 +78,8 @@ export const InkList = ({ inks, orderBy, orderDirection, layout, connectedAddres
                                   <div className="mx-2">
                                     <LikeButton
                                       targetId={inks[ink].inkNumber}
-                                      likeCount={inks[ink]?.likeCount || 0}
-                                      hasLiked={inks[ink]?.likes.length > 0}
+                                      likeCount={(likeInfo && likeInfo?.likeCount) || 0}
+                                      hasLiked={(likeInfo && likeInfo?.likes?.length > 0) || false}
                                     />
                                   </div>
                                 </div>

@@ -20,7 +20,7 @@ const Holdings = ({ params }: { params: { address: string } }) => {
         <Profile address={address} />
 
         <Divider className="border-gray-300 min-w-4" />
-        <Tabs defaultActiveKey="1" size="large" type="card" className="mt-5flex items-center">
+        <Tabs defaultActiveKey="1" size="large" type="card" className="mt-5 flex items-center">
           <TabPane tab="Gnosis Chain" key="1">
             {connectedAddress && <GnosisChainInks address={address} connectedAddress={connectedAddress} />}
           </TabPane>
