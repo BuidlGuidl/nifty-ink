@@ -536,8 +536,9 @@ const CreateInk = () => {
                 saveDrawing(drawingCanvas.current, true);
                 console.log("drawing canvas current", drawingCanvas.current);
               }}
+              icon={<SaveOutlined />}
             >
-              <SaveOutlined /> {`${!drawingSaved ? "SAVE *" : "SAVED"}`}
+              {`${!drawingSaved ? "SAVE *" : "SAVED"}`}
             </Button>
           </Tooltip>
           <Button
@@ -553,8 +554,9 @@ const CreateInk = () => {
               if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
               undo();
             }}
+            icon={<UndoOutlined />}
           >
-            <UndoOutlined /> UNDO
+            UNDO
           </Button>
           <Popconfirm
             title="Are you sure?"
@@ -567,9 +569,7 @@ const CreateInk = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button>
-              <ClearOutlined /> CLEAR
-            </Button>
+            <Button icon={<ClearOutlined />}>CLEAR</Button>
           </Popconfirm>
           <Button
             disabled={canvasDisabled || (drawingCanvas.current && !drawingCanvas?.current?.lines.length) || false}
@@ -578,8 +578,9 @@ const CreateInk = () => {
               drawingCanvas?.current?.loadSaveData(drawingCanvas.current.getSaveData(), false); //LZ.decompress(props.drawing), false)
               setCanvasDisabled(true);
             }}
+            icon={<PlaySquareOutlined />}
           >
-            <PlaySquareOutlined /> PLAY
+            PLAY
           </Button>
         </div>
       </div>
@@ -624,9 +625,8 @@ const CreateInk = () => {
                   onClick={() => {
                     setPicker(picker + 1);
                   }}
-                >
-                  <HighlightOutlined />
-                </Button>
+                  icon={<HighlightOutlined />}
+                ></Button>
               </Row>
               <Row
                 style={{
@@ -690,14 +690,12 @@ const CreateInk = () => {
         >
           <Space>
             <Col span={4}>
-              <Button onClick={() => fillBackground(color)}>
-                <BgColorsOutlined />
+              <Button onClick={() => fillBackground(color)} icon={<BgColorsOutlined />}>
                 Background
               </Button>
             </Col>
             <Col span={4}>
-              <Button onClick={() => drawFrame(color, brushRadius)}>
-                <BorderOutlined />
+              <Button onClick={() => drawFrame(color, brushRadius)} icon={<BorderOutlined />}>
                 Frame
               </Button>
             </Col>
@@ -720,10 +718,7 @@ const CreateInk = () => {
                 title="Keyboard shortcuts"
                 trigger="click"
               >
-                <Button>
-                  <InfoCircleOutlined />
-                  Shortcuts
-                </Button>
+                <Button icon={<InfoCircleOutlined />}>Shortcuts</Button>
               </Popover>
             </Col>
           </Space>
@@ -744,8 +739,8 @@ const CreateInk = () => {
           okText="Yes"
           cancelText="No"
         >
-          <Button style={{ marginTop: "20px" }}>
-            <SaveOutlined /> Save as draft
+          <Button style={{ marginTop: "20px" }} icon={<SaveOutlined />}>
+            Save as draft
           </Button>
         </Popconfirm>
         <Tooltip title="Download current drawing">
@@ -755,16 +750,17 @@ const CreateInk = () => {
               if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
               await downloadCanvas();
             }}
+            icon={<DownloadOutlined />}
           >
-            <DownloadOutlined /> DOWNLOAD
+            DOWNLOAD
           </Button>
         </Tooltip>
         <Button
           onClick={() => {
             router.push("/create/drafts");
           }}
+          icon={<BookOutlined />}
         >
-          <BookOutlined />
           My Drafts
         </Button>
         <div style={{ marginTop: 16 }}>
