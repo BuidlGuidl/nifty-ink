@@ -194,7 +194,6 @@ export const InkCanvas = ({
               style={{
                 width: "100%",
                 position: "absolute",
-                zIndex: 90,
                 margin: "auto",
               }}
             >

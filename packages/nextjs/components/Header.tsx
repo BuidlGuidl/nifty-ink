@@ -3,6 +3,8 @@
 import React, { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Popover } from "antd";
+import { TooltipPlacement } from "antd/es/tooltip";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -54,7 +56,7 @@ export const menuLinks: HeaderMenuLink[] = [
   // },
 ];
 
-export const HeaderMenuLinks = () => {
+export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPlacement }) => {
   const pathname = usePathname();
   const { address: connectedAddress } = useAccount();
 
@@ -62,45 +64,43 @@ export const HeaderMenuLinks = () => {
     <>
       {menuLinks.map(({ label, href, icon, sublinks, subnames }) => {
         const isActive = pathname === href;
-        return sublinks ? (
+        return (
           <li key={href} className="relative group mb-2">
             <Link
-              href={href}
+              href={["/artist", "/holdings"].find(item => href === item) ? `${href}/${connectedAddress}` : href}
               passHref
               className={`${
                 isActive ? "bg-secondary shadow-md" : ""
               } hover:bg-secondary hover:shadow-md focus:bg-secondary active:text-neutral py-1.5 px-3 text-sm rounded-full flex items-center`}
             >
               {icon}
-              <span className="ml-2">{label}</span>
-            </Link>
-            {sublinks && subnames && (
-              <ul className="absolute hidden group-hover:block bg-white shadow mt-8 min-w-[130px]">
-                {sublinks.map((sublink, index) => (
-                  <li key={index}>
-                    <Link
-                      href={`${href}/${sublink}`}
-                      passHref
-                      className="block text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      {subnames[index]}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ) : (
-          <li key={href}>
-            <Link
-              href={["/artist", "/holdings"].find(item => href === item) ? `${href}/${connectedAddress}` : href}
-              passHref
-              className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
-            >
-              {icon}
-              <span>{label}</span>
+              {sublinks && subnames ? (
+                <Popover
+                  content={
+                    <>
+                      <ul className="">
+                        {sublinks.map((sublink, index) => (
+                          <li key={index}>
+                            <Link
+                              href={`${href}/${sublink}`}
+                              passHref
+                              className="block text-sm text-gray-700 hover:bg-gray-100 m-2"
+                            >
+                              {subnames[index]}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  }
+                  placement={placement}
+                  arrow={false}
+                >
+                  <span className="ml-2">{label}</span>
+                </Popover>
+              ) : (
+                <span className="ml-2">{label}</span>
+              )}
             </Link>
           </li>
         );
@@ -141,7 +141,7 @@ export const Header = () => {
                 setIsDrawerOpen(false);
               }}
             >
-              <HeaderMenuLinks />
+              <HeaderMenuLinks placement="right" />
             </ul>
           )}
         </div>
@@ -151,7 +151,7 @@ export const Header = () => {
           </div>
         </Link>
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
+          <HeaderMenuLinks placement={"bottom"} />
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
