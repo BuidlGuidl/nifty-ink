@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const ARTISTS_QUERY = gql`
-  query artists($address: Bytes!) {
+  query artists($address: Bytes!, $first: Int, $skip: Int) {
     artists(where: { address: $address }) {
       id
       inkCount
@@ -12,7 +12,7 @@ export const ARTISTS_QUERY = gql`
       lastInkAt
       likeCount
       saleCount
-      inks(first: 999, orderBy: createdAt, orderDirection: desc, where: { burned: false }) {
+      inks(first: $first, skip: $skip, orderBy: createdAt, orderDirection: desc, where: { burned: false }) {
         id
         jsonUrl
         limit

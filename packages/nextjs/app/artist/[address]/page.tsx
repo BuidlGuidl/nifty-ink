@@ -15,50 +15,47 @@ import { getMetadata } from "~~/utils/helpers";
 
 const { TabPane } = Tabs;
 
+const ITEMS_PER_PAGE = 20;
+
 const Artist = ({ params }: { params: { address: string } }) => {
   const address = params?.address;
   const [inks, setInks] = useState<Ink[]>([]);
-  const { loading, error, data } = useQuery(ARTISTS_QUERY, {
-    variables: { address: address },
+  const { loading, error, data, fetchMore } = useQuery(ARTISTS_QUERY, {
+    variables: { address: address, first: ITEMS_PER_PAGE + 1, skip: 0 },
   });
+  const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     const getInks = async (data: Ink[]) => {
-      const metadataPromises = data.map(ink => getMetadata(ink.jsonUrl));
+      const metadataPromises = data.slice(0, ITEMS_PER_PAGE).map(ink => getMetadata(ink.jsonUrl));
+      const hasMoreNewItems = data?.length > ITEMS_PER_PAGE;
+      if (!hasMoreNewItems) {
+        setAllItemsLoaded(true);
+      }
       const metadataResults = await Promise.all(metadataPromises);
 
       // Combine each ink with its metadata
-      const updatedInks = data.map((ink, index) => ({
+      const updatedInks = data.slice(0, ITEMS_PER_PAGE).map((ink, index) => ({
         ...ink,
         metadata: metadataResults[index],
       }));
 
-      setInks(updatedInks);
+      setInks([...inks, ...updatedInks]);
     };
-    data !== undefined && data.artists[0] && inks.length === 0 ? getInks(data.artists[0].inks) : console.log("loading");
-    if (data !== undefined && data.artists[0]) {
-      const { createdAt, lastLikeAt, lastSaleAt } = data.artists[0];
-      // console.log(createdAt, lastLikeAt, lastSaleAt);
-      //   let lastTransferAt = data.artists[0].tokenTransfers.length ? data.artists[0].tokenTransfers[0].createdAt : 0;
-      //   let lastActivity = Math.max(...[lastLikeAt, lastSaleAt, lastTransferAt].map(e => parseInt(e)));
-
-      //   if (!dataActivity) {
-      //     activityCreatedAt.current = lastActivity - dateRange;
-      //     fetchRecentActivity({
-      //       variables: {
-      //         address: address,
-      //         createdAt: activityCreatedAt.current,
-      //         skipLikes: 0,
-      //         skipSales: 0,
-      //         skipTransfers: 0,
-      //       },
-      //     });
-      //   }
-      //   //   setUserFirstActivity(parseInt(createdAt));
-      // } else {
-      //   console.log("loading");
-    }
+    data !== undefined && data.artists[0] ? getInks(data.artists[0].inks) : console.log("loading");
   }, [data]);
+
+  const onLoadMore = () => {
+    fetchMore({
+      variables: {
+        skip: inks.length,
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return previousResult;
+        return fetchMoreResult;
+      },
+    });
+  };
 
   return (
     <div className="flex justify-center">
@@ -78,7 +75,12 @@ const Artist = ({ params }: { params: { address: string } }) => {
             {loading ? (
               <Loader />
             ) : (
-              <InkListArtist inks={inks} isInksLoading={false} onLoadMore={(skip: number) => undefined} />
+              <InkListArtist
+                inks={inks}
+                isInksLoading={false}
+                onLoadMore={onLoadMore}
+                allItemsLoaded={allItemsLoaded}
+              />
             )}
           </TabPane>
           <TabPane tab="📈 Statistics" key="3">

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { LikeButton } from "./LikeButton";
-import { Divider, Typography } from "antd";
+import { Button, Divider, Typography } from "antd";
 import { formatEther } from "viem";
 import xDai from "~~/public/xDAI.png";
 
@@ -12,16 +12,18 @@ type InkListProps = {
   layout?: string;
   connectedAddress?: string | undefined;
   isInksLoading: boolean;
-  onLoadMore: (skip: number) => void;
+  onLoadMore: () => void;
+  allItemsLoaded: boolean;
 };
 
-export const InkListArtist = ({ inks, layout = "cards", connectedAddress, onLoadMore }: InkListProps) => {
+export const InkListArtist = ({
+  inks,
+  layout = "cards",
+  connectedAddress,
+  onLoadMore,
+  allItemsLoaded,
+}: InkListProps) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-    onLoadMore(page * 5);
-  };
 
   return (
     <div>
@@ -94,23 +96,13 @@ export const InkListArtist = ({ inks, layout = "cards", connectedAddress, onLoad
               <Typography.Title level={4}>No inks found for this address</Typography.Title>
             )}
           </ul>
+          {!allItemsLoaded && (
+            <Button type="dashed" size="large" block className="mt-5 flex items-center" onClick={() => onLoadMore()}>
+              Load more
+            </Button>
+          )}
         </div>
       </div>
-
-      {/* <div className="flex items-center justify-center">
-        <div aria-label="Page navigation" className="flex space-x-2">
-          <div>
-            <button
-              className="relative block rounded bg-transparent px-3 py-1.5 text-md transition duration-300 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-700 dark:hover:text-white"
-              onClick={() => {
-                goToPage(currentPage + 1);
-              }}
-            >
-              Load More
-            </button>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };
