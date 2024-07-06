@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { emojifyTop3 } from "../utils";
 import { useQuery } from "@apollo/client";
 import { Col, Form, Row, Select, Typography } from "antd";
@@ -18,11 +18,14 @@ const { Option } = Select;
 const Home: NextPage = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
 
   const [collectors, setCollectors] = useState<User[]>([]);
-  const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "collectionCount");
-  const [period, setPeriod] = useState<string>(searchParams.get("period") || "lastmonth");
+  // const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "collectionCount");
+  // const [period, setPeriod] = useState<string>(searchParams.get("period") || "lastmonth");
+
+  const [orderBy, setOrderBy] = useState<string>("collectionCount");
+  const [period, setPeriod] = useState<string>("lastmonth");
   const [createdAt, setCreatedAt] = useState<number>(1596240000);
   const [lastFilterAt, setLastFilterAt] = useState<{ [key: string]: number }>({ lastSaleAt_gt: 1596240000 });
 
@@ -96,24 +99,24 @@ const Home: NextPage = () => {
     }
   };
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
+  // const createQueryString = useCallback(
+  //   (name: string, value: string) => {
+  //     const params = new URLSearchParams(searchParams.toString());
+  //     params.set(name, value);
 
-      return params.toString();
-    },
-    [searchParams],
-  );
+  //     return params.toString();
+  //   },
+  //   [searchParams],
+  // );
 
   const handleOrderByChange = (val: string) => {
-    router.push(pathname + "?" + createQueryString("orderBy", val));
+    // router.push(pathname + "?" + createQueryString("orderBy", val));
     setCollectors([]);
     setOrderBy(val);
   };
 
   const handlePeriodChange = (val: string) => {
-    router.push(pathname + "?" + createQueryString("period", val));
+    // router.push(pathname + "?" + createQueryString("period", val));
     setCollectors([]);
     setPeriod(val);
   };

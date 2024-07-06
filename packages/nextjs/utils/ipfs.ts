@@ -1,5 +1,5 @@
-import { create } from "ipfs-http-client";
 import all from "it-all";
+import { create } from "kubo-rpc-client";
 import * as uint8arrays from "uint8arrays";
 
 const ipfsConfig = {

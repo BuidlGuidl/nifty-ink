@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import xDai from "../../public/xDai.png";
 import { LikeButton } from "./LikeButton";
 import { Button, Typography } from "antd";
 import { formatEther } from "viem";
-import xDai from "~~/public/xDAI.png";
 
 type InkListProps = {
   inks: Record<number, Ink>;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import HistoryStats from "../_components/stats/HistoryStats";
 import TotalStats from "../_components/stats/TotalStats";
 import { useQuery } from "@apollo/client";
@@ -12,13 +12,16 @@ import { calculateStartingDate, createQueryString } from "~~/utils/helpers";
 const Stats = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
 
-  const [metric, setMetric] = useState<string>(searchParams.get("metric") || "tokens");
-  const [period, setPeriod] = useState<string>(searchParams.get("period") || "month");
-  const [startingDate, setStartingDate] = useState<number>(
-    calculateStartingDate(searchParams.get("period") || "month"),
-  );
+  // const [metric, setMetric] = useState<string>(searchParams.get("metric") || "tokens");
+  // const [period, setPeriod] = useState<string>(searchParams.get("period") || "month");
+  // const [startingDate, setStartingDate] = useState<number>(
+  //   calculateStartingDate(searchParams.get("period") || "month"),
+  // );
+  const [metric, setMetric] = useState<string>("tokens");
+  const [period, setPeriod] = useState<string>("month");
+  const [startingDate, setStartingDate] = useState<number>(calculateStartingDate("month"));
 
   const {
     loading: isLoadingLastMonthData,
@@ -42,19 +45,19 @@ const Stats = () => {
 
   const { loading: isLoadingTotalDataNow, error: errorTotalDataNow, data: totalDataNow } = useQuery(TOTALS);
 
-  const createQueryStringCallback = useCallback(
-    (name: string, value: string) => createQueryString(name, value, searchParams),
-    [searchParams],
-  );
+  // const createQueryStringCallback = useCallback(
+  //   (name: string, value: string) => createQueryString(name, value, searchParams),
+  //   [searchParams],
+  // );
 
   const handleChange = (varName: string, newVal: string) => {
     if (varName === "period") {
       setPeriod(newVal);
       setStartingDate(calculateStartingDate(newVal));
-      router.push(pathname + "?" + createQueryStringCallback("period", newVal));
+      // router.push(pathname + "?" + createQueryStringCallback("period", newVal));
     } else if (varName === "metric") {
       setMetric(newVal);
-      router.push(pathname + "?" + createQueryStringCallback("metric", newVal));
+      // router.push(pathname + "?" + createQueryStringCallback("metric", newVal));
     }
   };
 

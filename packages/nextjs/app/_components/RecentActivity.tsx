@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import xDai from "../../public/xDai.png";
 import { LinkOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Typography } from "antd";
@@ -10,7 +11,6 @@ import { formatEther } from "viem";
 import { ARTIST_RECENT_ACTIVITY_QUERY, FIRST_ARTIST_ACTIVITY_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
-import xDai from "~~/public/xDAI.png";
 import { calculateStartingDate } from "~~/utils/helpers";
 
 interface SearchAddressProps {
