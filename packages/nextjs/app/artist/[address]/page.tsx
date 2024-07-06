@@ -15,7 +15,7 @@ import { getMetadata } from "~~/utils/helpers";
 
 const { TabPane } = Tabs;
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 15;
 
 const Artist = ({ params }: { params: { address: string } }) => {
   const address = params?.address;

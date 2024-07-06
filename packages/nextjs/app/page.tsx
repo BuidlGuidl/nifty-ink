@@ -10,9 +10,12 @@ import type { NextPage } from "next";
 import { useDebounce } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import { EXPLORE_QUERY, INK_LIKES_QUERY } from "~~/apollo/queries";
+import Loader from "~~/components/Loader";
 import { getMetadata } from "~~/utils/helpers";
 
 const { Option } = Select;
+
+const ITEMS_PER_PAGE = 15;
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -24,6 +27,7 @@ const Home: NextPage = () => {
 
   // let [allInks, setAllInks] = useState<Ink[]>([]);
   const [inks, setInks] = useState<Record<number, Ink>>({});
+  const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
 
   const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
   const [startDate, setStartDate] = useState(
@@ -32,6 +36,12 @@ const Home: NextPage = () => {
   const [endDate, setEndDate] = useState(searchParams.has("endDate") ? dayjs(searchParams.get("endDate")) : dayjs());
   const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
   const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
+
+  const [inkFilters, setInkFilters] = useState({
+    createdAt_gt: startDate.unix(),
+    createdAt_lt: endDate.unix(),
+    burned: false,
+  });
 
   const updateSearchParams = (names: string[], values: string[]) => {
     router.push(`${pathname}?${createQueryString(names, values)}`);
@@ -53,12 +63,12 @@ const Home: NextPage = () => {
     fetchMore: fetchMoreInks,
   } = useQuery(EXPLORE_QUERY, {
     variables: {
-      first: 20,
+      first: ITEMS_PER_PAGE + 1,
       skip: 0,
       orderBy: orderBy,
       orderDirection: orderDirection,
       liker: connectedAddress ? connectedAddress.toLowerCase() : "",
-      // filters: inkFilters
+      filters: inkFilters,
     },
   });
 
@@ -79,38 +89,36 @@ const Home: NextPage = () => {
     pollInterval: 6000,
   });
 
-  const onLoadMore = (skip: number) => {
+  const onLoadMore = () => {
     fetchMoreInks({
       variables: {
-        first: 10,
-        skip: skip,
+        skip: Object.values(inks).length,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
-        return fetchMoreResult;
+        return {
+          inks: [...prev?.inks, ...fetchMoreResult?.inks],
+        };
       },
     });
   };
 
   const getInks = async (data: Ink[]) => {
-    // setAllInks(prevAllInks => [...prevAllInks, ...data]);
-    // let blocklist;
-    // if (props.supabase) {
-    //   let { data: supabaseBlocklist } = await props.supabase
-    //     .from("blocklist")
-    //     .select("jsonUrl");
-    //   blocklist = supabaseBlocklist;
-    // }
+    console.log("getting inks");
     const newInks: Record<number, Ink> = {};
-    for (const ink of data) {
-      // if (isBlocklisted(ink.jsonUrl)) return;
-      // if (blocklist && blocklist.find(el => el.jsonUrl === ink.jsonUrl)) {
-      //   return;
-      // }
+    const newData = data.filter(ink => !inks[ink?.inkNumber]?.metadata);
+    const hasMoreNewItems = newData?.length > ITEMS_PER_PAGE;
+    if (!hasMoreNewItems) {
+      setAllItemsLoaded(true);
+    }
+
+    for (const ink of newData.slice(0, ITEMS_PER_PAGE)) {
+      if (inks[ink?.inkNumber]?.metadata) continue;
       const metadata = await getMetadata(ink.jsonUrl);
       const _ink = { ...ink, metadata };
       newInks[_ink.inkNumber] = _ink;
     }
+
     setInks(prevInks => ({ ...prevInks, ...newInks }));
   };
 
@@ -158,6 +166,14 @@ const Home: NextPage = () => {
                       updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
                       setStartDate(dayjs(dateStrings[0]));
                       setEndDate(dayjs(dateStrings[1]));
+                      const _newFilters = {
+                        createdAt_gt: dayjs(dateStrings[0]).unix(),
+                        createdAt_lt: dayjs(dateStrings[1]).unix(),
+                        burned: false,
+                      };
+                      setInks({});
+                      setAllItemsLoaded(false);
+                      setInkFilters(_newFilters);
                     }}
                   />
                 </Form.Item>
@@ -208,17 +224,21 @@ const Home: NextPage = () => {
             )}
           </Form>
         </Row>
-
-        <InkList
-          inks={inks}
-          likesData={likesData?.inks}
-          orderDirection={orderDirection}
-          orderBy={orderBy as keyof Ink}
-          layout={layout}
-          connectedAddress={connectedAddress}
-          isInksLoading={isInksLoading}
-          onLoadMore={onLoadMore}
-        />
+        {likesLoading && isInksLoading ? (
+          <Loader />
+        ) : (
+          <InkList
+            inks={inks}
+            likesData={likesData?.inks}
+            orderDirection={orderDirection}
+            orderBy={orderBy as keyof Ink}
+            layout={layout}
+            connectedAddress={connectedAddress}
+            isInksLoading={isInksLoading}
+            onLoadMore={onLoadMore}
+            allItemsLoaded={allItemsLoaded}
+          />
+        )}
       </div>
     </div>
   );

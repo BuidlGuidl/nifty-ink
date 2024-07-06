@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { LikeButton } from "./LikeButton";
+import { Button, Typography } from "antd";
 import { formatEther } from "viem";
 import xDai from "~~/public/xDAI.png";
 
@@ -14,7 +15,8 @@ type InkListProps = {
   likesData: Ink[];
   connectedAddress: string | undefined;
   isInksLoading: boolean;
-  onLoadMore: (skip: number) => void;
+  onLoadMore: () => void;
+  allItemsLoaded: boolean;
 };
 
 export const InkList = ({
@@ -24,6 +26,7 @@ export const InkList = ({
   layout,
   likesData,
   connectedAddress,
+  allItemsLoaded,
   onLoadMore,
 }: InkListProps) => {
   return (
@@ -98,14 +101,13 @@ export const InkList = ({
       <div className="flex items-center justify-center">
         <div aria-label="Page navigation" className="flex space-x-2">
           <div>
-            <button
-              className="relative block rounded bg-transparent px-3 py-1.5 text-md transition duration-300 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-700 dark:hover:text-white"
-              onClick={() => {
-                onLoadMore(Object.values(inks).length);
-              }}
-            >
-              Load More
-            </button>
+            {allItemsLoaded ? (
+              <div className="mt-5 text-lg">All inks were loaded within the specified date range.</div>
+            ) : (
+              <Button type="dashed" size="large" block className="mt-5 flex items-center" onClick={() => onLoadMore()}>
+                Load more
+              </Button>
+            )}
           </div>
         </div>
       </div>
