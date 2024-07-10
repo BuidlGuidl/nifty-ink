@@ -8,7 +8,7 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
   title: "Nifty Ink",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  description: "NFT artwork: Putting the fun in non-fungible tokens",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {

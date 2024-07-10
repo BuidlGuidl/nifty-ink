@@ -14,7 +14,7 @@ export const getMetadata = ({
   description: string;
   imageRelativePath?: string;
 }): Metadata => {
-  const imageUrl = `${baseUrl}${imageRelativePath}`;
+  const imageUrl = `https://ipfs.nifty.ink/unfurl.png`;
 
   return {
     title: {
