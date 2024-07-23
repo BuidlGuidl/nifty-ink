@@ -28,6 +28,7 @@ const Home: NextPage = () => {
   // let [allInks, setAllInks] = useState<Ink[]>([]);
   const [inks, setInks] = useState<Record<number, Ink>>({});
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
+  const [MoreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
   // const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
   // const [startDate, setStartDate] = useState(
@@ -37,7 +38,7 @@ const Home: NextPage = () => {
   // const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
   // const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
   const [forSale, setForSale] = useState<string>("all-inks");
-  const [startDate, setStartDate] = useState(dayjs().subtract(29, "days"));
+  const [startDate, setStartDate] = useState(dayjs("2020-08-03"));
   const [endDate, setEndDate] = useState(dayjs());
   const [orderBy, setOrderBy] = useState<string>("createdAt");
   const [orderDirection, setOrderDirection] = useState<string>("desc");
@@ -95,6 +96,7 @@ const Home: NextPage = () => {
   });
 
   const onLoadMore = () => {
+    setMoreInksLoading(true);
     fetchMoreInks({
       variables: {
         skip: Object.values(inks).length,
@@ -125,6 +127,7 @@ const Home: NextPage = () => {
     }
 
     setInks(prevInks => ({ ...prevInks, ...newInks }));
+    setMoreInksLoading(false);
   };
 
   useEffect(() => {
@@ -239,7 +242,7 @@ const Home: NextPage = () => {
             orderBy={orderBy as keyof Ink}
             layout={layout}
             connectedAddress={connectedAddress}
-            isInksLoading={isInksLoading}
+            MoreInksLoading={MoreInksLoading}
             onLoadMore={onLoadMore}
             allItemsLoaded={allItemsLoaded}
           />

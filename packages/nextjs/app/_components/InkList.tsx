@@ -14,7 +14,7 @@ type InkListProps = {
   layout: string;
   likesData: Ink[];
   connectedAddress: string | undefined;
-  isInksLoading: boolean;
+  MoreInksLoading: boolean;
   onLoadMore: () => void;
   allItemsLoaded: boolean;
 };
@@ -25,6 +25,7 @@ export const InkList = ({
   orderDirection,
   layout,
   likesData,
+  MoreInksLoading,
   connectedAddress,
   allItemsLoaded,
   onLoadMore,
@@ -102,10 +103,17 @@ export const InkList = ({
         <div aria-label="Page navigation" className="flex space-x-2">
           <div>
             {allItemsLoaded ? (
-              <div className="mt-5 text-lg">All inks were loaded within the specified date range.</div>
+              <div className="mt-2 text-lg">All inks were loaded within the specified date range.</div>
             ) : (
-              <Button type="dashed" size="large" block className="mt-5 flex items-center" onClick={() => onLoadMore()}>
-                Load more
+              <Button
+                type="dashed"
+                size="large"
+                block
+                className="mt-2 flex items-center"
+                onClick={() => onLoadMore()}
+                disabled={MoreInksLoading}
+              >
+                {MoreInksLoading ? "Loading..." : "Load more"}
               </Button>
             )}
           </div>
