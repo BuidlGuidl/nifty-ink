@@ -115,22 +115,12 @@ export const InkCanvas = ({
   return (
     <>
       <Row className="w-[90vmin] mx-auto mt-[1vh] flex justify-center">
-        {ink && ink?.burned ? (
-          <Typography.Text className="align-middle pl-[5px] text-[28px]">
-            <span role="img" aria-label="Fire">
-              🔥🔥This ink has been burned🔥🔥
-            </span>
-          </Typography.Text>
-        ) : (
-          <Typography.Text
-            copyable={{ text: inkJson ? inkJson.external_url : "" }}
-            className="align-middle pl-[5px] text-[28px]"
-          >
-            <a href={"/" + inkId} style={{ color: "#222222" }}>
-              {inkJson ? inkJson.name : <Spin />}
-            </a>
-          </Typography.Text>
-        )}
+        <Typography.Text
+          copyable={{ text: inkJson ? inkJson.external_url : "" }}
+          style={{ verticalAlign: "middle", paddingLeft: 5, fontSize: 28 }}
+        >
+          {ink && ink?.burned ? "🔥🔥This ink has been burned🔥🔥" : inkJson ? inkJson.name : <Spin />}
+        </Typography.Text>
 
         <Button
           loading={canvasState !== "ready"}
