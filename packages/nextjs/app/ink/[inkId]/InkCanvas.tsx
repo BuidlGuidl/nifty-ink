@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlaySquareOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { PlaySquareOutlined, QuestionCircleOutlined, XOutlined } from "@ant-design/icons";
 import { Button, Descriptions, InputNumber, Popover, Row, Spin, Typography } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
@@ -158,20 +158,34 @@ export const InkCanvas = ({
         </div>
 
         {ink && connectedAddress && connectedAddress.toLowerCase() == ink.artist.id && (
-          <Button
-            className="mt-1 ml-1"
-            onClick={() => {
-              if (!drawing) return;
-              const _savedData = LZ.compress(drawing);
-              setDrawingLocalStorage(_savedData);
-              router.push("/create");
-            }}
-          >
-            <span style={{ marginRight: 12 }} role="img" aria-label="Fork">
-              🍴
-            </span>{" "}
-            FORK
-          </Button>
+          <>
+            <Button
+              className="mt-1 ml-1"
+              onClick={() => {
+                if (!drawing) return;
+                const _savedData = LZ.compress(drawing);
+                setDrawingLocalStorage(_savedData);
+                router.push("/create");
+              }}
+            >
+              <span style={{ marginRight: 12 }} role="img" aria-label="Fork">
+                🍴
+              </span>{" "}
+              FORK
+            </Button>
+            <Button
+              className="mt-1 ml-1"
+              onClick={() => {
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                  "Check out my drawing here:",
+                )}&url=${encodeURIComponent(`https://nifty.ink/ink/${inkId}`)}${`&hashtags=${encodeURIComponent(
+                  "handmade #onchain",
+                )}`}${`&via=${encodeURIComponent("NiftyInk")}`}`;
+                window.open(twitterUrl, "_blank");
+              }}
+              icon={<XOutlined />}
+            />
+          </>
         )}
       </Row>
       <div
