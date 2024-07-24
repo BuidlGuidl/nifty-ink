@@ -1,0 +1,41 @@
+.create-ink-container {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  flex-wrap: wrap;
+}
+
+.canvas {
+  display: block;
+  flex: 1 0 auto;
+}
+
+.title-top {
+  display: block;
+  flex: 1 0 100%;
+}
+.edit-tools {
+  display: block;
+  flex: 1 3 35%;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.edit-tools-bottom {
+  margin-top: 10px;
+  flex: 1 0 100%;
+}
+
+.edit-tools-side {
+  margin-top: 20px;
+}
+
+@media (orientation: portrait) {
+  .create-ink-container {
+    display: block;
+    text-align: center;
+  }
+  .bottom-block {
+    margin-top: 5px;
+  }
+}

@@ -1,83 +1,46 @@
 {
-  "name": "@uniswap-v1-app/monorepo",
-  "version": "1.0.0",
-  "keywords": [
-    "ethereum",
-    "react",
-    "uniswap",
-    "workspaces",
-    "yarn"
-  ],
+  "name": "se-2",
+  "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "react-app:build": "yarn workspace @uniswap-v1-app/react-app build",
-    "react-app:eject": "yarn workspace @uniswap-v1-app/react-app eject",
-    "react-app:start": "yarn workspace @uniswap-v1-app/react-app start",
-    "react-app:test": "yarn workspace @uniswap-v1-app/react-app test",
-    "build": "yarn workspace @uniswap-v1-app/react-app build",
-    "copyForUnfurl": "cd packages/react-app && cp build/index.html functions/web/index.html",
-    "chain": "cd packages/buidler && npx buidler node",
-    "node": "cd packages/buidler && npx buidler node",
-    "test": "cd packages/buidler && npx buidler test",
-    "start": "yarn workspace @uniswap-v1-app/react-app start",
-    "compile": "cd packages/buidler && npx buidler compile",
-    "deploy": "cd packages/buidler && npx buidler run scripts/deploy.js && npx buidler run scripts/publish.js ",
-    "publish": "cd packages/buidler && npx buidler run scripts/publish.js ",
-    "watch": "cd packages/buidler && node scripts/watch.js",
-    "accounts": "cd packages/buidler && npx buidler accounts",
-    "balance": "cd packages/buidler && npx buidler balance",
-    "send": "cd packages/buidler && npx buidler send",
-    "server": "cd packages/nifty-art-server && nodemon index",
-    "gsn-start": "gsn start --workdir packages/react-app/src/gsn --network http://localhost:8546",
-    "gsn": "gsn start --workdir packages/react-app/src/gsn --network http://localhost:8546",
-    "ipfs": "cd packages/react-app && node ipfs",
-    "surge": "surge packages/react-app/build",
-    "s3": "cd packages/react-app && node s3",
-    "generate": "cd packages/buidler && npx buidler generate",
-    "account": "cd packages/buidler && npx buidler account",
-    "select": "cd packages/buidler && npx buidler select",
-    "sidechain": "cd packages/buidler && npx buidler node --port 8546",
-    "localdeploy": "cd packages/buidler && npx buidler run scripts/deploy.js --network sidechain && npx buidler run scripts/deploy.js --network localhost && npx buidler run scripts/publish.js",
-    "testnetdeploy": "cd packages/buidler && npx buidler run scripts/deploy.js --network kovan && npx buidler run scripts/deploy.js --network rinkeby && npx buidler run scripts/publish.js",
-    "xdaideploy": "cd packages/buidler && npx buidler run scripts/deploy.js --network kovan && npx buidler run scripts/deploy.js --network xdai && npx buidler run scripts/publish.js",
-    "mainnetdeploy": "cd packages/buidler && npx buidler run scripts/deploy.js --network xdai && npx buidler run scripts/deploy.js --network mainnet && npx buidler run scripts/publish.js",
-    "newdeploykovan": "cd packages/buidler && npx buidler run scripts/newdeploy.js --network kovan && npx buidler run scripts/publish.js",
-    "newdeploysokol": "cd packages/buidler && npx buidler run scripts/newdeploy.js --network sokol && npx buidler run scripts/publish.js",
-    "deployliker": "cd packages/buidler && npx buidler run scripts/likerdeploy.js --network kovan && npx buidler run scripts/publish.js",
-    "newdeployxdai": "cd packages/buidler && npx buidler run scripts/newdeploy.js --network xdai",
-    "newdeploymainnet": "cd packages/buidler && npx buidler run scripts/newdeploy.js --network mainnet",
-    "analyze": "source-map-explorer 'packages/react-app/build/static/js/*.js'",
-    "flatten": "cd packages/buidler && npx buidler flatten ",
-    "setprice": "cd packages/buidler && npx buidler run scripts/setPrice.js --network xdai",
-    "setregistry": "cd packages/buidler && npx buidler run scripts/setRegistry.js --network xdai",
-    "sidechaindeploy": "cd packages/buidler && npx buidler run scripts/newdeploy.js --network sidechain && npx buidler run scripts/publish.js",
-    "deploy-paymaster": "cd packages/buidler && npx buidler run scripts/deploy-paymaster.js --network xdai",
-    "postinstall": "patch-package"
-  },
-  "devDependencies": {
-    "@nomiclabs/buidler": "^1.3.3",
-    "@nomiclabs/buidler-ethers": "2.0.0",
-    "@nomiclabs/buidler-truffle5": "^1.3.3",
-    "@nomiclabs/buidler-web3": "^1.3.3",
-    "@opengsn/gsn": "^2.1.0",
-    "ethers": "^5.0.7",
-    "patch-package": "^6.4.7",
-    "postinstall-postinstall": "^2.1.0"
-  },
   "workspaces": {
     "packages": [
-      "packages/*"
-    ],
-    "nohoist": [
-      "**/@graphprotocol/graph-ts",
-      "**/@graphprotocol/graph-ts/**"
+      "packages/hardhat",
+      "packages/nextjs"
     ]
   },
-  "dependencies": {
-    "ipfs-http-client": "^44.3.0",
-    "ipfs-only-hash": "^2.0.1",
-    "is-ipfs": "^1.0.3",
-    "lodash": "^4.17.19",
-    "source-map-explorer": "^2.4.2"
+  "scripts": {
+    "account": "yarn workspace @se-2/hardhat account",
+    "chain": "yarn workspace @se-2/hardhat chain",
+    "fork": "yarn workspace @se-2/hardhat fork",
+    "deploy": "yarn workspace @se-2/hardhat deploy",
+    "verify": "yarn workspace @se-2/hardhat verify",
+    "hardhat-verify": "yarn workspace @se-2/hardhat hardhat-verify",
+    "compile": "yarn workspace @se-2/hardhat compile",
+    "generate": "yarn workspace @se-2/hardhat generate",
+    "flatten": "yarn workspace @se-2/hardhat flatten",
+    "hardhat:lint": "yarn workspace @se-2/hardhat lint",
+    "hardhat:lint-staged": "yarn workspace @se-2/hardhat lint-staged",
+    "hardhat:format": "yarn workspace @se-2/hardhat format",
+    "hardhat:test": "yarn workspace @se-2/hardhat test",
+    "test": "yarn hardhat:test",
+    "format": "yarn next:format && yarn hardhat:format",
+    "start": "yarn workspace @se-2/nextjs dev",
+    "next:lint": "yarn workspace @se-2/nextjs lint",
+    "next:format": "yarn workspace @se-2/nextjs format",
+    "next:check-types": "yarn workspace @se-2/nextjs check-types",
+    "next:build": "yarn workspace @se-2/nextjs build",
+    "next:serve": "yarn workspace @se-2/nextjs serve",
+    "postinstall": "husky install",
+    "precommit": "lint-staged",
+    "vercel": "yarn workspace @se-2/nextjs vercel",
+    "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo"
+  },
+  "packageManager": "yarn@3.2.3",
+  "devDependencies": {
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3"
+  },
+  "engines": {
+    "node": ">=18.17.0"
   }
 }
