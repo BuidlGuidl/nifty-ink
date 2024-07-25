@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { LikeOutlined, LikeTwoTone } from "@ant-design/icons";
 import { Badge, Button } from "antd";
-import { useDeployedContractInfo, useScaffoldWriteContract, useWatchBalance } from "~~/hooks/scaffold-eth";
-import { checkBalanceAndFund } from "~~/utils/checkBalanceAndFund";
+import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
 
 interface LikeButtonProps {
   likeCount?: number;
@@ -15,9 +15,6 @@ interface LikeButtonProps {
 
 export const LikeButton = ({ likeCount, hasLiked, targetId, connectedAddress }: LikeButtonProps) => {
   const [minting, setMinting] = useState(false);
-  const { data: balance } = useWatchBalance({
-    address: connectedAddress,
-  });
 
   const niftyInkContract = useDeployedContractInfo("NiftyInk");
   const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("Liker");
@@ -26,7 +23,7 @@ export const LikeButton = ({ likeCount, hasLiked, targetId, connectedAddress }: 
     e.preventDefault();
     if (!hasLiked && !minting) {
       setMinting(true);
-      await checkBalanceAndFund(balance, connectedAddress);
+      await checkAddressAndFund(connectedAddress);
       try {
         await writeYourContractAsync({
           functionName: "like",

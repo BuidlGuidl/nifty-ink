@@ -1,11 +1,18 @@
 "use server";
 
-import { ethers } from "ethers";
+import { ethers, formatEther } from "ethers";
 import deployedContracts from "~~/contracts/deployedContracts";
 
 export async function faucetWithdraw(sendToAddress: string) {
+  const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_ALCHEMY_API);
+  const balance = Number(formatEther(await provider.getBalance(sendToAddress)));
+
+  if (balance && sendToAddress && balance > 0.002) {
+    console.log("You have enough funding.");
+    return { error: "You have enough funding." };
+  }
+
   try {
-    const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_ALCHEMY_API);
     const signer = new ethers.Wallet(process.env.FAUCET_ACCOUNT_PRIVATE_KEY!, provider);
     const contract = new ethers.Contract(
       process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS as string,

@@ -64,8 +64,8 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
           </Link>
           <Typography>
             <span className="text-base">
-              {dataRaw?.ink.createdAt &&
-                new Date(parseInt(dataRaw?.ink.createdAt) * 1000).toLocaleString("en-US", {
+              {dataRaw?.ink?.createdAt &&
+                new Date(parseInt(dataRaw?.ink?.createdAt) * 1000).toLocaleString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
