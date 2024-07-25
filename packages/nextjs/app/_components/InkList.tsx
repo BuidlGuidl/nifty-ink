@@ -80,11 +80,14 @@ export const InkList = ({
                                     <img src={xDai.src} alt="xdai" className="ml-1 invisible" />
                                   )}
                                   <div className="mx-2">
-                                    <LikeButton
-                                      targetId={inks[ink].inkNumber}
-                                      likeCount={(likeInfo && likeInfo?.likeCount) || 0}
-                                      hasLiked={(likeInfo && likeInfo?.likes?.length > 0) || false}
-                                    />
+                                    {connectedAddress && (
+                                      <LikeButton
+                                        targetId={inks[ink].inkNumber}
+                                        likeCount={(likeInfo && likeInfo?.likeCount) || 0}
+                                        hasLiked={(likeInfo && likeInfo?.likes?.length > 0) || false}
+                                        connectedAddress={connectedAddress}
+                                      />
+                                    )}
                                   </div>
                                 </div>
                               </div>

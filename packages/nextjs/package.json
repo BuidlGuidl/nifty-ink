@@ -29,6 +29,7 @@
     "burner-connector": "^0.0.6",
     "daisyui": "4.5.0",
     "dayjs": "^1.11.11",
+    "ethers": "^6.13.1",
     "graphql": "^16.8.2",
     "ipfs-http-client": "^60.0.1",
     "ipfs-only-hash": "^4.0.0",
