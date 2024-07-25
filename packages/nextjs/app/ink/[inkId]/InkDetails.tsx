@@ -101,7 +101,13 @@ export const InkDetails = ({
                 </Typography.Title>{" "}
                 {isConnectedAddressArtist && <MintButton inkId={inkId} />}
                 {isConnectedAddressArtist && isBuyButtonVisible ? (
-                  <NiftyShop type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} placement="top" />
+                  <NiftyShop
+                    type={"ink"}
+                    price={ink.mintPrice || 0}
+                    itemForSale={inkId}
+                    placement="top"
+                    connectedAddress={connectedAddress}
+                  />
                 ) : (
                   <NiftyShopBuy type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} inkName={inkJson.name} />
                 )}
@@ -157,7 +163,13 @@ export const InkDetails = ({
                 {relayTokenButton(item.network === "mainnet", item.owner.id, item.id)}
                 {item.network !== "mainnet" &&
                   (isConnectedAddressOwner ? (
-                    <NiftyShop type={"token"} price={item.price} itemForSale={item.id} placement="top" />
+                    <NiftyShop
+                      type={"token"}
+                      price={item.price}
+                      itemForSale={item.id}
+                      placement="top"
+                      connectedAddress={connectedAddress}
+                    />
                   ) : (
                     <NiftyShopBuy type={"token"} price={item.price} itemForSale={item.id} inkName={inkJson.name} />
                   ))}
