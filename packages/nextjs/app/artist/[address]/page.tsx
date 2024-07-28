@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RecentActivity } from "./RecentActivity";
 import { useQuery } from "@apollo/client";
 import { Divider, Tabs, TabsProps } from "antd";
@@ -13,14 +13,12 @@ import StatCard from "~~/app/_components/StatCard";
 import Loader from "~~/components/Loader";
 import { getMetadata } from "~~/utils/helpers";
 
-const { TabPane } = Tabs;
-
 const ITEMS_PER_PAGE = 15;
 
 const Artist = ({ params }: { params: { address: string } }) => {
   const address = params?.address;
   const [inks, setInks] = useState<Ink[]>([]);
-  const { loading, error, data, fetchMore } = useQuery(ARTISTS_QUERY, {
+  const { loading, data, fetchMore } = useQuery(ARTISTS_QUERY, {
     variables: { address: address, first: ITEMS_PER_PAGE + 1, skip: 0 },
   });
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
@@ -101,14 +99,13 @@ const Artist = ({ params }: { params: { address: string } }) => {
   ];
 
   return (
-    // <div className="">
     <div className="mx-auto flex flex-col justify-center">
       <Profile address={address} />
 
       <Divider className="border-gray-300 min-w-4" />
+
       <Tabs defaultActiveKey="1" type="card" centered items={items}></Tabs>
     </div>
-    // </div>
   );
 };
 
