@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { RecentActivity } from "./RecentActivity";
 import { useQuery } from "@apollo/client";
 import { Divider, Tabs, TabsProps } from "antd";
 import { formatEther } from "viem";
 import { ARTISTS_QUERY } from "~~/apollo/queries";
 import { InkListArtist } from "~~/app/_components/InkListArtist";
 import { Profile } from "~~/app/_components/Profile";
-import { RecentActivity } from "~~/app/_components/RecentActivity";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
 import StatCard from "~~/app/_components/StatCard";
 import Loader from "~~/components/Loader";
