@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Divider, Tabs } from "antd";
+import { Divider, Tabs, TabsProps } from "antd";
 import { formatEther } from "viem";
 import { ARTISTS_QUERY } from "~~/apollo/queries";
 import { InkListArtist } from "~~/app/_components/InkListArtist";
@@ -57,57 +57,58 @@ const Artist = ({ params }: { params: { address: string } }) => {
     });
   };
 
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: "🖼️ Inks",
+      children: (
+        <>
+          {loading ? (
+            <Loader />
+          ) : (
+            <InkListArtist inks={inks} isInksLoading={false} onLoadMore={onLoadMore} allItemsLoaded={allItemsLoaded} />
+          )}
+        </>
+      ),
+    },
+    {
+      key: "2",
+      label: "📈 Statistics",
+      children: (
+        <div className="flex flex-wrap justify-center p-0 my-0 mx-5">
+          <StatCard name={"Inks created"} value={data?.artists.length ? data?.artists[0].inkCount : 0} emoji={"🖼️"} />
+          <StatCard name={"Inks sold"} value={data?.artists.length ? data?.artists[0].saleCount : 0} emoji={"🖼️"} />
+          <StatCard name={"Likes"} value={data?.artists.length ? data?.artists?.[0].likeCount : 0} emoji={"👍"} />
+          <StatCard
+            name={"Earnings"}
+            value={`$${data?.artists.length ? parseFloat(formatEther(data?.artists[0].earnings)).toFixed(2) : 0}`}
+            emoji={"💲"}
+          />
+        </div>
+      ),
+    },
+    {
+      key: "3",
+      label: "🕗 Recent activity",
+      children: <RecentActivity address={address} />,
+    },
+
+    {
+      key: "4",
+      label: "🔍 Search artists",
+      children: <SearchAddress redirectToPage="artist" placeholderText="Search artist" />,
+    },
+  ];
+
   return (
-    <div className="flex justify-center">
-      <div className="max-w-3xl">
-        <Profile address={address} />
+    // <div className="">
+    <div className="mx-auto flex flex-col justify-center">
+      <Profile address={address} />
 
-        <Divider className="border-gray-300 min-w-4" />
-
-        <Tabs
-          defaultActiveKey="1"
-          size="large"
-          type="card"
-          className="flex items-center"
-          style={{ textAlign: "center" }}
-        >
-          <TabPane tab="🖼️ Inks" key="1">
-            {loading ? (
-              <Loader />
-            ) : (
-              <InkListArtist
-                inks={inks}
-                isInksLoading={false}
-                onLoadMore={onLoadMore}
-                allItemsLoaded={allItemsLoaded}
-              />
-            )}
-          </TabPane>
-          <TabPane tab="📈 Statistics" key="3">
-            <div className="flex flex-wrap justify-center p-0 my-0 mx-5">
-              <StatCard
-                name={"Inks created"}
-                value={data?.artists.length ? data?.artists[0].inkCount : 0}
-                emoji={"🖼️"}
-              />
-              <StatCard name={"Inks sold"} value={data?.artists.length ? data?.artists[0].saleCount : 0} emoji={"🖼️"} />
-              <StatCard name={"Likes"} value={data?.artists.length ? data?.artists?.[0].likeCount : 0} emoji={"👍"} />
-              <StatCard
-                name={"Earnings"}
-                value={`$${data?.artists.length ? parseFloat(formatEther(data?.artists[0].earnings)).toFixed(2) : 0}`}
-                emoji={"💲"}
-              />
-            </div>
-          </TabPane>
-          <TabPane tab="🕗 Recent activity" key="4">
-            <RecentActivity address={address} />
-          </TabPane>
-          <TabPane tab="🔍 Search artists" key="5">
-            <SearchAddress redirectToPage="artist" placeholderText="Search artist" />
-          </TabPane>
-        </Tabs>
-      </div>
+      <Divider className="border-gray-300 min-w-4" />
+      <Tabs defaultActiveKey="1" type="card" centered items={items}></Tabs>
     </div>
+    // </div>
   );
 };
 

@@ -159,7 +159,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
   };
 
   return (
-    <div className="ml-10 flex justify-end gap-14 text-black">
+    <div className="flex justify-center gap-5">
       {isActivityLoading ? (
         <Loader />
       ) : (
