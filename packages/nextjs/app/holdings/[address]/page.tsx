@@ -1,18 +1,33 @@
 "use client";
 
-import { Divider, Select, Tabs } from "antd";
-import TabPane from "antd/es/tabs/TabPane";
+import { Divider, Tabs, TabsProps } from "antd";
 import { useAccount } from "wagmi";
 import { Profile } from "~~/app/_components/Profile";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
 import { GnosisChainInks } from "~~/app/_components/holdings/GnosisChainInks";
 import { MainnetChainInks } from "~~/app/_components/holdings/MainnetChainInks";
 
-const { Option } = Select;
-
 const Holdings = ({ params }: { params: { address: string } }) => {
   const address = params?.address;
   const { address: connectedAddress } = useAccount();
+
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: "Gnosis Chain",
+      children: connectedAddress && <GnosisChainInks address={address} connectedAddress={connectedAddress} />,
+    },
+    {
+      key: "2",
+      label: "Ethereum Mainnet",
+      children: connectedAddress && <MainnetChainInks address={address} connectedAddress={connectedAddress} />,
+    },
+    {
+      key: "3",
+      label: "🔍 Search artists",
+      children: <SearchAddress redirectToPage="holdings" placeholderText="Search collector" />,
+    },
+  ];
 
   return (
     <div className="flex justify-center">
@@ -20,17 +35,7 @@ const Holdings = ({ params }: { params: { address: string } }) => {
         <Profile address={address} />
 
         <Divider className="border-gray-300 min-w-4" />
-        <Tabs defaultActiveKey="1" size="large" type="card" className="mt-5 flex items-center">
-          <TabPane tab="Gnosis Chain" key="1">
-            {connectedAddress && <GnosisChainInks address={address} connectedAddress={connectedAddress} />}
-          </TabPane>
-          <TabPane tab="Ethereum Mainnet" key="2">
-            {connectedAddress && <MainnetChainInks address={address} connectedAddress={connectedAddress} />}
-          </TabPane>
-          <TabPane tab="🔍 Search collector" key="5">
-            <SearchAddress redirectToPage="holdings" placeholderText="Search collector" />
-          </TabPane>
-        </Tabs>
+        <Tabs defaultActiveKey="1" type="card" centered items={items} />
       </div>
     </div>
   );
