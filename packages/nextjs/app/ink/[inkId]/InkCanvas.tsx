@@ -249,7 +249,12 @@ export const InkCanvas = ({
           </div>
         </div>
         <div style={{ marginLeft: calculatedCanvaSize - 10, marginTop: calculatedCanvaSize - 20 }}>
-          <LikeButton likeCount={ink?.likeCount} hasLiked={ink?.likes?.length > 0} targetId={ink?.inkNumber} />
+          <LikeButton
+            likeCount={ink?.likeCount}
+            hasLiked={ink?.likes?.length > 0}
+            targetId={ink?.inkNumber}
+            connectedAddress={connectedAddress}
+          />
         </div>
         <div className="-mt-[10px] opacity-30">
           <Popover

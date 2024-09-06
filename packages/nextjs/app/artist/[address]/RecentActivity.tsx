@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import xDai from "../../public/xDai.png";
+import xDai from "../../../public/xDai.png";
 import { LinkOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Typography } from "antd";
@@ -159,7 +159,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
   };
 
   return (
-    <div className="ml-10 flex justify-end gap-14 text-black">
+    <div className="flex justify-center gap-5">
       {isActivityLoading ? (
         <Loader />
       ) : (
@@ -175,7 +175,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                         <img
                           src={`https://ipfs.nifty.ink/${e.inkId}`}
                           alt="ink"
-                          className="w-[70px] border border-gray-300 rounded-[5px] p-[5px] relative top-0 left-0"
+                          className="w-[70px] h-[70px] border border-gray-300 rounded-[5px] p-[5px] relative top-0 left-0"
                         ></img>
                         <span className="absolute top-[42px] left-0 border-2 border-gray-200 bg-white rounded-[5px] p-[1px]">
                           {e.emoji}

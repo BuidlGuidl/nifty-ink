@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-// import { notification, Badge } from "antd";
 import { LikeOutlined, LikeTwoTone } from "@ant-design/icons";
 import { Badge, Button } from "antd";
-import { formatEther, parseEther } from "viem";
 import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
 
 interface LikeButtonProps {
   likeCount?: number;
   hasLiked?: boolean;
   targetId?: number;
+  connectedAddress?: string;
 }
 
-export const LikeButton = ({ likeCount, hasLiked, targetId }: LikeButtonProps) => {
+export const LikeButton = ({ likeCount, hasLiked, targetId, connectedAddress }: LikeButtonProps) => {
   const [minting, setMinting] = useState(false);
 
   const niftyInkContract = useDeployedContractInfo("NiftyInk");
@@ -23,6 +23,7 @@ export const LikeButton = ({ likeCount, hasLiked, targetId }: LikeButtonProps) =
     e.preventDefault();
     if (!hasLiked && !minting) {
       setMinting(true);
+      await checkAddressAndFund(connectedAddress);
       try {
         await writeYourContractAsync({
           functionName: "like",

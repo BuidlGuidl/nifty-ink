@@ -6,6 +6,7 @@ import { Button, Form, InputNumber, Popover, Row } from "antd";
 import { TooltipPlacement } from "antd/es/tooltip";
 import { formatEther, parseEther } from "viem";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
 import { notification } from "~~/utils/scaffold-eth";
 
 export const NiftyShop = ({
@@ -13,11 +14,13 @@ export const NiftyShop = ({
   itemForSale,
   placement = "left",
   type,
+  connectedAddress,
 }: {
   price: number;
   itemForSale: string;
   placement: TooltipPlacement;
   type: string;
+  connectedAddress: string;
 }) => {
   const [newPrice, setNewPrice] = useState<number>(0);
   const [buying, setBuying] = useState(false);
@@ -29,6 +32,8 @@ export const NiftyShop = ({
 
   const setPrice = async (values: any) => {
     setBuying(true);
+    await checkAddressAndFund(connectedAddress);
+
     try {
       if (type === "ink") {
         await writeYourContractAsyncInk({

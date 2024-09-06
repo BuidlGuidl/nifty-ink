@@ -43,6 +43,7 @@ import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
 import { getColorOptions, shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
 import { addToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
@@ -339,6 +340,8 @@ const CreateInk = () => {
 
       return;
     }
+
+    await checkAddressAndFund(connectedAddress);
 
     try {
       await writeYourContractAsync({

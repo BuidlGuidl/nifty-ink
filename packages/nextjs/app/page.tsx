@@ -28,6 +28,7 @@ const Home: NextPage = () => {
   // let [allInks, setAllInks] = useState<Ink[]>([]);
   const [inks, setInks] = useState<Record<number, Ink>>({});
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
+  const [firstLoading, setFirstLoading] = useState<boolean>(true);
   const [MoreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
   // const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
@@ -128,6 +129,7 @@ const Home: NextPage = () => {
 
     setInks(prevInks => ({ ...prevInks, ...newInks }));
     setMoreInksLoading(false);
+    setFirstLoading(false);
   };
 
   useEffect(() => {
@@ -232,7 +234,7 @@ const Home: NextPage = () => {
             )}
           </Form>
         </Row>
-        {likesLoading && isInksLoading ? (
+        {firstLoading ? (
           <Loader />
         ) : (
           <InkList
