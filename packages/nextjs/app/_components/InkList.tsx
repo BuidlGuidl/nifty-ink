@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import xDai from "../../public/xDai.png";
 import { LikeButton } from "./LikeButton";
-import { Button, Typography } from "antd";
+import { Button } from "antd";
 import { formatEther } from "viem";
 
 type InkListProps = {
@@ -53,7 +53,7 @@ export const InkList = ({
                           layout === "cards" ? "m-2 p-2 font-bold" : ""
                         }`}
                       >
-                        <Link href={{ pathname: "/ink/" + inks[ink].id }} className="text-black">
+                        <Link href={{ pathname: "/ink/" + inks[ink].id }} className="">
                           <Image
                             src={inks[ink]?.metadata?.image as string}
                             alt={inks[ink]?.metadata?.name as string}
