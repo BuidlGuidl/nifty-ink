@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { RocketOutlined } from "@ant-design/icons";
 import { ApolloClient, InMemoryCache, useLazyQuery, useQuery } from "@apollo/client";
@@ -125,10 +126,11 @@ export const MainnetChainInks = ({ address, connectedAddress }: { address: strin
                     style={{ color: "black" }}
                     className="flex flex-col items-center"
                   >
-                    <img
-                      src={token?.ink?.metadata?.image}
-                      alt={token?.ink?.metadata?.name}
+                    <Image
+                      src={token?.ink?.metadata?.image as string}
+                      alt={token?.ink?.metadata?.name as string}
                       width="150"
+                      height="150"
                       style={{
                         border: "1px solid #e5e5e6",
                         borderRadius: "10px",

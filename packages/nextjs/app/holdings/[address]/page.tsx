@@ -1,6 +1,6 @@
 "use client";
 
-import { Divider, Tabs, TabsProps } from "antd";
+import { Tabs, TabsProps } from "antd";
 import { useAccount } from "wagmi";
 import { Profile } from "~~/app/_components/Profile";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
@@ -34,7 +34,6 @@ const Holdings = ({ params }: { params: { address: string } }) => {
       <div className="min-w-xl">
         <Profile address={address} />
 
-        <Divider className="border-gray-300 min-w-4" />
         <Tabs defaultActiveKey="1" type="card" centered items={items} />
       </div>
     </div>

@@ -160,7 +160,7 @@ export const InkDetails = ({
                   <></>
                 )}
                 {sendInkButton(item.owner.id, item.id)}
-                {relayTokenButton(item.network === "mainnet", item.owner.id, item.id)}
+                {/* {relayTokenButton(item.network === "mainnet", item.owner.id, item.id)} */}
                 {item.network !== "mainnet" &&
                   (isConnectedAddressOwner ? (
                     <NiftyShop
