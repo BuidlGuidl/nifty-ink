@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { NiftyShop } from "../NiftyShop";
 import SendInkForm from "../SendInkForm";
@@ -127,10 +128,11 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                   }}
                 >
                   <Link href={{ pathname: "/ink/" + token.ink.id }} style={{ color: "black" }}>
-                    <img
-                      src={token?.ink?.metadata?.image}
-                      alt={token?.ink?.metadata?.name}
+                    <Image
+                      src={token?.ink?.metadata?.image as string}
+                      alt={token?.ink?.metadata?.name as string}
                       width="150"
+                      height="150"
                       style={{
                         border: "1px solid #e5e5e6",
                         borderRadius: "10px",
@@ -165,9 +167,9 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                                 Send
                               </Button>
                             </Popover>
-                            <Button size="small" icon={<UploadOutlined />} disabled className="m-1">
+                            {/* <Button size="small" icon={<UploadOutlined />} disabled className="m-1">
                               Upgrade
-                            </Button>
+                            </Button> */}
                             {/* <UpgradeInkButton
                                 tokenId={tokens[id].id}
                                 injectedProvider={props.injectedProvider}
