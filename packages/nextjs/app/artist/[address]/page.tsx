@@ -104,8 +104,6 @@ const Artist = ({ params }: { params: { address: string } }) => {
     <div className="mx-auto flex flex-col justify-center">
       <Profile address={address} />
 
-      <Divider className="border-gray-300 min-w-4" />
-
       <Tabs defaultActiveKey="1" type="card" centered items={items}></Tabs>
     </div>
   );
