@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import xDai from "../../public/xDai.png";
 import { LikeButton } from "./LikeButton";
@@ -54,10 +54,11 @@ export const InkList = ({
                         }`}
                       >
                         <Link href={{ pathname: "/ink/" + inks[ink].id }} className="text-black">
-                          <img
-                            src={inks[ink]?.metadata?.image}
-                            alt={inks[ink]?.metadata?.name}
+                          <Image
+                            src={inks[ink]?.metadata?.image as string}
+                            alt={inks[ink]?.metadata?.name as string}
                             width={layout === "cards" ? "180" : "150"}
+                            height={layout === "cards" ? "180" : "150"}
                             className={`${layout === "cards" ? "border border-gray-200 rounded-lg" : ""}`}
                           />
                           {layout === "cards" && (
@@ -71,13 +72,25 @@ export const InkList = ({
                                 <div className="flex items-center justify-center w-44">
                                   {inks[ink]?.bestPrice > 0 ? (
                                     <>
-                                      <p className="text-gray-600 m-0">
+                                      <p className="m-0">
                                         <b>{parseFloat(formatEther(BigInt(inks[ink]?.bestPrice)))} </b>
                                       </p>
-                                      <img src={xDai.src} alt="xdai" className="ml-1" />
+                                      <Image
+                                        src={xDai.src}
+                                        width={xDai.width}
+                                        height={xDai.height}
+                                        alt="xdai"
+                                        className="ml-1"
+                                      />
                                     </>
                                   ) : (
-                                    <img src={xDai.src} alt="xdai" className="ml-1 invisible" />
+                                    <Image
+                                      src={xDai.src}
+                                      width={xDai.width}
+                                      height={xDai.height}
+                                      alt="xdai"
+                                      className="ml-1 invisible"
+                                    />
                                   )}
                                   <div className="mx-2">
                                     {connectedAddress && (
