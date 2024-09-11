@@ -21,7 +21,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
   const { loading, data, fetchMore } = useQuery(ARTISTS_QUERY, {
     variables: { address: address, first: ITEMS_PER_PAGE + 1, skip: 0 },
   });
-  const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
+  const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(true);
 
   useEffect(() => {
     const getInks = async (data: Ink[]) => {
@@ -29,6 +29,8 @@ const Artist = ({ params }: { params: { address: string } }) => {
       const hasMoreNewItems = data?.length > ITEMS_PER_PAGE;
       if (!hasMoreNewItems) {
         setAllItemsLoaded(true);
+      } else {
+        setAllItemsLoaded(false);
       }
       const metadataResults = await Promise.all(metadataPromises);
 
