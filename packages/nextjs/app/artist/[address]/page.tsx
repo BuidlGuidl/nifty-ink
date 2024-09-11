@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { RecentActivity } from "./RecentActivity";
 import { useQuery } from "@apollo/client";
-import { Divider, Tabs, TabsProps } from "antd";
+import { Tabs, TabsProps } from "antd";
 import { formatEther } from "viem";
 import { ARTISTS_QUERY } from "~~/apollo/queries";
 import { InkListArtist } from "~~/app/_components/InkListArtist";

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { ReactElement } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 type InkListProps = {
@@ -14,10 +15,11 @@ export const SingleInk = ({ ink, layout = "cards", connectedAddress, children }:
   return (
     <li className={`inline-block border-2 border-gray-200 rounded-lg ${layout === "cards" ? "m-2 p-2 font-bold" : ""}`}>
       <Link href={{ pathname: "/ink/" + ink.id }} className="text-black">
-        <img
-          src={ink?.metadata?.image}
-          alt={ink?.metadata?.name}
+        <Image
+          src={ink?.metadata?.image as string}
+          alt={ink?.metadata?.name as string}
           width={layout === "cards" ? "150" : "150"}
+          height={layout === "cards" ? "150" : "150"}
           className={`${layout === "cards" ? "border border-gray-200 rounded-lg" : ""}`}
         />
       </Link>

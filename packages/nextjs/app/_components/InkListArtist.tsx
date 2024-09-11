@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import xDai from "../../public/xDai.png";
 import { SingleInk } from "./SingleInk";
 import { Button, Divider, Typography } from "antd";
@@ -35,12 +36,24 @@ export const InkListArtist = ({
                         <p className="text-gray-600 m-0">
                           <b>{parseFloat(formatEther(BigInt(ink?.bestPrice)))} </b>
                         </p>
-                        <img src={xDai.src} alt="xdai" className="ml-1 mb-1" />
+                        <Image
+                          src={xDai.src}
+                          width={xDai.width}
+                          height={xDai.height}
+                          alt="xdai"
+                          className="ml-1 mb-1"
+                        />
                       </div>
                     ) : (
-                      <img src={xDai.src} alt="xdai" className="ml-1 mb-1 invisible" />
+                      <Image
+                        src={xDai.src}
+                        width={xDai.width}
+                        height={xDai.height}
+                        alt="xdai"
+                        className="ml-1 mb-1 invisible"
+                      />
                     )}
-                    <Divider className="my-2" />
+                    <Divider style={{ marginTop: 1, marginBottom: 0 }} />
                     <p className="text-gray-600 m-0 text-sm">
                       {"Edition: " + ink?.count + (Number(ink?.limit) > 0 ? "/" + ink?.limit : "")}
                     </p>

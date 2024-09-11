@@ -1,6 +1,6 @@
 "use client";
 
-import { Divider, Tabs, TabsProps } from "antd";
+import { Tabs, TabsProps } from "antd";
 import { useAccount } from "wagmi";
 import { Profile } from "~~/app/_components/Profile";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
