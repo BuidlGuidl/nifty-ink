@@ -15,7 +15,7 @@ type InkListProps = {
   likesData: Ink[];
   connectedAddress: string | undefined;
   MoreInksLoading: boolean;
-  onLoadMore: () => void;
+  onLoadMore?: () => void;
   allItemsLoaded: boolean;
 };
 
@@ -121,14 +121,7 @@ export const InkList = ({
             {allItemsLoaded ? (
               <div className="mt-2 text-lg">All inks were loaded within the specified date range.</div>
             ) : (
-              <Button
-                type="dashed"
-                size="large"
-                block
-                className="mt-2 flex items-center"
-                onClick={() => onLoadMore()}
-                disabled={MoreInksLoading}
-              >
+              <Button type="dashed" size="large" block className="mt-2 flex items-center" disabled={MoreInksLoading}>
                 {MoreInksLoading ? "Loading..." : "Load more"}
               </Button>
             )}

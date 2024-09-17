@@ -7,7 +7,7 @@ import { useQuery } from "@apollo/client";
 import { DatePicker, Form, Radio, Row, Select } from "antd";
 import dayjs from "dayjs";
 import type { NextPage } from "next";
-import { useDebounce } from "usehooks-ts";
+import { useDebounceValue } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import { EXPLORE_QUERY, INK_LIKES_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
@@ -30,6 +30,12 @@ const Home: NextPage = () => {
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
   const [firstLoading, setFirstLoading] = useState<boolean>(true);
   const [MoreInksLoading, setMoreInksLoading] = useState<boolean>(false);
+  const [scrollPosition, setScrollPosition] = useState<number>(0);
+  const debouncedScrollPosition = useDebounceValue<number>(scrollPosition, 300);
+
+  const handleScroll = useCallback(() => {
+    setScrollPosition(window.scrollY + window.innerHeight);
+  }, []);
 
   // const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
   // const [startDate, setStartDate] = useState(
@@ -79,7 +85,7 @@ const Home: NextPage = () => {
     },
   });
 
-  const debouncedInks = useDebounce(
+  const debouncedInks = useDebounceValue(
     Object.keys(inks).map(x => parseInt(x)),
     2000,
   );
@@ -96,20 +102,22 @@ const Home: NextPage = () => {
     pollInterval: 6000,
   });
 
-  const onLoadMore = () => {
-    setMoreInksLoading(true);
-    fetchMoreInks({
-      variables: {
-        skip: Object.values(inks).length,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return {
-          inks: [...prev?.inks, ...fetchMoreResult?.inks],
-        };
-      },
-    });
-  };
+  useEffect(() => {
+    if (!MoreInksLoading && debouncedScrollPosition?.[0] >= document.body.scrollHeight - 300) {
+      setMoreInksLoading(true);
+      fetchMoreInks({
+        variables: {
+          skip: Object.values(inks).length,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return {
+            inks: [...prev?.inks, ...fetchMoreResult?.inks],
+          };
+        },
+      });
+    }
+  }, [debouncedScrollPosition, fetchMoreInks]);
 
   const getInks = async (data: Ink[]) => {
     console.log("getting inks");
@@ -139,6 +147,11 @@ const Home: NextPage = () => {
       console.log("loading");
     }
   }, [data]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   return (
     <div className="flex justify-center">
@@ -245,7 +258,7 @@ const Home: NextPage = () => {
             layout={layout}
             connectedAddress={connectedAddress}
             MoreInksLoading={MoreInksLoading}
-            onLoadMore={onLoadMore}
+            // onLoadMore={onLoadMore}
             allItemsLoaded={allItemsLoaded}
           />
         )}
