@@ -48,7 +48,7 @@ const TotalStats: React.FC<TotalStatsProps> = ({ totalDataNow, totalDataBefore, 
   return (
     <div className="flex flex-col items-center">
       <div className="max-w-xl">
-        <div className="flex flex-col items-center justify-center my-5">
+        <div className="flex flex-col items-center justify-center mt-5">
           <Typography.Title level={3}>Total statistics</Typography.Title>
           <Form initialValues={{ period: period }}>
             <Form.Item name="period" className="m-0">
@@ -66,7 +66,7 @@ const TotalStats: React.FC<TotalStatsProps> = ({ totalDataNow, totalDataBefore, 
             </Form.Item>
           </Form>
         </div>
-        <div className="mt-5">
+        <div>
           <Row gutter={16}>
             <ul className="flex flex-wrap justify-center p-0 mx-5">
               <StatCard name={"Inks"} value={totalData.inks} emoji={"🖼️"} />

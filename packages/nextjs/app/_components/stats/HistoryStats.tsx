@@ -76,7 +76,13 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, metric, hand
       </div>
       <div>
         {finalData && hoverLoc ? <ToolTip hoverLoc={hoverLoc} activePoint={activePoint} /> : null}
-        {finalData ? <LineChart data={finalData} onChartHover={(a: any, b: any) => handleChartHover(a, b)} /> : null}
+        {finalData ? (
+          <LineChart
+            svgWidth={Math.min(window.innerWidth - 50, 800)}
+            data={finalData}
+            onChartHover={(a: any, b: any) => handleChartHover(a, b)}
+          />
+        ) : null}
       </div>
     </div>
   );
