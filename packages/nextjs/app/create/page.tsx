@@ -104,7 +104,9 @@ const CreateInk = () => {
   const [color, setColor] = useLocalStorage("color", "rgba(102,102,102,1)");
   const [brushRadius, setBrushRadius] = useState(8);
   const [recentColors, setRecentColors] = useLocalStorage("recentColors", ["rgba(102,102,102,1)"]);
-  const [colorArray, setColorArray] = useLocalStorage<keyof ColorOptionsType>("colorArray", "twitter");
+  const [colorArray, setColorArray] = useLocalStorage<keyof ColorOptionsType>("colorArray", "twitter", {
+    initializeWithValue: false,
+  });
   const [_, setDrafts] = useLocalStorage<Draft[]>("drafts", []);
   const [canvasFile, setCanvasFile] = useState<any>(null);
   const [drawing, setDrawing] = useLocalStorage("drawing", "");
