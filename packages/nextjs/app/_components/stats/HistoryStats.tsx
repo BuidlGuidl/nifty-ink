@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import LineChart from "./LineChart";
 import ToolTip from "./ToolTip";
-import { Form, Select, Typography } from "antd";
+import { Form, Select } from "antd";
 import { formatEther } from "viem";
 
 const { Option } = Select;
@@ -53,7 +53,7 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, metric, hand
   return (
     <div className="mt-5">
       <div className="flex flex-col items-center justify-center">
-        <Typography.Title level={3}>Daily statistics over the previous month</Typography.Title>
+        <h1 className="text-2xl">Daily statistics over the previous month</h1>
         <Form layout={"inline"} initialValues={{ metric: metric }}>
           <Form.Item name="metric">
             <Select

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StatCard from "../StatCard";
-import { Form, Row, Select, Typography } from "antd";
+import { Form, Row, Select } from "antd";
 import { formatEther } from "viem";
 
 const { Option } = Select;
@@ -49,7 +49,7 @@ const TotalStats: React.FC<TotalStatsProps> = ({ totalDataNow, totalDataBefore, 
     <div className="flex flex-col items-center">
       <div className="max-w-xl">
         <div className="flex flex-col items-center justify-center mt-5">
-          <Typography.Title level={3}>Total statistics</Typography.Title>
+          <h1 className="text-2xl">Total statistics</h1>
           <Form initialValues={{ period: period }}>
             <Form.Item name="period" className="m-0">
               <Select
