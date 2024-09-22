@@ -137,7 +137,6 @@ class LineChart extends Component {
                 hoverLoc: relativeLoc,
                 activePoint: closestPoint
             })
-            console.log("closest point", closestPoint);
             this.props.onChartHover(relativeLoc, closestPoint);
         }
     }
