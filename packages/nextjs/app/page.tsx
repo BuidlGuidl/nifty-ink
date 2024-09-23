@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { InkList } from "./_components/InkList";
 import { useQuery } from "@apollo/client";
 import { DatePicker, Form, Radio, Row, Select } from "antd";
@@ -17,11 +17,19 @@ const { Option } = Select;
 
 const ITEMS_PER_PAGE = 15;
 
+const HomeWithSuspense = () => {
+  return (
+    <Suspense fallback={<Loader />}>
+      <Home />
+    </Suspense>
+  );
+};
+
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const router = useRouter();
   const pathname = usePathname();
-  // const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
   const [layout, setLayout] = useState<string>("cards");
 
@@ -37,18 +45,13 @@ const Home: NextPage = () => {
     setScrollPosition(window.scrollY + window.innerHeight);
   }, []);
 
-  // const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
-  // const [startDate, setStartDate] = useState(
-  //   searchParams.has("startDate") ? dayjs(searchParams.get("startDate")) : dayjs().subtract(29, "days"),
-  // );
-  // const [endDate, setEndDate] = useState(searchParams.has("endDate") ? dayjs(searchParams.get("endDate")) : dayjs());
-  // const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
-  // const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
-  const [forSale, setForSale] = useState<string>("all-inks");
-  const [startDate, setStartDate] = useState(dayjs("2020-08-03"));
-  const [endDate, setEndDate] = useState(dayjs());
-  const [orderBy, setOrderBy] = useState<string>("createdAt");
-  const [orderDirection, setOrderDirection] = useState<string>("desc");
+  const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
+  const [startDate, setStartDate] = useState(
+    searchParams.has("startDate") ? dayjs(searchParams.get("startDate")) : dayjs("2020-08-03"),
+  );
+  const [endDate, setEndDate] = useState(searchParams.has("endDate") ? dayjs(searchParams.get("endDate")) : dayjs());
+  const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
+  const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
 
   const [inkFilters, setInkFilters] = useState({
     createdAt_gt: startDate.unix(),
@@ -57,18 +60,18 @@ const Home: NextPage = () => {
   });
 
   const updateSearchParams = (names: string[], values: string[]) => {
-    // router.push(`${pathname}?${createQueryString(names, values)}`);
-    // setInks({});
+    router.push(`${pathname}?${createQueryString(names, values)}`);
+    setInks({});
   };
 
-  // const createQueryString = useCallback(
-  //   (names: string[], values: string[]) => {
-  //     const params = new URLSearchParams(searchParams.toString());
-  //     names.map((name, index) => params.set(name, values[index]));
-  //     return params.toString();
-  //   },
-  //   [searchParams],
-  // );
+  const createQueryString = useCallback(
+    (names: string[], values: string[]) => {
+      const params = new URLSearchParams(searchParams.toString());
+      names.map((name, index) => params.set(name, values[index]));
+      return params.toString();
+    },
+    [searchParams],
+  );
 
   const {
     loading: isInksLoading,
@@ -186,7 +189,7 @@ const Home: NextPage = () => {
                     size="large"
                     value={[startDate, endDate]}
                     onChange={(moments, dateStrings) => {
-                      // updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
+                      updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
                       setStartDate(dayjs(dateStrings[0]));
                       setEndDate(dayjs(dateStrings[1]));
                       const _newFilters = {
@@ -205,7 +208,7 @@ const Home: NextPage = () => {
                     value={orderBy}
                     size="large"
                     onChange={val => {
-                      // updateSearchParams(["orderBy"], [val]);
+                      updateSearchParams(["orderBy"], [val]);
                       setOrderBy(val);
                     }}
                   >
@@ -221,7 +224,7 @@ const Home: NextPage = () => {
                     style={{ width: 120 }}
                     size="large"
                     onChange={val => {
-                      // updateSearchParams(["orderDirection"], [val]);
+                      updateSearchParams(["orderDirection"], [val]);
                       setOrderDirection(val);
                     }}
                   >
@@ -235,7 +238,7 @@ const Home: NextPage = () => {
                     style={{ width: 120 }}
                     size="large"
                     onChange={val => {
-                      // updateSearchParams(["forSale"], [val]);
+                      updateSearchParams(["forSale"], [val]);
                       setForSale(val);
                     }}
                   >
@@ -267,4 +270,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default HomeWithSuspense;
