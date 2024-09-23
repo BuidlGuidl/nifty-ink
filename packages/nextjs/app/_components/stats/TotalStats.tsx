@@ -2,45 +2,44 @@
 
 import { useEffect, useState } from "react";
 import StatCard from "../StatCard";
+import { useQuery } from "@apollo/client";
 import { Form, Row, Select } from "antd";
 import { formatEther } from "viem";
+import { TOTALS_UP_TO_DATE } from "~~/apollo/queries";
+import Loader from "~~/components/Loader";
+import { useSearchParamsHandler } from "~~/hooks/useSearchParamsHandler";
+import { calculateStartingDate } from "~~/utils/helpers";
 
 const { Option } = Select;
 
 interface TotalStatsProps {
   totalDataNow: TotalData;
-  totalDataBefore: TotalData;
-  period: string;
-  handleChangePeriod: (varName: string, newVal: string) => void;
 }
 
 type TotalData = Omit<HistoryData, "day">;
 
-const defaultTotalData: TotalData = {
-  artists: 0,
-  inks: 0,
-  sales: 0,
-  saleValue: 0,
-  tokens: 0,
-  upgrades: 0,
-  users: 0,
-};
+const TotalStats: React.FC<TotalStatsProps> = ({ totalDataNow }) => {
+  const [totalData, setTotalData] = useState<TotalData | null>(null);
+  const { paramValue: period, updateSearchParam: updatePeriod } = useSearchParamsHandler("period", "month");
 
-const TotalStats: React.FC<TotalStatsProps> = ({ totalDataNow, totalDataBefore, period, handleChangePeriod }) => {
-  const [totalData, setTotalData] = useState<TotalData>(defaultTotalData);
+  const { data: totalDataBefore, refetch } = useQuery(TOTALS_UP_TO_DATE, {
+    variables: {
+      date: calculateStartingDate(period),
+    },
+  });
 
   useEffect(() => {
     if (totalDataBefore && totalDataNow) {
+      const prevData = totalDataBefore.totals?.[0];
       setTotalData({
-        tokens: totalDataNow?.tokens - (totalDataBefore?.tokens || 0),
-        inks: totalDataNow?.inks - (totalDataBefore?.inks || 0),
+        tokens: totalDataNow?.tokens - (prevData?.tokens || 0),
+        inks: totalDataNow?.inks - (prevData?.inks || 0),
         saleValue:
-          Number(formatEther(BigInt(totalDataNow?.saleValue))) -
-          Number(formatEther(BigInt(totalDataBefore?.saleValue || 0n))),
-        sales: totalDataNow.sales - (totalDataBefore?.sales || 0),
-        upgrades: totalDataNow.upgrades - (totalDataBefore?.upgrades || 0),
-        users: totalDataNow.users - (totalDataBefore?.users || 0),
-        artists: totalDataNow.artists - (totalDataBefore?.artists || 0),
+          Number(formatEther(BigInt(totalDataNow?.saleValue))) - Number(formatEther(BigInt(prevData?.saleValue || 0n))),
+        sales: totalDataNow.sales - (prevData?.sales || 0),
+        upgrades: totalDataNow.upgrades - (prevData?.upgrades || 0),
+        users: totalDataNow.users - (prevData?.users || 0),
+        artists: totalDataNow.artists - (prevData?.artists || 0),
       });
     }
   }, [totalDataBefore, totalDataNow]);
@@ -56,7 +55,8 @@ const TotalStats: React.FC<TotalStatsProps> = ({ totalDataNow, totalDataBefore, 
                 value={period}
                 size="large"
                 onChange={val => {
-                  handleChangePeriod("period", val);
+                  updatePeriod(val);
+                  refetch();
                 }}
               >
                 <Option value="week">Week</Option>
@@ -67,17 +67,21 @@ const TotalStats: React.FC<TotalStatsProps> = ({ totalDataNow, totalDataBefore, 
           </Form>
         </div>
         <div>
-          <Row gutter={16}>
-            <ul className="flex flex-wrap justify-center p-0 mx-5">
-              <StatCard name={"Inks"} value={totalData.inks} emoji={"🖼️"} />
-              <StatCard name={"Tokens"} value={totalData.tokens} emoji={"🪙"} />
-              <StatCard name={"Sale Value"} value={Number(totalData.saleValue)?.toFixed(2)} emoji={"💲"} />
-              <StatCard name={"Upgrades"} value={totalData.upgrades} emoji={"👍"} />
-              <StatCard name={"Artists"} value={totalData.artists} emoji={"🧑‍🎨"} />
-              <StatCard name={"Users"} value={totalData.users} emoji={"😎"} />
-              <StatCard name={"Sales"} value={totalData.sales} emoji={"💲"} />
-            </ul>
-          </Row>
+          {!totalData ? (
+            <Loader />
+          ) : (
+            <Row gutter={16}>
+              <ul className="flex flex-wrap justify-center p-0 mx-5">
+                <StatCard name={"Inks"} value={totalData.inks} emoji={"🖼️"} />
+                <StatCard name={"Tokens"} value={totalData.tokens} emoji={"🪙"} />
+                <StatCard name={"Sale Value"} value={Number(totalData.saleValue)?.toFixed(2)} emoji={"💲"} />
+                <StatCard name={"Upgrades"} value={totalData.upgrades} emoji={"👍"} />
+                <StatCard name={"Artists"} value={totalData.artists} emoji={"🧑‍🎨"} />
+                <StatCard name={"Users"} value={totalData.users} emoji={"😎"} />
+                <StatCard name={"Sales"} value={totalData.sales} emoji={"💲"} />
+              </ul>
+            </Row>
+          )}
         </div>
       </div>
     </div>

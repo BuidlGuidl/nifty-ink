@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { InkList } from "./_components/InkList";
 import { useQuery } from "@apollo/client";
 import { DatePicker, Form, Radio, Row, Select } from "antd";
@@ -17,11 +17,26 @@ const { Option } = Select;
 
 const ITEMS_PER_PAGE = 15;
 
+type QueryFilter = {
+  createdAt_gt: number;
+  createdAt_lt: number;
+  burned: boolean;
+  bestPrice_gt?: string;
+};
+
+const HomeWithSuspense = () => {
+  return (
+    <Suspense fallback={<Loader />}>
+      <Home />
+    </Suspense>
+  );
+};
+
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
   const router = useRouter();
   const pathname = usePathname();
-  // const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
   const [layout, setLayout] = useState<string>("cards");
 
@@ -37,44 +52,35 @@ const Home: NextPage = () => {
     setScrollPosition(window.scrollY + window.innerHeight);
   }, []);
 
-  // const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
-  // const [startDate, setStartDate] = useState(
-  //   searchParams.has("startDate") ? dayjs(searchParams.get("startDate")) : dayjs().subtract(29, "days"),
-  // );
-  // const [endDate, setEndDate] = useState(searchParams.has("endDate") ? dayjs(searchParams.get("endDate")) : dayjs());
-  // const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
-  // const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
-  const [forSale, setForSale] = useState<string>("all-inks");
-  const [startDate, setStartDate] = useState(dayjs("2020-08-03"));
-  const [endDate, setEndDate] = useState(dayjs());
-  const [orderBy, setOrderBy] = useState<string>("createdAt");
-  const [orderDirection, setOrderDirection] = useState<string>("desc");
+  const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
+  const [startDate, setStartDate] = useState(
+    searchParams.has("startDate") ? dayjs(searchParams.get("startDate")) : dayjs("2021-08-03"),
+  );
+  const [endDate, setEndDate] = useState(searchParams.has("endDate") ? dayjs(searchParams.get("endDate")) : dayjs());
+  const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
+  const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
 
-  const [inkFilters, setInkFilters] = useState({
+  const [inkFilters, setInkFilters] = useState<QueryFilter>({
     createdAt_gt: startDate.unix(),
     createdAt_lt: endDate.unix(),
     burned: false,
   });
 
   const updateSearchParams = (names: string[], values: string[]) => {
-    // router.push(`${pathname}?${createQueryString(names, values)}`);
-    // setInks({});
+    router.push(`${pathname}?${createQueryString(names, values)}`);
+    setInks({});
   };
 
-  // const createQueryString = useCallback(
-  //   (names: string[], values: string[]) => {
-  //     const params = new URLSearchParams(searchParams.toString());
-  //     names.map((name, index) => params.set(name, values[index]));
-  //     return params.toString();
-  //   },
-  //   [searchParams],
-  // );
+  const createQueryString = useCallback(
+    (names: string[], values: string[]) => {
+      const params = new URLSearchParams(searchParams.toString());
+      names.map((name, index) => params.set(name, values[index]));
+      return params.toString();
+    },
+    [searchParams],
+  );
 
-  const {
-    loading: isInksLoading,
-    data,
-    fetchMore: fetchMoreInks,
-  } = useQuery(EXPLORE_QUERY, {
+  const { data, fetchMore: fetchMoreInks } = useQuery(EXPLORE_QUERY, {
     variables: {
       first: ITEMS_PER_PAGE + 1,
       skip: 0,
@@ -90,11 +96,7 @@ const Home: NextPage = () => {
     2000,
   );
 
-  const {
-    loading: likesLoading,
-    error: likesError,
-    data: likesData,
-  } = useQuery(INK_LIKES_QUERY, {
+  const { data: likesData } = useQuery(INK_LIKES_QUERY, {
     variables: {
       inks: debouncedInks,
       liker: connectedAddress ? connectedAddress.toLowerCase() : "",
@@ -120,24 +122,54 @@ const Home: NextPage = () => {
   }, [debouncedScrollPosition, fetchMoreInks]);
 
   const getInks = async (data: Ink[]) => {
-    console.log("getting inks");
-    const newInks: Record<number, Ink> = {};
-    const newData = data.filter(ink => !inks[ink?.inkNumber]?.metadata);
-    const hasMoreNewItems = newData?.length > ITEMS_PER_PAGE;
-    if (!hasMoreNewItems) {
-      setAllItemsLoaded(true);
-    }
+    console.log("Fetching new inks");
 
-    for (const ink of newData.slice(0, ITEMS_PER_PAGE)) {
-      if (inks[ink?.inkNumber]?.metadata) continue;
-      const metadata = await getMetadata(ink.jsonUrl);
-      const _ink = { ...ink, metadata };
-      newInks[_ink.inkNumber] = _ink;
-    }
+    // Timeout function that rejects after a set time
+    const withTimeout = (promise: Promise<any>, ms: number) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), ms)),
+      ]);
+    };
 
-    setInks(prevInks => ({ ...prevInks, ...newInks }));
-    setMoreInksLoading(false);
-    setFirstLoading(false);
+    try {
+      // Filter out inks that already have metadata
+      const inksToFetch = data.filter(ink => !inks[ink?.inkNumber]?.metadata);
+
+      // Check if there are more items to load based on the limit
+      if (inksToFetch.length <= ITEMS_PER_PAGE) {
+        setAllItemsLoaded(true);
+      }
+
+      // Fetch metadata with a 5-second timeout for each ink
+      const fetchedInks = await Promise.all(
+        inksToFetch.slice(0, ITEMS_PER_PAGE).map(async ink => {
+          try {
+            const metadata = await withTimeout(getMetadata(ink.jsonUrl), 5000); // 5 seconds timeout
+            return { ...ink, metadata };
+          } catch (error) {
+            console.error(`Error fetching metadata for ink ${ink.inkNumber}:`, error);
+            return { ...ink, metadata: null }; // Handle failed fetch
+          }
+        }),
+      );
+
+      // Update the state with newly fetched inks
+      setInks(prevInks => {
+        const newInks = fetchedInks.reduce((acc, ink) => {
+          acc[ink.inkNumber] = ink;
+          return acc;
+        }, {} as Record<number, Ink>);
+
+        return { ...prevInks, ...newInks };
+      });
+    } catch (error) {
+      console.error("Error fetching inks or metadata:", error);
+    } finally {
+      // Ensure loading states are updated even if there was an error
+      setMoreInksLoading(false);
+      setFirstLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -147,6 +179,17 @@ const Home: NextPage = () => {
       console.log("loading");
     }
   }, [data]);
+
+  useEffect(() => {
+    const newFilters: QueryFilter = {
+      createdAt_gt: startDate.unix(),
+      createdAt_lt: endDate.unix(),
+      burned: false,
+      ...(forSale === "for-sale" && { bestPrice_gt: "0" }), // Conditionally add the price filter
+    };
+
+    setInkFilters(newFilters);
+  }, [forSale, startDate, endDate]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -186,17 +229,11 @@ const Home: NextPage = () => {
                     size="large"
                     value={[startDate, endDate]}
                     onChange={(moments, dateStrings) => {
-                      // updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
+                      updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
                       setStartDate(dayjs(dateStrings[0]));
                       setEndDate(dayjs(dateStrings[1]));
-                      const _newFilters = {
-                        createdAt_gt: dayjs(dateStrings[0]).unix(),
-                        createdAt_lt: dayjs(dateStrings[1]).unix(),
-                        burned: false,
-                      };
                       setInks({});
                       setAllItemsLoaded(false);
-                      setInkFilters(_newFilters);
                     }}
                   />
                 </Form.Item>
@@ -205,7 +242,7 @@ const Home: NextPage = () => {
                     value={orderBy}
                     size="large"
                     onChange={val => {
-                      // updateSearchParams(["orderBy"], [val]);
+                      updateSearchParams(["orderBy"], [val]);
                       setOrderBy(val);
                     }}
                   >
@@ -221,7 +258,7 @@ const Home: NextPage = () => {
                     style={{ width: 120 }}
                     size="large"
                     onChange={val => {
-                      // updateSearchParams(["orderDirection"], [val]);
+                      updateSearchParams(["orderDirection"], [val]);
                       setOrderDirection(val);
                     }}
                   >
@@ -235,12 +272,12 @@ const Home: NextPage = () => {
                     style={{ width: 120 }}
                     size="large"
                     onChange={val => {
-                      // updateSearchParams(["forSale"], [val]);
+                      updateSearchParams(["forSale"], [val]);
                       setForSale(val);
                     }}
                   >
-                    <Option value={"for-sale"}>For sale</Option>
                     <Option value={"all-inks"}>All inks</Option>
+                    <Option value={"for-sale"}>For sale</Option>
                   </Select>
                 </Form.Item>
               </>
@@ -267,4 +304,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default HomeWithSuspense;

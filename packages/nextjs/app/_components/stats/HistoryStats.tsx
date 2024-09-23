@@ -5,13 +5,13 @@ import LineChart from "./LineChart";
 import ToolTip from "./ToolTip";
 import { Form, Select } from "antd";
 import { formatEther } from "viem";
+import Loader from "~~/components/Loader";
+import { useSearchParamsHandler } from "~~/hooks/useSearchParamsHandler";
 
 const { Option } = Select;
 
 interface HistoryStatsProps {
   lastMonthData?: HistoryData[];
-  metric: string;
-  handleChangeMetric: (varName: string, newVal: string) => void;
 }
 
 const formatUnixTimestamp = (timestamp: number) => {
@@ -36,10 +36,20 @@ const formatData = (data: HistoryData[], metric: string) => {
   });
 };
 
-const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, metric, handleChangeMetric }) => {
+const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData }) => {
+  const { paramValue: metric, updateSearchParam: updateMetric } = useSearchParamsHandler("metric", "tokens");
+
   const [hoverLoc, setHoverLoc] = useState<number | null>(null);
   const [activePoint, setActivePoint] = useState(null);
+  const [lineChartWidth, setLineChartWidth] = useState<number | null>(null);
   const [finalData, setFinalData] = useState(lastMonthData && formatData(lastMonthData, metric));
+
+  useEffect(() => {
+    // Only run on the client
+    if (typeof window !== "undefined") {
+      setLineChartWidth(Math.min(window.innerWidth - 50, 800));
+    }
+  }, []);
 
   useEffect(() => {
     if (lastMonthData) setFinalData(formatData(lastMonthData, metric));
@@ -60,7 +70,7 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, metric, hand
               value={metric}
               size="large"
               onChange={val => {
-                handleChangeMetric("metric", val);
+                updateMetric(val);
               }}
             >
               <Option value="tokens">Tokens</Option>
@@ -76,13 +86,15 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData, metric, hand
       </div>
       <div>
         {finalData && hoverLoc ? <ToolTip hoverLoc={hoverLoc} activePoint={activePoint} /> : null}
-        {finalData ? (
+        {lineChartWidth ? (
           <LineChart
-            svgWidth={Math.min(window.innerWidth - 50, 800)}
+            svgWidth={lineChartWidth}
             data={finalData}
             onChartHover={(a: any, b: any) => handleChartHover(a, b)}
           />
-        ) : null}
+        ) : (
+          <Loader />
+        )}
       </div>
     </div>
   );
