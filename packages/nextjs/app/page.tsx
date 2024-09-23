@@ -47,7 +47,7 @@ const Home: NextPage = () => {
 
   const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
   const [startDate, setStartDate] = useState(
-    searchParams.has("startDate") ? dayjs(searchParams.get("startDate")) : dayjs("2020-08-03"),
+    searchParams.has("startDate") ? dayjs(searchParams.get("startDate")) : dayjs("2021-08-03"),
   );
   const [endDate, setEndDate] = useState(searchParams.has("endDate") ? dayjs(searchParams.get("endDate")) : dayjs());
   const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
@@ -93,11 +93,7 @@ const Home: NextPage = () => {
     2000,
   );
 
-  const {
-    loading: likesLoading,
-    error: likesError,
-    data: likesData,
-  } = useQuery(INK_LIKES_QUERY, {
+  const { data: likesData } = useQuery(INK_LIKES_QUERY, {
     variables: {
       inks: debouncedInks,
       liker: connectedAddress ? connectedAddress.toLowerCase() : "",
@@ -123,24 +119,54 @@ const Home: NextPage = () => {
   }, [debouncedScrollPosition, fetchMoreInks]);
 
   const getInks = async (data: Ink[]) => {
-    console.log("getting inks");
-    const newInks: Record<number, Ink> = {};
-    const newData = data.filter(ink => !inks[ink?.inkNumber]?.metadata);
-    const hasMoreNewItems = newData?.length > ITEMS_PER_PAGE;
-    if (!hasMoreNewItems) {
-      setAllItemsLoaded(true);
-    }
+    console.log("Fetching new inks");
 
-    for (const ink of newData.slice(0, ITEMS_PER_PAGE)) {
-      if (inks[ink?.inkNumber]?.metadata) continue;
-      const metadata = await getMetadata(ink.jsonUrl);
-      const _ink = { ...ink, metadata };
-      newInks[_ink.inkNumber] = _ink;
-    }
+    // Timeout function that rejects after a set time
+    const withTimeout = (promise: Promise<any>, ms: number) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), ms)),
+      ]);
+    };
 
-    setInks(prevInks => ({ ...prevInks, ...newInks }));
-    setMoreInksLoading(false);
-    setFirstLoading(false);
+    try {
+      // Filter out inks that already have metadata
+      const inksToFetch = data.filter(ink => !inks[ink?.inkNumber]?.metadata);
+
+      // Check if there are more items to load based on the limit
+      if (inksToFetch.length <= ITEMS_PER_PAGE) {
+        setAllItemsLoaded(true);
+      }
+
+      // Fetch metadata with a 5-second timeout for each ink
+      const fetchedInks = await Promise.all(
+        inksToFetch.slice(0, ITEMS_PER_PAGE).map(async ink => {
+          try {
+            const metadata = await withTimeout(getMetadata(ink.jsonUrl), 5000); // 5 seconds timeout
+            return { ...ink, metadata };
+          } catch (error) {
+            console.error(`Error fetching metadata for ink ${ink.inkNumber}:`, error);
+            return { ...ink, metadata: null }; // Handle failed fetch
+          }
+        }),
+      );
+
+      // Update the state with newly fetched inks
+      setInks(prevInks => {
+        const newInks = fetchedInks.reduce((acc, ink) => {
+          acc[ink.inkNumber] = ink;
+          return acc;
+        }, {} as Record<number, Ink>);
+
+        return { ...prevInks, ...newInks };
+      });
+    } catch (error) {
+      console.error("Error fetching inks or metadata:", error);
+    } finally {
+      // Ensure loading states are updated even if there was an error
+      setMoreInksLoading(false);
+      setFirstLoading(false);
+    }
   };
 
   useEffect(() => {
