@@ -17,6 +17,13 @@ const { Option } = Select;
 
 const ITEMS_PER_PAGE = 15;
 
+type QueryFilter = {
+  createdAt_gt: number;
+  createdAt_lt: number;
+  burned: boolean;
+  bestPrice_gt?: string;
+};
+
 const HomeWithSuspense = () => {
   return (
     <Suspense fallback={<Loader />}>
@@ -53,7 +60,7 @@ const Home: NextPage = () => {
   const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "createdAt");
   const [orderDirection, setOrderDirection] = useState<string>(searchParams.get("orderDirection") || "desc");
 
-  const [inkFilters, setInkFilters] = useState({
+  const [inkFilters, setInkFilters] = useState<QueryFilter>({
     createdAt_gt: startDate.unix(),
     createdAt_lt: endDate.unix(),
     burned: false,
@@ -73,11 +80,7 @@ const Home: NextPage = () => {
     [searchParams],
   );
 
-  const {
-    loading: isInksLoading,
-    data,
-    fetchMore: fetchMoreInks,
-  } = useQuery(EXPLORE_QUERY, {
+  const { data, fetchMore: fetchMoreInks } = useQuery(EXPLORE_QUERY, {
     variables: {
       first: ITEMS_PER_PAGE + 1,
       skip: 0,
@@ -178,6 +181,17 @@ const Home: NextPage = () => {
   }, [data]);
 
   useEffect(() => {
+    const newFilters: QueryFilter = {
+      createdAt_gt: startDate.unix(),
+      createdAt_lt: endDate.unix(),
+      burned: false,
+      ...(forSale === "for-sale" && { bestPrice_gt: "0" }), // Conditionally add the price filter
+    };
+
+    setInkFilters(newFilters);
+  }, [forSale, startDate, endDate]);
+
+  useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
@@ -218,14 +232,8 @@ const Home: NextPage = () => {
                       updateSearchParams(["startDate", "endDate"], [dateStrings[0], dateStrings[1]]);
                       setStartDate(dayjs(dateStrings[0]));
                       setEndDate(dayjs(dateStrings[1]));
-                      const _newFilters = {
-                        createdAt_gt: dayjs(dateStrings[0]).unix(),
-                        createdAt_lt: dayjs(dateStrings[1]).unix(),
-                        burned: false,
-                      };
                       setInks({});
                       setAllItemsLoaded(false);
-                      setInkFilters(_newFilters);
                     }}
                   />
                 </Form.Item>
@@ -268,8 +276,8 @@ const Home: NextPage = () => {
                       setForSale(val);
                     }}
                   >
-                    <Option value={"for-sale"}>For sale</Option>
                     <Option value={"all-inks"}>All inks</Option>
+                    <Option value={"for-sale"}>For sale</Option>
                   </Select>
                 </Form.Item>
               </>
