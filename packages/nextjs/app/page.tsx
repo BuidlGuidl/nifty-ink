@@ -93,7 +93,7 @@ const Home: NextPage = () => {
 
   const { data: likesData } = useQuery(INK_LIKES_QUERY, {
     variables: {
-      inks: debouncedInks,
+      inks: debouncedInks?.[0],
       liker: connectedAddress ? connectedAddress.toLowerCase() : "",
     },
     pollInterval: 6000,
