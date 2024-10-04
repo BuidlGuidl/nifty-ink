@@ -11,7 +11,6 @@ type InkListProps = {
   layout?: string;
   connectedAddress?: string | undefined;
   isInksLoading: boolean;
-  onLoadMore: () => void;
   allItemsLoaded: boolean;
 };
 
@@ -19,8 +18,8 @@ export const InkListArtist = ({
   inks,
   layout = "cards",
   connectedAddress,
-  onLoadMore,
   allItemsLoaded,
+  isInksLoading,
 }: InkListProps) => {
   return (
     <div className="max-w-2xl mx-auto text-center">
@@ -60,17 +59,23 @@ export const InkListArtist = ({
                   </div>
                 </SingleInk>
               ))}
-              {!allItemsLoaded && (
-                <Button
-                  type="dashed"
-                  size="large"
-                  block
-                  className="mt-5 flex items-center"
-                  onClick={() => onLoadMore()}
-                >
-                  Load more
-                </Button>
-              )}
+              <div className="flex items-center justify-center">
+                <div aria-label="Page navigation" className="flex space-x-2">
+                  <div>
+                    {!allItemsLoaded && (
+                      <Button
+                        type="dashed"
+                        size="large"
+                        block
+                        className="mt-2 flex items-center"
+                        disabled={isInksLoading}
+                      >
+                        {isInksLoading ? "Loading..." : "Load more"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </>
           ) : (
             <Typography.Title level={4}>No inks found for this address</Typography.Title>

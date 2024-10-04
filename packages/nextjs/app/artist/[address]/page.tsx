@@ -11,6 +11,7 @@ import { Profile } from "~~/app/_components/Profile";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
 import StatCard from "~~/app/_components/StatCard";
 import Loader from "~~/components/Loader";
+import useInfiniteScroll from "~~/hooks/useInfiniteScroll";
 import { getMetadata } from "~~/utils/helpers";
 
 const ITEMS_PER_PAGE = 15;
@@ -22,6 +23,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
     variables: { address: address, first: ITEMS_PER_PAGE + 1, skip: 0 },
   });
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(true);
+  const [moreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const getInks = async (data: Ink[]) => {
@@ -41,21 +43,25 @@ const Artist = ({ params }: { params: { address: string } }) => {
       }));
 
       setInks([...inks, ...updatedInks]);
+      setMoreInksLoading(false);
     };
     data !== undefined && data.artists[0] ? getInks(data.artists[0].inks) : console.log("loading");
   }, [data]);
 
-  const onLoadMore = () => {
-    fetchMore({
-      variables: {
-        skip: inks.length,
-      },
-      updateQuery: (previousResult, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return previousResult;
-        return fetchMoreResult;
-      },
-    });
-  };
+  useInfiniteScroll(async () => {
+    if (!moreInksLoading && !allItemsLoaded) {
+      setMoreInksLoading(true);
+      await fetchMore({
+        variables: {
+          skip: inks.length,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return previousResult;
+          return fetchMoreResult;
+        },
+      });
+    }
+  }, inks.length);
 
   const items: TabsProps["items"] = [
     {
@@ -66,7 +72,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
           {loading ? (
             <Loader />
           ) : (
-            <InkListArtist inks={inks} isInksLoading={false} onLoadMore={onLoadMore} allItemsLoaded={allItemsLoaded} />
+            <InkListArtist inks={inks} isInksLoading={moreInksLoading} allItemsLoaded={allItemsLoaded} />
           )}
         </>
       ),
