@@ -5,20 +5,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { NiftyShop } from "../NiftyShop";
 import SendInkForm from "../SendInkForm";
-import { SendOutlined, UploadOutlined } from "@ant-design/icons";
+import { SendOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Popover, Switch } from "antd";
 import { FIRST_HOLDING_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
+import useInfiniteScroll from "~~/hooks/useInfiniteScroll";
 import { getMetadata } from "~~/utils/helpers";
 
 export const GnosisChainInks = ({ address, connectedAddress }: { address: string; connectedAddress: string }) => {
   const [tokens, setTokens] = useState<Token[]>([]); // Object holding information about relevant tokens
   const [holderCreationOnly, setHolderCreationOnly] = useState<boolean>(false);
+  const [moreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
   const {
     loading,
-    error,
     data: dataRaw,
     fetchMore,
   } = useQuery(HOLDINGS_QUERY, {
@@ -67,6 +68,8 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setMoreInksLoading(false);
     }
   };
 
@@ -75,17 +78,20 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
     if (dataRaw) console.log(dataRaw?.tokens);
   }, [dataRaw]);
 
-  const onLoadMore = () => {
-    fetchMore({
-      variables: {
-        skip: tokens.length,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return fetchMoreResult;
-      },
-    });
-  };
+  useInfiniteScroll(async () => {
+    if (!moreInksLoading && tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id) {
+      setMoreInksLoading(true);
+      await fetchMore({
+        variables: {
+          skip: tokens.length,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return fetchMoreResult;
+        },
+      });
+    }
+  }, tokens.length);
 
   if (loading) return <Loader />;
 
@@ -193,11 +199,17 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                 </li>
               ))}
         </ul>
-        {tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id && (
-          <Button type="dashed" size="large" block className="mt-5 flex items-center" onClick={() => onLoadMore()}>
-            Load more
-          </Button>
-        )}
+        <div className="flex items-center justify-center">
+          <div aria-label="Page navigation" className="flex space-x-2">
+            <div>
+              {tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id && (
+                <Button type="dashed" size="large" block className="mt-2 flex items-center" disabled={moreInksLoading}>
+                  {moreInksLoading ? "Loading..." : "Load more"}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
