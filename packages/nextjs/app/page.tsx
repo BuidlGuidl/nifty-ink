@@ -45,7 +45,7 @@ const Home: NextPage = () => {
   const [inks, setInks] = useState<Record<number, Ink>>({});
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
   const [firstLoading, setFirstLoading] = useState<boolean>(true);
-  const [MoreInksLoading, setMoreInksLoading] = useState<boolean>(false);
+  const [moreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
   const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
   const [startDate, setStartDate] = useState(
@@ -170,7 +170,7 @@ const Home: NextPage = () => {
   }, [forSale, startDate, endDate]);
 
   useInfiniteScroll(() => {
-    if (!MoreInksLoading) {
+    if (!moreInksLoading) {
       setMoreInksLoading(true);
       fetchMoreInks({
         variables: {
@@ -284,8 +284,7 @@ const Home: NextPage = () => {
             orderBy={orderBy as keyof Ink}
             layout={layout}
             connectedAddress={connectedAddress}
-            MoreInksLoading={MoreInksLoading}
-            // onLoadMore={onLoadMore}
+            moreInksLoading={moreInksLoading}
             allItemsLoaded={allItemsLoaded}
           />
         )}

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import xDai from "../../public/xDai.png";
+import LoadMoreButton from "./LoadMoreButton";
 import { SingleInk } from "./SingleInk";
 import { Button, Divider, Typography } from "antd";
 import { formatEther } from "viem";
@@ -59,23 +60,11 @@ export const InkListArtist = ({
                   </div>
                 </SingleInk>
               ))}
-              <div className="flex items-center justify-center">
-                <div aria-label="Page navigation" className="flex space-x-2">
-                  <div>
-                    {!allItemsLoaded && (
-                      <Button
-                        type="dashed"
-                        size="large"
-                        block
-                        className="mt-2 flex items-center"
-                        disabled={isInksLoading}
-                      >
-                        {isInksLoading ? "Loading..." : "Load more"}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <LoadMoreButton
+                allItemsLoaded={allItemsLoaded}
+                allItemsLoadedText={"All inks were loaded."}
+                moreInksLoading={isInksLoading}
+              />
             </>
           ) : (
             <Typography.Title level={4}>No inks found for this address</Typography.Title>

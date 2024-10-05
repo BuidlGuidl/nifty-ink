@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import LoadMoreButton from "../LoadMoreButton";
 import { NiftyShop } from "../NiftyShop";
 import SendInkForm from "../SendInkForm";
 import { SendOutlined } from "@ant-design/icons";
@@ -78,20 +79,24 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
     if (dataRaw) console.log(dataRaw?.tokens);
   }, [dataRaw]);
 
-  useInfiniteScroll(async () => {
-    if (!moreInksLoading && tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id) {
-      setMoreInksLoading(true);
-      await fetchMore({
-        variables: {
-          skip: tokens.length,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
-          return fetchMoreResult;
-        },
-      });
-    }
-  }, tokens.length);
+  useInfiniteScroll(
+    async () => {
+      if (!moreInksLoading && tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id) {
+        setMoreInksLoading(true);
+        await fetchMore({
+          variables: {
+            skip: tokens.length,
+          },
+          updateQuery: (prev, { fetchMoreResult }) => {
+            if (!fetchMoreResult) return prev;
+            return fetchMoreResult;
+          },
+        });
+      }
+    },
+    tokens.length,
+    500,
+  );
 
   if (loading) return <Loader />;
 
@@ -199,17 +204,11 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                 </li>
               ))}
         </ul>
-        <div className="flex items-center justify-center">
-          <div aria-label="Page navigation" className="flex space-x-2">
-            <div>
-              {tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id && (
-                <Button type="dashed" size="large" block className="mt-2 flex items-center" disabled={moreInksLoading}>
-                  {moreInksLoading ? "Loading..." : "Load more"}
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
+        <LoadMoreButton
+          allItemsLoaded={tokens[tokens.length - 1]?.ink?.id === firstHoldingActivity?.tokens?.[0]?.ink?.id}
+          allItemsLoadedText={"All holdings were loaded."}
+          moreInksLoading={moreInksLoading}
+        />
       </div>
     </div>
   );

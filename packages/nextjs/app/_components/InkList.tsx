@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import xDai from "../../public/xDai.png";
 import { LikeButton } from "./LikeButton";
-import { Button } from "antd";
+import LoadMoreButton from "./LoadMoreButton";
 import { formatEther } from "viem";
 
 type InkListProps = {
@@ -14,8 +14,7 @@ type InkListProps = {
   layout: string;
   likesData: Ink[];
   connectedAddress: string | undefined;
-  MoreInksLoading: boolean;
-  onLoadMore?: () => void;
+  moreInksLoading: boolean;
   allItemsLoaded: boolean;
 };
 
@@ -25,10 +24,9 @@ export const InkList = ({
   orderDirection,
   layout,
   likesData,
-  MoreInksLoading,
+  moreInksLoading,
   connectedAddress,
   allItemsLoaded,
-  onLoadMore,
 }: InkListProps) => {
   return (
     <div>
@@ -115,19 +113,11 @@ export const InkList = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-center">
-        <div aria-label="Page navigation" className="flex space-x-2">
-          <div>
-            {allItemsLoaded ? (
-              <div className="mt-2 text-lg">All inks were loaded within the specified date range.</div>
-            ) : (
-              <Button type="dashed" size="large" block className="mt-2 flex items-center" disabled={MoreInksLoading}>
-                {MoreInksLoading ? "Loading..." : "Load more"}
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
+      <LoadMoreButton
+        allItemsLoaded={allItemsLoaded}
+        allItemsLoadedText={"All inks were loaded within the specified date range."}
+        moreInksLoading={moreInksLoading}
+      />
     </div>
   );
 };

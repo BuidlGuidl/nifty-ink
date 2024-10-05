@@ -34,16 +34,22 @@ const Artist = ({ params }: { params: { address: string } }) => {
       } else {
         setAllItemsLoaded(false);
       }
-      const metadataResults = await Promise.all(metadataPromises);
+      try {
+        const metadataResults = await Promise.all(metadataPromises);
 
-      // Combine each ink with its metadata
-      const updatedInks = data.slice(0, ITEMS_PER_PAGE).map((ink, index) => ({
-        ...ink,
-        metadata: metadataResults[index],
-      }));
+        // Combine each ink with its metadata
+        const updatedInks = data.slice(0, ITEMS_PER_PAGE).map((ink, index) => ({
+          ...ink,
+          metadata: metadataResults[index],
+        }));
 
-      setInks([...inks, ...updatedInks]);
-      setMoreInksLoading(false);
+        setInks([...inks, ...updatedInks]);
+      } catch (error) {
+        console.error("Error fetching inks or metadata:", error);
+      } finally {
+        // Ensure loading states are updated even if there was an error
+        setMoreInksLoading(false);
+      }
     };
     data !== undefined && data.artists[0] ? getInks(data.artists[0].inks) : console.log("loading");
   }, [data]);
