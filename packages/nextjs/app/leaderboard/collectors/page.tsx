@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { emojifyTop3 } from "../utils";
 import { useQuery } from "@apollo/client";
-import { Col, Form, Row, Select, Typography } from "antd";
+import { Col, Form, Row, Select } from "antd";
 import dayjs from "dayjs";
 import type { NextPage } from "next";
 import { TOP_COLLECTORS_QUERY } from "~~/apollo/queries";
@@ -128,7 +128,7 @@ const Home: NextPage = () => {
       <div className="max-w-screen-xl">
         <Row align="top" gutter={16} className="mt-5 text-center justify-center">
           <Col>
-            <Typography.Title level={3}>Collectors</Typography.Title>
+            <p className="text-2xl">Collectors</p>
           </Col>
           <Col>
             <Form layout={"inline"} initialValues={{ orderBy: orderBy, period: period }}>
@@ -152,7 +152,7 @@ const Home: NextPage = () => {
         {loading ? (
           <Loader />
         ) : (
-          <Row justify="center">
+          <div className="flex justify-center">
             <div className="artists-leaderboard">
               <ul>
                 {collectors.length > 0
@@ -198,7 +198,7 @@ const Home: NextPage = () => {
                   : null}
               </ul>
             </div>
-          </Row>
+          </div>
         )}
       </div>
     </div>
