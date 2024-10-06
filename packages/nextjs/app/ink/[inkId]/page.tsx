@@ -6,14 +6,13 @@ import { InkCanvas } from "./InkCanvas";
 import { InkDetails } from "./InkDetails";
 import { InkHistory } from "./InkHistory";
 import { useQuery } from "@apollo/client";
-import { Tabs } from "antd";
+import { Tabs, TabsProps } from "antd";
 import * as uint8arrays from "uint8arrays";
 import { useAccount } from "wagmi";
 import { INK_QUERY } from "~~/apollo/queries";
 import { Address } from "~~/components/scaffold-eth";
+import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 import { getFromIPFS } from "~~/utils/ipfs";
-
-const { TabPane } = Tabs;
 
 const ViewInk = ({ params }: { params: { inkId: string } }) => {
   const inkId = params?.inkId;
@@ -44,6 +43,25 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
     dataRaw && dataRaw.ink ? getInk(dataRaw) : console.log("loading");
   }, [dataRaw]);
 
+  const items: TabsProps["items"] = [
+    {
+      key: "1",
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>Details</p>,
+      children: (
+        <>
+          {connectedAddress && dataRaw?.ink && (
+            <InkDetails ink={dataRaw?.ink} inkId={inkId} connectedAddress={connectedAddress} inkJson={inkJson} />
+          )}
+        </>
+      ),
+    },
+    {
+      key: "2",
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>History</p>,
+      children: <InkHistory inkTokenTransfers={dataRaw?.ink?.tokenTransfers} />,
+    },
+  ];
+
   return (
     <div className="flex justify-center">
       <div className="max-w-3xl flex flex-col mt-2">
@@ -66,16 +84,11 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
           </p>
         </div>
 
-        <Tabs centered defaultActiveKey="1" size="large" type="card">
-          <TabPane tab="Details" key="1">
-            {connectedAddress && dataRaw?.ink && (
-              <InkDetails ink={dataRaw?.ink} inkId={inkId} connectedAddress={connectedAddress} inkJson={inkJson} />
-            )}
-          </TabPane>
-          <TabPane tab="History" key="2" className="w-full">
-            <InkHistory inkTokenTransfers={dataRaw?.ink?.tokenTransfers} />
-          </TabPane>
-        </Tabs>
+        {connectedAddress && (
+          <div className={"w-10/12 mx-auto"}>
+            <Tabs defaultActiveKey="1" type="line" centered items={items}></Tabs>
+          </div>
+        )}
       </div>
     </div>
   );

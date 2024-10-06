@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlaySquareOutlined, QuestionCircleOutlined, XOutlined } from "@ant-design/icons";
-import { Button, Descriptions, InputNumber, Popover, Row, Spin, Typography } from "antd";
+import { Button, Descriptions, InputNumber, Popover, Row, Spin } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { useLocalStorage } from "usehooks-ts";
@@ -253,7 +253,7 @@ export const InkCanvas = ({
             connectedAddress={connectedAddress}
           />
         </div>
-        <div className="-mt-[10px] opacity-30">
+        <div className="-mt-[10px] opacity-80">
           <Popover
             content={detailContent}
             title="Ink Details"

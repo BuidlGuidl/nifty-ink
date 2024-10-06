@@ -34,7 +34,7 @@ const Holdings = ({ params }: { params: { address: string } }) => {
       <div className="min-w-xl">
         <Profile address={address} />
 
-        <Tabs defaultActiveKey="1" type="card" centered items={items} />
+        <Tabs defaultActiveKey="1" type="line" centered items={items} />
       </div>
     </div>
   );

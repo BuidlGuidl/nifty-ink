@@ -3,15 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import MintButton from "./MintButton";
-import { LinkOutlined, RocketOutlined, SendOutlined, SyncOutlined, UploadOutlined } from "@ant-design/icons";
+import { LinkOutlined, RocketOutlined, SendOutlined, SyncOutlined } from "@ant-design/icons";
 import { ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
-import { Button, List, Popover, Row, Space, Typography } from "antd";
+import { Button, List, Popover, Row, Typography } from "antd";
 import { INK_MAIN_QUERY } from "~~/apollo/queries";
 import { NiftyShop } from "~~/app/_components/NiftyShop";
 import { NiftyShopBuy } from "~~/app/_components/NiftyShopBuy";
 import SendInkForm from "~~/app/_components/SendInkForm";
 import { Address } from "~~/components/scaffold-eth";
-import { TEXT_PRIMARY_COLOR } from "~~/utils/constant";
+import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 
 const mainClient = new ApolloClient({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT_MAINNET,

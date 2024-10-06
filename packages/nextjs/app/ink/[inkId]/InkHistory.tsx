@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Address } from "~~/components/scaffold-eth";
-import { TEXT_PRIMARY_COLOR } from "~~/utils/constant";
+import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 
 export const InkHistory = ({ inkTokenTransfers }: { inkTokenTransfers: any }) => {
   return (
