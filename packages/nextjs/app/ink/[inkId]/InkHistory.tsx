@@ -10,23 +10,25 @@ export const InkHistory = ({ inkTokenTransfers }: { inkTokenTransfers: any }) =>
       {inkTokenTransfers && inkTokenTransfers.length > 0 ? (
         <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "left" }}>
           <ul className="list-none p-1 m-0">
-            <li className="py-0.5 px-1.5 flex justify-between font-bold bg-gray-100 dark:bg-gray-800">
-              <span className={`${TEXT_PRIMARY_COLOR} flex-1 font-bold`} style={{ flexBasis: "10%" }}>
+            <li
+              className={`py-0.5 px-1.5 flex justify-between font-bold bg-gray-100 dark:bg-gray-800 ${TEXT_PRIMARY_COLOR}`}
+            >
+              <span className="flex-1 font-bold" style={{ flexBasis: "10%" }}>
                 Edition
               </span>
-              <span className={`${TEXT_PRIMARY_COLOR} flex-1 font-bold`} style={{ flexBasis: "10%" }}>
+              <span className="flex-1 font-bold" style={{ flexBasis: "10%" }}>
                 Action
               </span>
-              <span className={`${TEXT_PRIMARY_COLOR} flex-1 font-bold`} style={{ flexBasis: "25%" }}>
+              <span className="flex-1 font-bold" style={{ flexBasis: "25%" }}>
                 From
               </span>
-              <span className={`${TEXT_PRIMARY_COLOR} flex-1 font-bold`} style={{ flexBasis: "25%" }}>
+              <span className="flex-1 font-bold" style={{ flexBasis: "25%" }}>
                 To
               </span>
-              <span className={`${TEXT_PRIMARY_COLOR} flex-1 font-bold`} style={{ flexBasis: "8%" }}>
+              <span className="flex-1 font-bold" style={{ flexBasis: "8%" }}>
                 Price
               </span>
-              <span className={`${TEXT_PRIMARY_COLOR} flex-1 font-bold`} style={{ flexBasis: "12%" }}>
+              <span className="flex-1 font-bold" style={{ flexBasis: "12%" }}>
                 Date
               </span>
             </li>

@@ -8,6 +8,7 @@ import { ApolloClient, InMemoryCache, useLazyQuery, useQuery } from "@apollo/cli
 import { Button, Switch } from "antd";
 import { HOLDINGS_MAIN_INKS_QUERY, HOLDINGS_MAIN_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
+import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 import { getMetadata } from "~~/utils/helpers";
 
 const mainClient = new ApolloClient({
@@ -84,7 +85,7 @@ export const MainnetChainInks = ({ address, connectedAddress }: { address: strin
   if (loadingMain || loadingMainInks) return <Loader />;
 
   return (
-    <div className="flex flex-col justify-center">
+    <div className={`flex flex-col justify-center  ${TEXT_PRIMARY_COLOR}`}>
       <div className="flex justify-center gap-8 text-center mb-5">
         <div>
           <b>All Holdings:</b> {dataRaw && dataRaw.tokens ? parseInt(dataRaw.tokens.length) : 0}
@@ -147,7 +148,7 @@ export const MainnetChainInks = ({ address, connectedAddress }: { address: strin
                         : token.ink.metadata?.name}
                     </h3>
 
-                    <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
+                    <p className="m-0 scale-90">
                       Edition: {token.ink.count}/{token.ink.limit}
                     </p>
                   </Link>
