@@ -11,6 +11,7 @@ import { Profile } from "~~/app/_components/Profile";
 import { SearchAddress } from "~~/app/_components/SearchAddress";
 import StatCard from "~~/app/_components/StatCard";
 import Loader from "~~/components/Loader";
+import useInfiniteScroll from "~~/hooks/useInfiniteScroll";
 import { getMetadata } from "~~/utils/helpers";
 
 const ITEMS_PER_PAGE = 15;
@@ -22,6 +23,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
     variables: { address: address, first: ITEMS_PER_PAGE + 1, skip: 0 },
   });
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(true);
+  const [moreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const getInks = async (data: Ink[]) => {
@@ -32,30 +34,40 @@ const Artist = ({ params }: { params: { address: string } }) => {
       } else {
         setAllItemsLoaded(false);
       }
-      const metadataResults = await Promise.all(metadataPromises);
+      try {
+        const metadataResults = await Promise.all(metadataPromises);
 
-      // Combine each ink with its metadata
-      const updatedInks = data.slice(0, ITEMS_PER_PAGE).map((ink, index) => ({
-        ...ink,
-        metadata: metadataResults[index],
-      }));
+        // Combine each ink with its metadata
+        const updatedInks = data.slice(0, ITEMS_PER_PAGE).map((ink, index) => ({
+          ...ink,
+          metadata: metadataResults[index],
+        }));
 
-      setInks([...inks, ...updatedInks]);
+        setInks([...inks, ...updatedInks]);
+      } catch (error) {
+        console.error("Error fetching inks or metadata:", error);
+      } finally {
+        // Ensure loading states are updated even if there was an error
+        setMoreInksLoading(false);
+      }
     };
     data !== undefined && data.artists[0] ? getInks(data.artists[0].inks) : console.log("loading");
   }, [data]);
 
-  const onLoadMore = () => {
-    fetchMore({
-      variables: {
-        skip: inks.length,
-      },
-      updateQuery: (previousResult, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return previousResult;
-        return fetchMoreResult;
-      },
-    });
-  };
+  useInfiniteScroll(async () => {
+    if (!moreInksLoading && !allItemsLoaded) {
+      setMoreInksLoading(true);
+      await fetchMore({
+        variables: {
+          skip: inks.length,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return previousResult;
+          return fetchMoreResult;
+        },
+      });
+    }
+  }, inks.length);
 
   const items: TabsProps["items"] = [
     {
@@ -66,7 +78,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
           {loading ? (
             <Loader />
           ) : (
-            <InkListArtist inks={inks} isInksLoading={false} onLoadMore={onLoadMore} allItemsLoaded={allItemsLoaded} />
+            <InkListArtist inks={inks} isInksLoading={moreInksLoading} allItemsLoaded={allItemsLoaded} />
           )}
         </>
       ),

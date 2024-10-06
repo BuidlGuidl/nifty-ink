@@ -11,6 +11,7 @@ import { useDebounceValue } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import { EXPLORE_QUERY, INK_LIKES_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
+import useInfiniteScroll from "~~/hooks/useInfiniteScroll";
 import { getMetadata } from "~~/utils/helpers";
 
 const { Option } = Select;
@@ -44,13 +45,7 @@ const Home: NextPage = () => {
   const [inks, setInks] = useState<Record<number, Ink>>({});
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(false);
   const [firstLoading, setFirstLoading] = useState<boolean>(true);
-  const [MoreInksLoading, setMoreInksLoading] = useState<boolean>(false);
-  const [scrollPosition, setScrollPosition] = useState<number>(0);
-  const debouncedScrollPosition = useDebounceValue<number>(scrollPosition, 300);
-
-  const handleScroll = useCallback(() => {
-    setScrollPosition(window.scrollY + window.innerHeight);
-  }, []);
+  const [moreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
   const [forSale, setForSale] = useState<string>(searchParams.get("forSale") || "all-inks");
   const [startDate, setStartDate] = useState(
@@ -98,28 +93,11 @@ const Home: NextPage = () => {
 
   const { data: likesData } = useQuery(INK_LIKES_QUERY, {
     variables: {
-      inks: debouncedInks,
+      inks: debouncedInks?.[0],
       liker: connectedAddress ? connectedAddress.toLowerCase() : "",
     },
     pollInterval: 6000,
   });
-
-  useEffect(() => {
-    if (!MoreInksLoading && debouncedScrollPosition?.[0] >= document.body.scrollHeight - 300) {
-      setMoreInksLoading(true);
-      fetchMoreInks({
-        variables: {
-          skip: Object.values(inks).length,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
-          return {
-            inks: [...prev?.inks, ...fetchMoreResult?.inks],
-          };
-        },
-      });
-    }
-  }, [debouncedScrollPosition, fetchMoreInks]);
 
   const getInks = async (data: Ink[]) => {
     console.log("Fetching new inks");
@@ -191,10 +169,22 @@ const Home: NextPage = () => {
     setInkFilters(newFilters);
   }, [forSale, startDate, endDate]);
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  useInfiniteScroll(() => {
+    if (!moreInksLoading) {
+      setMoreInksLoading(true);
+      fetchMoreInks({
+        variables: {
+          skip: Object.values(inks).length,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return {
+            inks: [...prev?.inks, ...fetchMoreResult?.inks],
+          };
+        },
+      });
+    }
+  }, Object.values(inks).length);
 
   return (
     <div className="flex justify-center">
@@ -294,8 +284,7 @@ const Home: NextPage = () => {
             orderBy={orderBy as keyof Ink}
             layout={layout}
             connectedAddress={connectedAddress}
-            MoreInksLoading={MoreInksLoading}
-            // onLoadMore={onLoadMore}
+            moreInksLoading={moreInksLoading}
             allItemsLoaded={allItemsLoaded}
           />
         )}

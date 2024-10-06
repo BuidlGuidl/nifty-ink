@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import xDai from "../../public/xDai.png";
+import LoadMoreButton from "./LoadMoreButton";
 import { SingleInk } from "./SingleInk";
 import { Button, Divider, Typography } from "antd";
 import { formatEther } from "viem";
@@ -11,7 +12,6 @@ type InkListProps = {
   layout?: string;
   connectedAddress?: string | undefined;
   isInksLoading: boolean;
-  onLoadMore: () => void;
   allItemsLoaded: boolean;
 };
 
@@ -19,8 +19,8 @@ export const InkListArtist = ({
   inks,
   layout = "cards",
   connectedAddress,
-  onLoadMore,
   allItemsLoaded,
+  isInksLoading,
 }: InkListProps) => {
   return (
     <div className="max-w-2xl mx-auto text-center">
@@ -60,17 +60,11 @@ export const InkListArtist = ({
                   </div>
                 </SingleInk>
               ))}
-              {!allItemsLoaded && (
-                <Button
-                  type="dashed"
-                  size="large"
-                  block
-                  className="mt-5 flex items-center"
-                  onClick={() => onLoadMore()}
-                >
-                  Load more
-                </Button>
-              )}
+              <LoadMoreButton
+                allItemsLoaded={allItemsLoaded}
+                allItemsLoadedText={"All inks were loaded."}
+                moreInksLoading={isInksLoading}
+              />
             </>
           ) : (
             <Typography.Title level={4}>No inks found for this address</Typography.Title>

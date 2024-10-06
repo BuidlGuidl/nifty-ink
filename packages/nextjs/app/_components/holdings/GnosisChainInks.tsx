@@ -3,22 +3,25 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import LoadMoreButton from "../LoadMoreButton";
 import { NiftyShop } from "../NiftyShop";
 import SendInkForm from "../SendInkForm";
-import { SendOutlined, UploadOutlined } from "@ant-design/icons";
+import { SendOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
 import { Button, Popover, Switch } from "antd";
 import { FIRST_HOLDING_QUERY, HOLDINGS_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
+import useInfiniteScroll from "~~/hooks/useInfiniteScroll";
+import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 import { getMetadata } from "~~/utils/helpers";
 
 export const GnosisChainInks = ({ address, connectedAddress }: { address: string; connectedAddress: string }) => {
   const [tokens, setTokens] = useState<Token[]>([]); // Object holding information about relevant tokens
   const [holderCreationOnly, setHolderCreationOnly] = useState<boolean>(false);
+  const [moreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
   const {
     loading,
-    error,
     data: dataRaw,
     fetchMore,
   } = useQuery(HOLDINGS_QUERY, {
@@ -31,11 +34,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
     },
   });
 
-  const {
-    loading: loadingFirst,
-    error: errorFirst,
-    data: firstHoldingActivity,
-  } = useQuery(FIRST_HOLDING_QUERY, {
+  const { data: firstHoldingActivity } = useQuery(FIRST_HOLDING_QUERY, {
     variables: {
       owner: address.toLowerCase(),
     },
@@ -67,6 +66,8 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setMoreInksLoading(false);
     }
   };
 
@@ -75,22 +76,29 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
     if (dataRaw) console.log(dataRaw?.tokens);
   }, [dataRaw]);
 
-  const onLoadMore = () => {
-    fetchMore({
-      variables: {
-        skip: tokens.length,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return fetchMoreResult;
-      },
-    });
-  };
+  useInfiniteScroll(
+    async () => {
+      if (!moreInksLoading && tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id) {
+        setMoreInksLoading(true);
+        await fetchMore({
+          variables: {
+            skip: tokens.length,
+          },
+          updateQuery: (prev, { fetchMoreResult }) => {
+            if (!fetchMoreResult) return prev;
+            return fetchMoreResult;
+          },
+        });
+      }
+    },
+    tokens.length,
+    500,
+  );
 
   if (loading) return <Loader />;
 
   return (
-    <div className="flex flex-col justify-center">
+    <div className={`flex flex-col justify-center ${TEXT_PRIMARY_COLOR}`}>
       <div className="flex justify-center gap-8 text-center mb-5">
         <div>
           <b>All Holdings:</b> {dataRaw && dataRaw.user ? parseInt(dataRaw.user.tokenCount) : 0}
@@ -127,7 +135,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                     fontWeight: "bold",
                   }}
                 >
-                  <Link href={{ pathname: "/ink/" + token.ink.id }} style={{ color: "black" }}>
+                  <Link href={{ pathname: "/ink/" + token.ink.id }} className={`${TEXT_PRIMARY_COLOR}`}>
                     <Image
                       src={token?.ink?.metadata?.image as string}
                       alt={token?.ink?.metadata?.name as string}
@@ -149,7 +157,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                         : token.ink.metadata?.name}
                     </h3>
 
-                    <p style={{ color: "#5e5e5e", margin: "0", zoom: 0.8 }}>
+                    <p className="m-0 scale-90">
                       Edition: {token.ink.count}/{token.ink.limit}
                     </p>
                   </Link>
@@ -193,11 +201,11 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                 </li>
               ))}
         </ul>
-        {tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id && (
-          <Button type="dashed" size="large" block className="mt-5 flex items-center" onClick={() => onLoadMore()}>
-            Load more
-          </Button>
-        )}
+        <LoadMoreButton
+          allItemsLoaded={tokens[tokens.length - 1]?.ink?.id === firstHoldingActivity?.tokens?.[0]?.ink?.id}
+          allItemsLoadedText={"All holdings were loaded."}
+          moreInksLoading={moreInksLoading}
+        />
       </div>
     </div>
   );
