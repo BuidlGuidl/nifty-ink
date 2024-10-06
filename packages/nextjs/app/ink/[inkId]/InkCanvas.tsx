@@ -115,12 +115,9 @@ export const InkCanvas = ({
   return (
     <>
       <Row className="w-[90vmin] mx-auto mt-[1vh] flex justify-center">
-        <Typography.Text
-          copyable={{ text: inkJson ? inkJson.external_url : "" }}
-          style={{ verticalAlign: "middle", paddingLeft: 5, fontSize: 28 }}
-        >
+        <p className="text-2xl my-1">
           {ink && ink?.burned ? "🔥🔥This ink has been burned🔥🔥" : inkJson ? inkJson.name : <Spin />}
-        </Typography.Text>
+        </p>
 
         <Button
           loading={canvasState !== "ready"}
