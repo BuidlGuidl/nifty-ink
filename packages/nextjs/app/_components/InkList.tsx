@@ -16,6 +16,7 @@ type InkListProps = {
   connectedAddress: string | undefined;
   moreInksLoading: boolean;
   allItemsLoaded: boolean;
+  loadMoreInks: () => void;
 };
 
 export const InkList = ({
@@ -27,6 +28,7 @@ export const InkList = ({
   moreInksLoading,
   connectedAddress,
   allItemsLoaded,
+  loadMoreInks,
 }: InkListProps) => {
   return (
     <div>
@@ -117,6 +119,7 @@ export const InkList = ({
         allItemsLoaded={allItemsLoaded}
         allItemsLoadedText={"All inks were loaded within the specified date range."}
         moreInksLoading={moreInksLoading}
+        loadMoreInks={loadMoreInks}
       />
     </div>
   );

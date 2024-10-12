@@ -25,6 +25,21 @@ const Artist = ({ params }: { params: { address: string } }) => {
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(true);
   const [moreInksLoading, setMoreInksLoading] = useState<boolean>(false);
 
+  const loadMoreInks = async () => {
+    if (!moreInksLoading && !allItemsLoaded) {
+      setMoreInksLoading(true);
+      await fetchMore({
+        variables: {
+          skip: inks.length,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return previousResult;
+          return fetchMoreResult;
+        },
+      });
+    }
+  };
+
   useEffect(() => {
     const getInks = async (data: Ink[]) => {
       const metadataPromises = data.slice(0, ITEMS_PER_PAGE).map(ink => getMetadata(ink.jsonUrl));
@@ -54,20 +69,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
     data !== undefined && data.artists[0] ? getInks(data.artists[0].inks) : console.log("loading");
   }, [data]);
 
-  useInfiniteScroll(async () => {
-    if (!moreInksLoading && !allItemsLoaded) {
-      setMoreInksLoading(true);
-      await fetchMore({
-        variables: {
-          skip: inks.length,
-        },
-        updateQuery: (previousResult, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return previousResult;
-          return fetchMoreResult;
-        },
-      });
-    }
-  }, inks.length);
+  useInfiniteScroll(loadMoreInks, inks.length);
 
   const items: TabsProps["items"] = [
     {
@@ -78,7 +80,12 @@ const Artist = ({ params }: { params: { address: string } }) => {
           {loading ? (
             <Loader />
           ) : (
-            <InkListArtist inks={inks} isInksLoading={moreInksLoading} allItemsLoaded={allItemsLoaded} />
+            <InkListArtist
+              inks={inks}
+              isInksLoading={moreInksLoading}
+              allItemsLoaded={allItemsLoaded}
+              loadMoreInks={loadMoreInks}
+            />
           )}
         </>
       ),
@@ -116,7 +123,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
     <div className="mx-auto flex flex-col justify-center">
       <Profile address={address} />
 
-      <Tabs defaultActiveKey="1" type="card" centered items={items}></Tabs>
+      <Tabs defaultActiveKey="1" type="card" centered items={items} />
     </div>
   );
 };

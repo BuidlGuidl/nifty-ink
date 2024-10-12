@@ -13,6 +13,7 @@ type InkListProps = {
   connectedAddress?: string | undefined;
   isInksLoading: boolean;
   allItemsLoaded: boolean;
+  loadMoreInks: () => void;
 };
 
 export const InkListArtist = ({
@@ -21,6 +22,7 @@ export const InkListArtist = ({
   connectedAddress,
   allItemsLoaded,
   isInksLoading,
+  loadMoreInks,
 }: InkListProps) => {
   return (
     <div className="max-w-2xl mx-auto text-center">
@@ -64,6 +66,7 @@ export const InkListArtist = ({
                 allItemsLoaded={allItemsLoaded}
                 allItemsLoadedText={"All inks were loaded."}
                 moreInksLoading={isInksLoading}
+                loadMoreInks={loadMoreInks}
               />
             </>
           ) : (
