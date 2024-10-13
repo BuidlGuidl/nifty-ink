@@ -85,7 +85,7 @@ export const MainnetChainInks = ({ address, connectedAddress }: { address: strin
   if (loadingMain || loadingMainInks) return <Loader />;
 
   return (
-    <div className={`flex flex-col justify-center  ${TEXT_PRIMARY_COLOR}`}>
+    <div className={`flex flex-col justify-center ${TEXT_PRIMARY_COLOR}`}>
       <div className="flex justify-center gap-8 text-center mb-5">
         <div>
           <b>All Holdings:</b> {dataRaw && dataRaw.tokens ? parseInt(dataRaw.tokens.length) : 0}
@@ -122,11 +122,7 @@ export const MainnetChainInks = ({ address, connectedAddress }: { address: strin
                     fontWeight: "bold",
                   }}
                 >
-                  <Link
-                    href={{ pathname: "/ink/" + token.ink.id }}
-                    style={{ color: "black" }}
-                    className="flex flex-col items-center"
-                  >
+                  <Link href={{ pathname: "/ink/" + token.ink.id }} className={`${TEXT_PRIMARY_COLOR}`}>
                     <Image
                       src={token?.ink?.metadata?.image as string}
                       alt={token?.ink?.metadata?.name as string}
