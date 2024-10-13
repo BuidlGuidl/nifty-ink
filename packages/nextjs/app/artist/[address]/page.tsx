@@ -12,6 +12,7 @@ import { SearchAddress } from "~~/app/_components/SearchAddress";
 import StatCard from "~~/app/_components/StatCard";
 import Loader from "~~/components/Loader";
 import useInfiniteScroll from "~~/hooks/useInfiniteScroll";
+import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 import { getMetadata } from "~~/utils/helpers";
 
 const ITEMS_PER_PAGE = 15;
@@ -74,7 +75,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
   const items: TabsProps["items"] = [
     {
       key: "1",
-      label: "🖼️ Inks",
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🖼️ Inks</p>,
       children: (
         <>
           {loading ? (
@@ -92,9 +93,9 @@ const Artist = ({ params }: { params: { address: string } }) => {
     },
     {
       key: "2",
-      label: "📈 Statistics",
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>📈 Statistics</p>,
       children: (
-        <div className="flex flex-wrap justify-center p-0 my-0 mx-5">
+        <div className={`flex flex-wrap justify-center p-0 my-0 mx-5 ${TEXT_PRIMARY_COLOR}`}>
           <StatCard name={"Inks created"} value={data?.artists.length ? data?.artists[0].inkCount : 0} emoji={"🖼️"} />
           <StatCard name={"Inks sold"} value={data?.artists.length ? data?.artists[0].saleCount : 0} emoji={"🖼️"} />
           <StatCard name={"Likes"} value={data?.artists.length ? data?.artists?.[0].likeCount : 0} emoji={"👍"} />
@@ -108,22 +109,24 @@ const Artist = ({ params }: { params: { address: string } }) => {
     },
     {
       key: "3",
-      label: "🕗 Recent activity",
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🕗 Recent activity</p>,
       children: <RecentActivity address={address} />,
     },
 
     {
       key: "4",
-      label: "🔍 Search artists",
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🔍 Search artists</p>,
       children: <SearchAddress redirectToPage="artist" placeholderText="Search artist" />,
     },
   ];
 
   return (
-    <div className="mx-auto flex flex-col justify-center">
-      <Profile address={address} />
+    <div className="flex justify-center">
+      <div className="min-w-xl">
+        <Profile address={address} />
 
-      <Tabs defaultActiveKey="1" type="card" centered items={items} />
+        <Tabs defaultActiveKey="1" type="line" centered items={items} />
+      </div>
     </div>
   );
 };

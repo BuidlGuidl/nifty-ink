@@ -5,12 +5,13 @@ import Link from "next/link";
 import xDai from "../../../public/xDai.png";
 import { LinkOutlined } from "@ant-design/icons";
 import { useQuery } from "@apollo/client";
-import { Button, Typography } from "antd";
+import { Button } from "antd";
 import dayjs from "dayjs";
 import { formatEther } from "viem";
 import { ARTIST_RECENT_ACTIVITY_QUERY, FIRST_ARTIST_ACTIVITY_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
+import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 import { calculateStartingDate } from "~~/utils/helpers";
 
 interface SearchAddressProps {
@@ -159,7 +160,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
   };
 
   return (
-    <div className="flex justify-center gap-5">
+    <div className={`flex justify-center gap-5 ${TEXT_PRIMARY_COLOR}`}>
       {isActivityLoading ? (
         <Loader />
       ) : (
@@ -183,14 +184,14 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                       </div>
                     </Link>
 
-                    <div style={{ margin: "10px 12px", color: "#525252" }}>
+                    <div style={{ margin: "10px 12px" }}>
                       {e.type === "like" ? (
-                        <Typography.Text className="inline-flex">
+                        <div className="flex items-center text-sm">
                           <Address address={e.liker} disableAddressLink={true} format="short" size="xs" /> liked this
                           ink
-                        </Typography.Text>
+                        </div>
                       ) : e.type === "sale" ? (
-                        <Typography.Text className="inline-flex">
+                        <p className="m-0 inline-flex">
                           Bought by <Address address={e.buyer} disableAddressLink={true} format="short" size="xs" />
                           for {formatEther(BigInt(e.price!))}{" "}
                           <img src={xDai.src} alt="xdai" className="ml-[1px] mr-[3px]" />{" "}
@@ -201,9 +202,9 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                           >
                             <LinkOutlined />
                           </a>
-                        </Typography.Text>
+                        </p>
                       ) : e.type === "send" ? (
-                        <Typography.Text className="inline-flex">
+                        <p className="m-0 inline-flex">
                           <Address address={e.from} disableAddressLink={true} format="short" size="xs" />
                           sent to <Address address={e.to} disableAddressLink={true} format="short" size="xs" />
                           <a
@@ -213,9 +214,9 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                           >
                             <LinkOutlined />
                           </a>
-                        </Typography.Text>
+                        </p>
                       ) : e.type === "burn" ? (
-                        <Typography.Text className="inline-flex">
+                        <p className="m-0 inline-flex">
                           Ink burned by
                           <Address
                             address={e.from === zeroAddress ? address : e.from}
@@ -230,11 +231,11 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                           >
                             <LinkOutlined />
                           </a>
-                        </Typography.Text>
+                        </p>
                       ) : e.type === "create" ? (
-                        <Link href={{ pathname: "/ink/" + e.inkId }}>Created a new ink</Link>
+                        <p className="m-0">Created a new ink</p>
                       ) : (
-                        <Typography.Text className="inline-flex">
+                        <p className="m-0">
                           Ink minted
                           <a
                             href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
@@ -243,15 +244,13 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                           >
                             <LinkOutlined />
                           </a>
-                        </Typography.Text>
+                        </p>
                       )}
-                      <p className="m-0 text-gray-500 text-xs mt-0.5">
-                        {dayjs.unix(e.createdAt).format("DD MMM YYYY, HH:mma")}
-                      </p>
+                      <p className="m-0 text-xs mt-0.5">{dayjs.unix(e.createdAt).format("DD MMM YYYY, HH:mma")}</p>
                     </div>
                   </li>
                 ))}
-              <div className="flex justify-center text-gray-600">
+              <div className="flex justify-center">
                 {`Since ${new Date(startFrom * 1000).toISOString().slice(0, 10)}`}
               </div>
               {activity[activity.length - 1].createdAt > userFirstActivity && (
@@ -261,7 +260,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
               )}
             </ul>
           ) : (
-            <Typography.Title level={4}>No activities found for this address</Typography.Title>
+            <p className="text-lg">No activities found for this address</p>
           )}
         </div>
       )}
