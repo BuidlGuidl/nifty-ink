@@ -187,12 +187,25 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                     <div style={{ margin: "10px 12px" }}>
                       {e.type === "like" ? (
                         <div className="flex items-center text-sm">
-                          <Address address={e.liker} disableAddressLink={true} format="short" size="xs" /> liked this
-                          ink
+                          <Address
+                            address={e.liker}
+                            disableAddressLink={true}
+                            showCopy={true}
+                            format="short"
+                            size="xs"
+                          />{" "}
+                          liked this ink
                         </div>
                       ) : e.type === "sale" ? (
                         <p className="m-0 inline-flex">
-                          Bought by <Address address={e.buyer} disableAddressLink={true} format="short" size="xs" />
+                          Bought by{" "}
+                          <Address
+                            address={e.buyer}
+                            disableAddressLink={true}
+                            showCopy={true}
+                            format="short"
+                            size="xs"
+                          />
                           for {formatEther(BigInt(e.price!))}{" "}
                           <img src={xDai.src} alt="xdai" className="ml-[1px] mr-[3px]" />{" "}
                           <a
@@ -205,8 +218,15 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                         </p>
                       ) : e.type === "send" ? (
                         <p className="m-0 inline-flex">
-                          <Address address={e.from} disableAddressLink={true} format="short" size="xs" />
-                          sent to <Address address={e.to} disableAddressLink={true} format="short" size="xs" />
+                          <Address
+                            address={e.from}
+                            disableAddressLink={true}
+                            showCopy={true}
+                            format="short"
+                            size="xs"
+                          />
+                          sent to{" "}
+                          <Address address={e.to} disableAddressLink={true} showCopy={true} format="short" size="xs" />
                           <a
                             href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
                             target="_blank"
@@ -221,6 +241,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                           <Address
                             address={e.from === zeroAddress ? address : e.from}
                             disableAddressLink={true}
+                            showCopy={true}
                             format="short"
                             size="xs"
                           />
