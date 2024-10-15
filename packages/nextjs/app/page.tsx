@@ -150,6 +150,23 @@ const Home: NextPage = () => {
     }
   };
 
+  const loadMoreInks = async () => {
+    if (!moreInksLoading) {
+      setMoreInksLoading(true);
+      await fetchMoreInks({
+        variables: {
+          skip: Object.values(inks).length,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return {
+            inks: [...prev?.inks, ...fetchMoreResult?.inks],
+          };
+        },
+      });
+    }
+  };
+
   useEffect(() => {
     if (data && data.inks) {
       getInks(data.inks);
@@ -169,22 +186,7 @@ const Home: NextPage = () => {
     setInkFilters(newFilters);
   }, [forSale, startDate, endDate]);
 
-  useInfiniteScroll(() => {
-    if (!moreInksLoading) {
-      setMoreInksLoading(true);
-      fetchMoreInks({
-        variables: {
-          skip: Object.values(inks).length,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
-          return {
-            inks: [...prev?.inks, ...fetchMoreResult?.inks],
-          };
-        },
-      });
-    }
-  }, Object.values(inks).length);
+  useInfiniteScroll(loadMoreInks, Object.values(inks).length);
 
   return (
     <div className="flex justify-center">
@@ -286,6 +288,7 @@ const Home: NextPage = () => {
             connectedAddress={connectedAddress}
             moreInksLoading={moreInksLoading}
             allItemsLoaded={allItemsLoaded}
+            loadMoreInks={loadMoreInks}
           />
         )}
       </div>

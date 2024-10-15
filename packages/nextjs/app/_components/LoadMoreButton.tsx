@@ -4,9 +4,15 @@ type LoadMoreButtonProps = {
   allItemsLoaded: boolean;
   allItemsLoadedText: string;
   moreInksLoading: boolean;
+  loadMoreInks?: () => void;
 };
 
-const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({ allItemsLoaded, allItemsLoadedText, moreInksLoading }) => {
+const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
+  allItemsLoaded,
+  allItemsLoadedText,
+  moreInksLoading,
+  loadMoreInks,
+}) => {
   return (
     <div className="flex items-center justify-center">
       <div aria-label="Page navigation" className="flex space-x-2">
@@ -14,7 +20,12 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({ allItemsLoaded, allItem
           {allItemsLoaded ? (
             <div className="mt-2 text-lg">{allItemsLoadedText}</div>
           ) : (
-            <button type="button" className="btn btn-primary mt-2 flex items-center" disabled={moreInksLoading}>
+            <button
+              type="button"
+              className="btn btn-primary mt-2 flex items-center"
+              disabled={moreInksLoading}
+              onClick={loadMoreInks}
+            >
               {moreInksLoading ? "Loading..." : "Load more"}
             </button>
           )}

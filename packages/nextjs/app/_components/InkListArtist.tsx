@@ -4,8 +4,9 @@ import Image from "next/image";
 import xDai from "../../public/xDai.png";
 import LoadMoreButton from "./LoadMoreButton";
 import { SingleInk } from "./SingleInk";
-import { Button, Divider, Typography } from "antd";
+import { Divider } from "antd";
 import { formatEther } from "viem";
+import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 
 type InkListProps = {
   inks: Ink[];
@@ -13,6 +14,7 @@ type InkListProps = {
   connectedAddress?: string | undefined;
   isInksLoading: boolean;
   allItemsLoaded: boolean;
+  loadMoreInks: () => void;
 };
 
 export const InkListArtist = ({
@@ -21,9 +23,10 @@ export const InkListArtist = ({
   connectedAddress,
   allItemsLoaded,
   isInksLoading,
+  loadMoreInks,
 }: InkListProps) => {
   return (
-    <div className="max-w-2xl mx-auto text-center">
+    <div className={`max-w-2xl mx-auto text-center ${TEXT_PRIMARY_COLOR}`}>
       <div className="flex items-center justify-center flex-col flex-grow">
         <ul className="">
           {inks.length > 0 ? (
@@ -33,7 +36,7 @@ export const InkListArtist = ({
                   <div className="flex flex-col items-center">
                     {ink?.bestPrice > 0 ? (
                       <div className="flex m-0">
-                        <p className="text-gray-600 m-0">
+                        <p className="text-gray-600 dark:text-gray-400 m-0">
                           <b>{parseFloat(formatEther(BigInt(ink?.bestPrice)))} </b>
                         </p>
                         <Image
@@ -53,8 +56,8 @@ export const InkListArtist = ({
                         className="ml-1 mb-1 invisible"
                       />
                     )}
-                    <Divider style={{ marginTop: 1, marginBottom: 0 }} />
-                    <p className="text-gray-600 m-0 text-sm">
+                    <div className="w-full h-px bg-gray-400 mb-1" />
+                    <p className="text-gray-600 dark:text-gray-400 m-0 text-sm">
                       {"Edition: " + ink?.count + (Number(ink?.limit) > 0 ? "/" + ink?.limit : "")}
                     </p>
                   </div>
@@ -64,10 +67,11 @@ export const InkListArtist = ({
                 allItemsLoaded={allItemsLoaded}
                 allItemsLoadedText={"All inks were loaded."}
                 moreInksLoading={isInksLoading}
+                loadMoreInks={loadMoreInks}
               />
             </>
           ) : (
-            <Typography.Title level={4}>No inks found for this address</Typography.Title>
+            <p className="text-lg">No inks found for this address</p>
           )}
         </ul>
       </div>

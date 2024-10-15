@@ -60,6 +60,21 @@ export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPl
   const pathname = usePathname();
   const { address: connectedAddress } = useAccount();
 
+  if (!connectedAddress) {
+    return (
+      <>
+        {menuLinks.map((item, index) => (
+          <li key={index} className="relative group mb-2">
+            <div className="py-1.5 px-3 text-sm rounded-full flex items-center">
+              <div className="w-4 h-4 bg-gray-200 rounded-full animate-pulse"></div>
+              <div className="w-16 h-4 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+          </li>
+        ))}
+      </>
+    );
+  }
+
   return (
     <>
       {menuLinks.map(({ label, href, icon, sublinks, subnames }) => {

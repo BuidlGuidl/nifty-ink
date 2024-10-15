@@ -40,6 +40,21 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
     },
   });
 
+  const loadMoreInks = async () => {
+    if (!moreInksLoading && tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id) {
+      setMoreInksLoading(true);
+      await fetchMore({
+        variables: {
+          skip: tokens.length,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return fetchMoreResult;
+        },
+      });
+    }
+  };
+
   const getTokens = async (data: Token[]): Promise<void> => {
     try {
       const processedTokens: Token[] = await Promise.all(
@@ -76,24 +91,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
     if (dataRaw) console.log(dataRaw?.tokens);
   }, [dataRaw]);
 
-  useInfiniteScroll(
-    async () => {
-      if (!moreInksLoading && tokens[tokens.length - 1]?.ink?.id !== firstHoldingActivity?.tokens?.[0]?.ink?.id) {
-        setMoreInksLoading(true);
-        await fetchMore({
-          variables: {
-            skip: tokens.length,
-          },
-          updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) return prev;
-            return fetchMoreResult;
-          },
-        });
-      }
-    },
-    tokens.length,
-    500,
-  );
+  useInfiniteScroll(loadMoreInks, tokens.length, 500);
 
   if (loading) return <Loader />;
 
@@ -205,6 +203,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
           allItemsLoaded={tokens[tokens.length - 1]?.ink?.id === firstHoldingActivity?.tokens?.[0]?.ink?.id}
           allItemsLoadedText={"All holdings were loaded."}
           moreInksLoading={moreInksLoading}
+          loadMoreInks={loadMoreInks}
         />
       </div>
     </div>
