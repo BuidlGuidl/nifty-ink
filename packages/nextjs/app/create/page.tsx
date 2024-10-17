@@ -39,7 +39,7 @@ import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { AlphaPicker, CirclePicker, SketchPicker, TwitterPicker } from "react-color";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useLocalStorage, useWindowSize } from "usehooks-ts";
+import { useDebounceCallback, useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -113,6 +113,7 @@ const CreateInk = () => {
   const mode = "edit";
   const [canvasKey, setCanvasKey] = useState(Date.now());
   const [ink, setInk] = useState({});
+  const [isDrawing, setIsDrawing] = useState(false);
 
   const recentColorCount = 24;
 
@@ -130,7 +131,7 @@ const CreateInk = () => {
   const [loaded, setLoaded] = useState(true);
   //const [loadedLines, setLoadedLines] = useState()
 
-  const [drawingSaved, setDrawingSaved] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const portraitRatio = 1.7;
   const portraitCalc = width / size[0] < portraitRatio;
@@ -190,6 +191,7 @@ const CreateInk = () => {
   }, []);
 
   const saveDrawing = (newDrawing: any, saveOverride: boolean) => {
+    setIsSaving(true);
     const colorPlaceholder = drawingCanvas?.current?.props.brushColor
       .substring(5)
       .replace(")", "")
@@ -205,14 +207,11 @@ const CreateInk = () => {
 
     currentLines.current = newDrawing.lines;
     //if(!loadedLines || newDrawing.lines.length >= loadedLines) {
-    if (saveOverride || newDrawing.lines.length < 100 || newDrawing.lines.length % 10 === 0) {
-      console.log("saving");
+    if (saveOverride) {
       const savedData = LZ.compress(newDrawing.getSaveData());
       setDrawing(savedData);
-      setDrawingSaved(true);
-    } else {
-      setDrawingSaved(false);
     }
+    setIsSaving(false);
     //}
   };
 
@@ -246,10 +245,11 @@ const CreateInk = () => {
         }
       }
       setLoaded(true);
+      setIsDrawing(false);
     };
     // window.drawingCanvas = drawingCanvas;
     loadPage();
-  }, [drawing]);
+  }, []);
 
   const pickerIndex = typeof picker === "number" ? picker % pickers.length : 0;
   const PickerDisplay: React.ComponentType<any> = pickers[pickerIndex];
@@ -502,6 +502,12 @@ const CreateInk = () => {
     });
   };
 
+  useEffect(() => {
+    if (isSaving) {
+      saveCanvas();
+    }
+  }, [isSaving]);
+
   let top, bottom, canvas, draftSaver;
   if (mode === "edit") {
     top = (
@@ -533,9 +539,7 @@ const CreateInk = () => {
         <div style={{ marginTop: 16 }}>
           <Tooltip title="save to local storage">
             <Button
-              disabled={
-                canvasDisabled || (drawingCanvas?.current?.lines && !drawingCanvas.current.lines.length) || false
-              }
+              disabled={canvasDisabled || isSaving}
               onClick={() => {
                 if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
                 saveDrawing(drawingCanvas.current, true);
@@ -543,7 +547,7 @@ const CreateInk = () => {
               }}
               icon={<SaveOutlined />}
             >
-              {`${!drawingSaved ? "SAVE *" : "SAVED"}`}
+              {`${isSaving ? "SAVING..." : "SAVE"}`}
             </Button>
           </Tooltip>
           <Button
@@ -791,12 +795,22 @@ const CreateInk = () => {
   }
 
   const saveCanvas = () => {
-    if (canvasDisabled) {
-      console.log("Canvas disabled");
+    if (canvasDisabled || isDrawing) {
+      console.log("Canvas disabled or drawing");
     } else {
-      saveDrawing(drawingCanvas.current, false);
+      saveDrawing(drawingCanvas.current, true);
     }
   };
+
+  const debouncedSaveCanvas = useDebounceCallback(() => {
+    setIsSaving(true);
+  }, 2000);
+
+  useEffect(() => {
+    return () => {
+      debouncedSaveCanvas.cancel();
+    };
+  }, [debouncedSaveCanvas]);
 
   const handleCanvasChange = () => {
     if (drawingCanvas && drawingCanvas.current) {
@@ -821,10 +835,9 @@ const CreateInk = () => {
               boxShadow: "2px 2px 8px #AAAAAA",
               cursor: "pointer",
             }}
-            onMouseUp={saveCanvas}
-            onTouchEnd={saveCanvas}
+            onMouseUp={debouncedSaveCanvas}
+            onTouchEnd={debouncedSaveCanvas}
           >
-            {!loaded && <Loader />}
             <CanvasDraw
               key={mode + "" + canvasKey}
               ref={drawingCanvas}
