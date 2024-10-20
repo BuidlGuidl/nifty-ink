@@ -8,21 +8,16 @@ import { CanvasActions } from "./_components/CanvasActions";
 import { CanvasControls } from "./_components/CanvasControls";
 import { CreateInkForm } from "./_components/CreateInkForm";
 import { DraftManager } from "./_components/DraftManager";
+import { useCreateInk } from "./_hooks/useCreateInk";
 import "./styles.css";
-import { message } from "antd";
-import * as Hash from "ipfs-only-hash";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useDebounceCallback, useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { CanvasDrawLines, Lines } from "~~/types/ink";
-import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
 import { getColorOptions } from "~~/utils/constants";
-import { addToIPFS } from "~~/utils/ipfs";
-import { notification } from "~~/utils/scaffold-eth";
 
 const CreateInk = () => {
   const router = useRouter();
@@ -40,10 +35,7 @@ const CreateInk = () => {
   });
   const [_, setDrafts] = useLocalStorage<Draft[]>("drafts", []);
   const [canvasFile, setCanvasFile] = useState<any>(null);
-  const [drawing, setDrawing] = useLocalStorage("drawing", "");
-  const mode = "edit";
-  const [canvasKey, setCanvasKey] = useState(Date.now());
-  const [ink, setInk] = useState({});
+  const [drawing, setDrawing] = useLocalStorage<string>("drawing", "");
   const [isDrawing, setIsDrawing] = useState(false);
 
   const recentColorCount = 24;
@@ -54,12 +46,9 @@ const CreateInk = () => {
 
   const [size, setSize] = useState([calculatedCanvaSize, calculatedCanvaSize]); //["70vmin", "70vmin"]) //["50vmin", "50vmin"][750, 500]
 
-  const [sending, setSending] = useState<boolean>(false);
-
   const [initialDrawing, setInitialDrawing] = useState<string>("");
   const currentLines = useRef<Lines[]>([]);
   const [canvasDisabled, setCanvasDisabled] = useState(false);
-  const [loaded, setLoaded] = useState(true);
   //const [loadedLines, setLoadedLines] = useState()
 
   const [isSaving, setIsSaving] = useState(false);
@@ -68,7 +57,11 @@ const CreateInk = () => {
   const portraitCalc = width / size[0] < portraitRatio;
 
   const [portrait, setPortrait] = useState(false);
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("NiftyInk");
+
+  const handleChangeDrawing = (newDrawing: string) => {
+    setDrawing(newDrawing);
+  };
+
   useEffect(() => {
     setIsClient(true); // To avoid hydration error
     setPortrait(portraitCalc);
@@ -140,11 +133,19 @@ const CreateInk = () => {
     //if(!loadedLines || newDrawing.lines.length >= loadedLines) {
     if (saveOverride) {
       const savedData = LZ.compress(newDrawing.getSaveData());
-      setDrawing(savedData);
+      handleChangeDrawing(savedData);
     }
     setIsSaving(false);
     //}
   };
+
+  const { createInk, sending, setSending } = useCreateInk(
+    drawingCanvas,
+    connectedAddress,
+    router,
+    saveDrawing,
+    handleChangeDrawing,
+  );
 
   useEffect(() => {
     if (brushRadius <= 1) {
@@ -175,107 +176,11 @@ const CreateInk = () => {
           console.log(e);
         }
       }
-      setLoaded(true);
       setIsDrawing(false);
     };
     // window.drawingCanvas = drawingCanvas;
     loadPage();
   }, []);
-
-  const createInk = async (values: any) => {
-    if (!drawingCanvas?.current) {
-      notification.error("Your canvas is empty");
-      return;
-    }
-    console.log("Inking:", values);
-
-    setSending(true);
-
-    const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
-
-    saveDrawing(drawingCanvas.current, true);
-
-    //let decompressed = LZ.decompress(props.drawing)
-    //let compressedArray = LZ.compressToUint8Array(decompressed)
-    const compressedArray = LZ.compressToUint8Array(drawingCanvas?.current?.getSaveData());
-
-    const drawingBuffer = Buffer.from(compressedArray);
-    const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
-
-    const drawingHash = await Hash.of(drawingBuffer);
-    console.log("drawingHash", drawingHash);
-
-    const imageHash = await Hash.of(imageBuffer);
-    console.log("imageHash", imageHash);
-
-    const timeInMs = new Date();
-
-    const currentInk = {
-      // ...ink,
-      attributes: [
-        {
-          trait_type: "Limit",
-          value: values.limit.toString(),
-        },
-      ],
-      name: values.title,
-      description: `A Nifty Ink by ${connectedAddress} on ${timeInMs}`,
-      drawing: drawingHash,
-      image: `https://ipfs.io/ipfs/${imageHash}`,
-      external_url: `https://nifty.ink/${drawingHash}`,
-    };
-
-    const inkStr = JSON.stringify(currentInk);
-    const inkBuffer = Buffer.from(inkStr);
-
-    const jsonHash = await Hash.of(inkBuffer);
-    console.log("jsonHash", jsonHash);
-
-    let drawingResultInfura;
-    let imageResultInfura;
-    let inkResultInfura;
-
-    try {
-      const drawingResult = addToIPFS(drawingBuffer);
-      const imageResult = addToIPFS(imageBuffer);
-      const inkResult = addToIPFS(inkBuffer);
-
-      // drawingResultInfura = addToIPFS(drawingBuffer, props.ipfsConfigInfura);
-      // imageResultInfura = addToIPFS(imageBuffer, props.ipfsConfigInfura);
-      // inkResultInfura = addToIPFS(inkBuffer, props.ipfsConfigInfura);
-
-      await Promise.all([drawingResult, imageResult, inkResult]).then(values => {
-        console.log("FINISHED UPLOADING TO PINNER", values);
-        message.destroy();
-      });
-    } catch (e) {
-      console.log(e);
-      setSending(false);
-      notification.error("📛 Ink upload failed. Please wait a moment and try again ${e.message}");
-
-      return;
-    }
-
-    await checkAddressAndFund(connectedAddress);
-
-    try {
-      await writeYourContractAsync({
-        functionName: "createInk",
-        args: [drawingHash, jsonHash, values.limit.toString()],
-      });
-
-      Promise.all([drawingResultInfura, imageResultInfura, inkResultInfura]).then(values => {
-        console.log("INFURA FINISHED UPLOADING!", values);
-      });
-
-      router.push("/ink/" + drawingHash);
-      setSending(false);
-      setDrawing("");
-    } catch (e) {
-      console.log(e);
-      setSending(false);
-    }
-  };
 
   const triggerOnChange = (lines: Lines[]) => {
     if (!lines) return;
@@ -455,7 +360,7 @@ const CreateInk = () => {
             drawingCanvas={drawingCanvas}
             saveDrawing={saveDrawing}
             undo={undo}
-            setDrawing={setDrawing}
+            handleChangeDrawing={handleChangeDrawing}
             setCanvasDisabled={setCanvasDisabled}
           />
         </div>
@@ -475,7 +380,7 @@ const CreateInk = () => {
             onTouchEnd={debouncedSaveCanvas}
           >
             <CanvasDraw
-              key={mode + "" + canvasKey}
+              // key={mode + "" + canvasKey}
               ref={drawingCanvas}
               canvasWidth={size[0]}
               canvasHeight={size[1]}
@@ -505,7 +410,7 @@ const CreateInk = () => {
               drawingCanvas={drawingCanvas}
               saveDrawing={saveDrawing}
               undo={undo}
-              setDrawing={setDrawing}
+              handleChangeDrawing={handleChangeDrawing}
               setCanvasDisabled={setCanvasDisabled}
             />
           </>

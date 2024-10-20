@@ -9,7 +9,7 @@ interface CanvasControlsProps {
   drawingCanvas: React.RefObject<CanvasDrawLines>;
   saveDrawing: (canvas: CanvasDrawLines, showNotification: boolean) => void;
   undo: () => void;
-  setDrawing: React.Dispatch<React.SetStateAction<string>>;
+  handleChangeDrawing: (newDrawing: string) => void;
   setCanvasDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -19,7 +19,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   drawingCanvas,
   saveDrawing,
   undo,
-  setDrawing,
+  handleChangeDrawing,
   setCanvasDisabled,
 }) => {
   return (
@@ -51,7 +51,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         onConfirm={() => {
           if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
           drawingCanvas?.current?.clear();
-          setDrawing("");
+          handleChangeDrawing("");
         }}
         okText="Yes"
         cancelText="No"
