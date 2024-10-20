@@ -12,6 +12,7 @@ import { SearchAddress } from "~~/app/_components/SearchAddress";
 import StatCard from "~~/app/_components/StatCard";
 import Loader from "~~/components/Loader";
 import useInfiniteScroll from "~~/hooks/useInfiniteScroll";
+import { Ink } from "~~/types/ink";
 import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 import { getMetadata } from "~~/utils/helpers";
 
