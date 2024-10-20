@@ -14,11 +14,13 @@ import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import "./styles.css";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
-import { useDebounceCallback, useLocalStorage, useWindowSize } from "usehooks-ts";
+import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines, Lines } from "~~/types/ink";
 import { getColorOptions } from "~~/utils/constants";
+
+const compressionWorker = new Worker(new URL("./compressionWorker.ts", import.meta.url));
 
 const parseRGBA = (color: string): number[] => {
   return color
@@ -120,13 +122,16 @@ const CreateInk = () => {
     }
 
     currentLines.current = newDrawing.lines;
-    //if(!loadedLines || newDrawing.lines.length >= loadedLines) {
-    if (saveOverride) {
-      const savedData = LZ.compress(newDrawing.getSaveData());
-      handleChangeDrawing(savedData);
+    if (saveOverride || newDrawing.lines.length < 100 || newDrawing.lines.length % 20 === 0) {
+      // Send data to the worker
+      compressionWorker.postMessage(newDrawing.getSaveData());
+      // Listen for the worker's response
+      compressionWorker.onmessage = function (event) {
+        const savedData = event.data;
+        setDrawing(savedData);
+      };
     }
     setIsSaving(false);
-    //}
   };
 
   const { createInk, sending, setSending } = useCreateInk(
@@ -160,7 +165,7 @@ const CreateInk = () => {
       }
       setIsDrawing(false);
     };
-    // window.drawingCanvas = drawingCanvas;
+
     loadPage();
   }, []);
 
@@ -175,7 +180,7 @@ const CreateInk = () => {
 
     drawingCanvas?.current?.loadSaveData(saved, true);
     drawingCanvas.current.lines = lines;
-    saveDrawing(drawingCanvas.current, true);
+    saveDrawing(drawingCanvas.current, false);
   };
 
   const { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame, saveDraft } = useCanvasActions(
@@ -196,29 +201,13 @@ const CreateInk = () => {
 
   const uploadRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    if (isSaving) {
-      saveCanvas();
-    }
-  }, [isSaving]);
-
   const saveCanvas = () => {
     if (canvasDisabled || isDrawing) {
       console.log("Canvas disabled or drawing");
     } else {
-      saveDrawing(drawingCanvas.current, true);
+      saveDrawing(drawingCanvas.current, false);
     }
   };
-
-  const debouncedSaveCanvas = useDebounceCallback(() => {
-    setIsSaving(true);
-  }, 2000);
-
-  useEffect(() => {
-    return () => {
-      debouncedSaveCanvas.cancel();
-    };
-  }, [debouncedSaveCanvas]);
 
   const handleCanvasChange = () => {
     if (drawingCanvas && drawingCanvas.current) {
@@ -258,8 +247,8 @@ const CreateInk = () => {
               boxShadow: "2px 2px 8px #AAAAAA",
               cursor: "pointer",
             }}
-            onMouseUp={debouncedSaveCanvas}
-            onTouchEnd={debouncedSaveCanvas}
+            onMouseUp={saveCanvas}
+            onTouchEnd={saveCanvas}
           >
             <CanvasDraw
               ref={drawingCanvas}
@@ -269,8 +258,6 @@ const CreateInk = () => {
               lazyRadius={1}
               brushRadius={brushRadius}
               disabled={canvasDisabled}
-              //  hideGrid={props.mode !== "edit"}
-              //  hideInterface={props.mode !== "edit"}
               onChange={handleCanvasChange}
               saveData={initialDrawing}
               immediateLoading={true} //drawingSize >= 10000}

@@ -56,7 +56,12 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         okText="Yes"
         cancelText="No"
       >
-        <Button icon={<ClearOutlined />}>CLEAR</Button>
+        <Button
+          disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
+          icon={<ClearOutlined />}
+        >
+          CLEAR
+        </Button>
       </Popconfirm>
       <Button
         disabled={canvasDisabled || !drawingCanvas.current?.lines?.length}
