@@ -7,6 +7,7 @@ export const useCanvasActions = (
   triggerOnChange: (lines: Lines[]) => void,
   setDrafts: any,
   setCanvasFile: any,
+  saveDrawing: any,
 ) => {
   const undo = useCallback(() => {
     if (!drawingCanvas?.current?.lines?.length) return;
@@ -38,11 +39,9 @@ export const useCanvasActions = (
 
   const uploadCanvas = useCallback(
     (uploadedDrawing: React.ChangeEvent<HTMLInputElement>) => {
-      const fileReader = new FileReader();
-      fileReader.readAsText(uploadedDrawing.target.files![0], "UTF-8");
-      fileReader.onload = e => {
-        setCanvasFile(JSON.parse(e.target!.result as string));
-      };
+      drawingCanvas?.current?.loadSaveData(uploadedDrawing);
+      saveDrawing(drawingCanvas.current, true);
+      setCanvasFile(undefined);
     },
     [drawingCanvas, setCanvasFile],
   );

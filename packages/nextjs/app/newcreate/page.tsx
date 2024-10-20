@@ -20,6 +20,18 @@ import Loader from "~~/components/Loader";
 import { CanvasDrawLines, Lines } from "~~/types/ink";
 import { getColorOptions } from "~~/utils/constants";
 
+const parseRGBA = (color: string): number[] => {
+  return color
+    .substring(5)
+    .replace(")", "")
+    .split(",")
+    .map(e => parseFloat(e));
+};
+
+const createRGBA = (r: number, g: number, b: number, a: number): string => {
+  return `rgba(${r},${g},${b},${a})`;
+};
+
 const CreateInk = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
@@ -50,7 +62,6 @@ const CreateInk = () => {
   const [initialDrawing, setInitialDrawing] = useState<string>("");
   const currentLines = useRef<Lines[]>([]);
   const [canvasDisabled, setCanvasDisabled] = useState(false);
-  //const [loadedLines, setLoadedLines] = useState()
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -73,7 +84,7 @@ const CreateInk = () => {
   }, [portraitCalc]);
 
   const updateBrushRadius = useCallback((value: number | null) => {
-    if (value !== null) {
+    if (value !== null && value >= 1 && value <= 100) {
       setBrushRadius(value);
     }
   }, []);
@@ -85,39 +96,28 @@ const CreateInk = () => {
 
   const updateOpacity = useCallback((value: number) => {
     if (!drawingCanvas.current) return;
-    const colorPlaceholder = drawingCanvas.current.props.brushColor
-      .substring(5)
-      .replace(")", "")
-      .split(",")
-      .map((e: string) => parseFloat(e));
 
-    if ((colorPlaceholder[3] <= 0.01 && value < 0) || (colorPlaceholder[3] <= 0.1 && value < -0.01)) {
-      setColor(`rgba(${colorPlaceholder[0]},${colorPlaceholder[1]},${colorPlaceholder[2]},${0})`);
-    } else if ((colorPlaceholder[3] >= 0.99 && value > 0) || (colorPlaceholder[3] >= 0.9 && value > 0.01)) {
-      setColor(`rgba(${colorPlaceholder[0]},${colorPlaceholder[1]},${colorPlaceholder[2]},${1})`);
-    } else {
-      setColor(
-        `rgba(${colorPlaceholder[0]},${colorPlaceholder[1]},${colorPlaceholder[2]},${(
-          colorPlaceholder[3] + value
-        ).toFixed(2)})`,
-      );
-    }
+    const [r, g, b, a] = parseRGBA(drawingCanvas.current.props.brushColor);
+
+    let newOpacity = a + value;
+    if (newOpacity <= 0.01) newOpacity = 0;
+    if (newOpacity >= 0.99) newOpacity = 1;
+
+    setColor(createRGBA(r, g, b, newOpacity));
   }, []);
 
   const saveDrawing = (newDrawing: any, saveOverride: boolean) => {
     setIsSaving(true);
-    const colorPlaceholder = drawingCanvas?.current?.props.brushColor
-      .substring(5)
-      .replace(")", "")
-      .split(",")
-      .map(e => parseFloat(e));
-    if (!colorPlaceholder) return;
-    const opaqueColor = `rgba(${colorPlaceholder[0]},${colorPlaceholder[1]},${colorPlaceholder[2]},1)`;
-    if (!recentColors.slice(-recentColorCount).includes(opaqueColor)) {
-      console.log(opaqueColor, "adding to recent");
-      setRecentColors(prevItems => [...prevItems.slice(-recentColorCount + 1), opaqueColor]);
+
+    if (drawingCanvas?.current?.props.brushColor) {
+      const [r, g, b] = parseRGBA(drawingCanvas.current.props.brushColor);
+      const opaqueColor = createRGBA(r, g, b, 1);
+
+      if (!recentColors.slice(-recentColorCount).includes(opaqueColor)) {
+        console.log(opaqueColor, "adding to recent");
+        setRecentColors(prevItems => [...prevItems.slice(-recentColorCount + 1), opaqueColor]);
+      }
     }
-    // console.log(recentColors)
 
     currentLines.current = newDrawing.lines;
     //if(!loadedLines || newDrawing.lines.length >= loadedLines) {
@@ -136,14 +136,6 @@ const CreateInk = () => {
     saveDrawing,
     handleChangeDrawing,
   );
-
-  useEffect(() => {
-    if (brushRadius <= 1) {
-      setBrushRadius(1);
-    } else if (brushRadius >= 100) {
-      setBrushRadius(100);
-    }
-  }, [brushRadius, updateBrushRadius, updateOpacity]);
 
   useEffect(() => {
     const loadPage = async () => {
@@ -191,6 +183,7 @@ const CreateInk = () => {
     triggerOnChange,
     setDrafts,
     setCanvasFile,
+    saveDrawing,
   );
 
   const uploadFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
