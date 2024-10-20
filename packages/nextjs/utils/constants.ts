@@ -130,33 +130,33 @@ export const shortCutsInfo = [
   { key: "2", shortcut: "]", action: "Increase brush size by 1" },
   {
     key: "3",
-    shortcut: "Shift+]",
+    shortcut: "Ctrl+]",
     action: "Increase brush size by 10",
   },
   { key: "4", shortcut: "[", action: "Decrease brush size by 1" },
   {
     key: "5",
-    shortcut: "Shift+[",
+    shortcut: "Ctrl+[",
     action: "Decrease brush size by 10",
   },
   {
     key: "6",
-    shortcut: "> ",
+    shortcut: "p",
     action: "Increase current color opacity by 1%",
   },
   {
     key: "7",
-    shortcut: "Shift+> ",
+    shortcut: "Ctrl+p",
     action: "Increase current color opacity by 10%",
   },
   {
     key: "8",
-    shortcut: "<",
+    shortcut: "o",
     action: "Decrease current color opacity by 1%",
   },
   {
     key: "9",
-    shortcut: "Shift+< ",
+    shortcut: "Ctrl+o",
     action: "Decrease current color opacity by 10%",
   },
 ];

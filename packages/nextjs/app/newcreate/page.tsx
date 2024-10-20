@@ -10,10 +10,10 @@ import { CreateInkForm } from "./_components/CreateInkForm";
 import { DraftManager } from "./_components/DraftManager";
 import { useCanvasActions } from "./_hooks/useCanvasActions";
 import { useCreateInk } from "./_hooks/useCreateInk";
+import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import "./styles.css";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
-import { useHotkeys } from "react-hotkeys-hook";
 import { useDebounceCallback, useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
@@ -71,17 +71,6 @@ const CreateInk = () => {
   useEffect(() => {
     setPortrait(portraitCalc);
   }, [portraitCalc]);
-
-  //Keyboard shortcuts
-  // useHotkeys("ctrl+z", () => undo());
-  useHotkeys("]", () => updateBrushRadius(brushRadius + 1));
-  // useHotkeys("shift+]", () => updateBrushRadius(brushRadius + 10), { ignoreModifiers: true, preventDefault: true });
-  useHotkeys("[", () => updateBrushRadius(brushRadius - 1));
-  // useHotkeys("shift+[", () => updateBrushRadius(brushRadius - 10));
-  useHotkeys(".", () => updateOpacity(0.01));
-  // useHotkeys("shift+.", () => updateOpacity(0.1));
-  useHotkeys(",", () => updateOpacity(-0.01));
-  // useHotkeys("shift+,", () => updateOpacity(-0.1));
 
   const updateBrushRadius = useCallback((value: number | null) => {
     if (value !== null) {
@@ -246,6 +235,8 @@ const CreateInk = () => {
       }
     }
   };
+
+  useHotkeyBindings(brushRadius, updateBrushRadius, updateOpacity, undo);
 
   return (
     <div className="create-ink-container mt-5">
