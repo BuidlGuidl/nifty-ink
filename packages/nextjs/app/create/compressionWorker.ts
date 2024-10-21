@@ -1,4 +1,3 @@
-// compressionWorker.ts
 import LZ from "lz-string";
 
 self.onmessage = function (event) {
