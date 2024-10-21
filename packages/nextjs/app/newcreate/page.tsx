@@ -20,7 +20,7 @@ import Loader from "~~/components/Loader";
 import { CanvasDrawLines, Lines } from "~~/types/ink";
 import { getColorOptions } from "~~/utils/constants";
 
-const compressionWorker = new Worker(new URL("./compressionWorker.ts", import.meta.url));
+let compressionWorker: Worker | null = null;
 
 const parseRGBA = (color: string): number[] => {
   return color
@@ -79,6 +79,20 @@ const CreateInk = () => {
   useEffect(() => {
     setIsClient(true); // To avoid hydration error
     setPortrait(portraitCalc);
+
+    // Check if the window object is available to ensure this runs only on the client side
+    if (typeof window !== "undefined") {
+      // Dynamically import the worker
+      compressionWorker = new Worker(new URL("./compressionWorker.ts", import.meta.url));
+    }
+
+    // Cleanup the worker on component unmount
+    return () => {
+      if (compressionWorker) {
+        compressionWorker.terminate();
+        compressionWorker = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -122,13 +136,21 @@ const CreateInk = () => {
     }
 
     currentLines.current = newDrawing.lines;
-    if (saveOverride || newDrawing.lines.length < 100 || newDrawing.lines.length % 20 === 0) {
+    const isToSave =
+      saveOverride ||
+      newDrawing.lines.length < 100 ||
+      (newDrawing.lines.length < 600 && newDrawing.lines.length % 10 === 0) ||
+      newDrawing.lines.length % 20 === 0;
+
+    if (isToSave && compressionWorker) {
       // Send data to the worker
+      console.log("sending to worker");
       compressionWorker.postMessage(newDrawing.getSaveData());
       // Listen for the worker's response
       compressionWorker.onmessage = function (event) {
         const savedData = event.data;
         setDrawing(savedData);
+        console.log("saved");
       };
     }
     setIsSaving(false);
