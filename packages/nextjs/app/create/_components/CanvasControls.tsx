@@ -1,7 +1,7 @@
 import React from "react";
 import { ClearOutlined, PlaySquareOutlined, SaveOutlined, UndoOutlined } from "@ant-design/icons";
 import { Button, Popconfirm, Tooltip } from "antd";
-import { CanvasDrawLines } from "~~/types/ink";
+import { CanvasDrawLines } from "~~/types/canvasDrawing";
 
 interface CanvasControlsProps {
   canvasDisabled: boolean;

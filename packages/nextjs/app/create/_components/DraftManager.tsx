@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { BookOutlined, DownloadOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Modal, Popconfirm, Tooltip } from "antd";
-import { CanvasDrawLines } from "~~/types/ink";
+import { CanvasDrawLines } from "~~/types/canvasDrawing";
 
 interface DraftManagerProps {
   saveDraft: () => void;
