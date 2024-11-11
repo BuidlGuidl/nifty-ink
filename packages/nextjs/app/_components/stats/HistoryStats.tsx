@@ -62,9 +62,7 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData }) => {
 
   return (
     <div className="flex flex-col justify-center items-center mt-5">
-      {/* <div className=""> */}
       <h1 className="text-2xl">Daily statistics over the previous month</h1>
-      {/* </div> */}
       <div>
         {finalData && hoverLoc ? <ToolTip hoverLoc={hoverLoc} activePoint={activePoint} /> : null}
         {lineChartWidth ? (
