@@ -61,37 +61,37 @@ const HistoryStats: React.FC<HistoryStatsProps> = ({ lastMonthData }) => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center mt-5">
-      <h1 className="text-2xl">Daily statistics over the previous month</h1>
+    <div className="mt-5">
+      <div className="flex flex-col items-center justify-center">
+        <h1 className="text-2xl">Daily statistics over the previous month</h1>
+        <Form layout={"inline"} initialValues={{ metric: metric }}>
+          <Form.Item name="metric">
+            <Select
+              value={metric}
+              size="large"
+              onChange={val => {
+                updateMetric(val);
+              }}
+            >
+              <Option value="tokens">Tokens</Option>
+              <Option value="inks">Inks</Option>
+              <Option value="sales">Sales</Option>
+              <Option value="upgrades">Upgrades</Option>
+              <Option value="artists">Artists</Option>
+              <Option value="saleValue">Sale Value</Option>
+              <Option value="users">Users</Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </div>
       <div>
         {finalData && hoverLoc ? <ToolTip hoverLoc={hoverLoc} activePoint={activePoint} /> : null}
         {lineChartWidth ? (
-          <div className="flex flex-col justify-center">
-            <Form layout={"inline"} initialValues={{ metric: metric }} className="flex justify-center space-x-4">
-              <Form.Item name="metric">
-                <Select
-                  value={metric}
-                  size="large"
-                  onChange={val => {
-                    updateMetric(val);
-                  }}
-                >
-                  <Option value="tokens">Tokens</Option>
-                  <Option value="inks">Inks</Option>
-                  <Option value="sales">Sales</Option>
-                  <Option value="upgrades">Upgrades</Option>
-                  <Option value="artists">Artists</Option>
-                  <Option value="saleValue">Sale Value</Option>
-                  <Option value="users">Users</Option>
-                </Select>
-              </Form.Item>
-            </Form>
-            <LineChart
-              svgWidth={lineChartWidth}
-              data={finalData}
-              onChartHover={(a: any, b: any) => handleChartHover(a, b)}
-            />
-          </div>
+          <LineChart
+            svgWidth={lineChartWidth}
+            data={finalData}
+            onChartHover={(a: any, b: any) => handleChartHover(a, b)}
+          />
         ) : (
           <Loader />
         )}
