@@ -17,7 +17,7 @@ import CanvasDraw from "react-canvas-draw";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
-import { CanvasDrawLines, Lines } from "~~/types/ink";
+import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
 import { getColorOptions } from "~~/utils/constants";
 
 let compressionWorker: Worker | null = null;

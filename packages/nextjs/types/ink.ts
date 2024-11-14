@@ -1,5 +1,3 @@
-import CanvasDraw from "react-canvas-draw";
-
 interface Artist {
   __typename?: string;
   address: string;
@@ -20,7 +18,7 @@ type HistoryData = {
   users: number;
 };
 
-export interface Ink {
+interface Ink {
   __typename: string;
   artist: Artist;
   bestPrice: number;
@@ -69,22 +67,4 @@ interface User {
   purchaseCount: number;
   saleCount: number;
   tokenCount: number;
-}
-
-export interface Lines {
-  background?: unknown;
-  ref?: unknown;
-  brushColor: string;
-  brushRadius: number;
-  points: Array<{ x: number; y: number }>;
-}
-
-export interface CanvasDrawLines extends CanvasDraw {
-  canvas: any;
-  lines: Lines[];
-  props: {
-    brushColor: string;
-    canvasWidth: any;
-    canvasHeight: any;
-  };
 }

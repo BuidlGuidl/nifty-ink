@@ -4,9 +4,7 @@ import Image from "next/image";
 import xDai from "../../public/xDai.png";
 import LoadMoreButton from "./LoadMoreButton";
 import { SingleInk } from "./SingleInk";
-import { Divider } from "antd";
 import { formatEther } from "viem";
-import { Ink } from "~~/types/ink";
 import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 
 type InkListProps = {
@@ -20,7 +18,6 @@ type InkListProps = {
 
 export const InkListArtist = ({
   inks,
-  layout = "cards",
   connectedAddress,
   allItemsLoaded,
   isInksLoading,

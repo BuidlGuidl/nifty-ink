@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import LZ from "lz-string";
-import { Lines } from "~~/types/ink";
+import { Lines } from "~~/types/canvasDrawing";
 
 export const useCanvasActions = (
   drawingCanvas: any,

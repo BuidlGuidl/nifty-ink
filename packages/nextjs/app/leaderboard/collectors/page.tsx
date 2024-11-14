@@ -128,7 +128,7 @@ const Home: NextPage = () => {
       <div className="max-w-screen-xl">
         <Row align="top" gutter={16} className="mt-5 text-center justify-center">
           <Col>
-            <p className="text-2xl">Collectors</p>
+            <p className="text-2xl m-0">Collectors</p>
           </Col>
           <Col>
             <Form layout={"inline"} initialValues={{ orderBy: orderBy, period: period }}>
