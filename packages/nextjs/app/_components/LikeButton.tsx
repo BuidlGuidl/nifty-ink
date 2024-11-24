@@ -46,7 +46,6 @@ export const LikeButton = ({ likeCount, hasLiked, targetId, connectedAddress }: 
         type={hasLiked || minting ? "primary" : "default"}
         icon={minting ? "" : hasLiked ? <LikeOutlined /> : <LikeTwoTone />}
         style={{
-          zIndex: 90,
           cursor: "pointer",
           boxShadow: "2px 2px 3px #d0d0d0",
         }}
