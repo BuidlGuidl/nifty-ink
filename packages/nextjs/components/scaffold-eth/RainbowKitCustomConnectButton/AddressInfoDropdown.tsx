@@ -11,6 +11,7 @@ import {
   CheckCircleIcon,
   ChevronDownIcon,
   DocumentDuplicateIcon,
+  KeyIcon,
   QrCodeIcon,
 } from "@heroicons/react/24/outline";
 import { BlockieAvatar, isENS } from "~~/components/scaffold-eth";
@@ -24,6 +25,7 @@ type AddressInfoDropdownProps = {
   blockExplorerAddressLink: string | undefined;
   displayName: string;
   ensAvatar?: string;
+  recentConnectorId?: string | undefined;
 };
 
 export const AddressInfoDropdown = ({
@@ -31,11 +33,13 @@ export const AddressInfoDropdown = ({
   ensAvatar,
   displayName,
   blockExplorerAddressLink,
+  recentConnectorId,
 }: AddressInfoDropdownProps) => {
   const { disconnect } = useDisconnect();
   const checkSumAddress = getAddress(address);
 
   const [addressCopied, setAddressCopied] = useState(false);
+  const displayPrivateKey = recentConnectorId === `"burnerWallet"` || recentConnectorId === undefined; // connected with burnerwaller or first time
 
   const [selectingNetwork, setSelectingNetwork] = useState(false);
   const dropdownRef = useRef<HTMLDetailsElement>(null);
@@ -95,6 +99,14 @@ export const AddressInfoDropdown = ({
               <span className="whitespace-nowrap">View QR Code</span>
             </label>
           </li>
+          {displayPrivateKey && (
+            <li className={selectingNetwork ? "hidden" : ""}>
+              <label htmlFor="pk-modal" className="btn-sm !rounded-xl flex gap-3 py-3">
+                <KeyIcon className="h-6 w-4 ml-2 sm:ml-0" />
+                <span className="whitespace-nowrap">View Private Key</span>
+              </label>
+            </li>
+          )}
           <li className={selectingNetwork ? "hidden" : ""}>
             <button className="menu-item btn-sm !rounded-xl flex gap-3 py-3" type="button">
               <ArrowTopRightOnSquareIcon className="h-6 w-4 ml-2 sm:ml-0" />
