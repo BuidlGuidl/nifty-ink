@@ -11,6 +11,7 @@ type PrivateKeyModalProps = {
 
 export const PrivateKeyModal = ({ address, modalId }: PrivateKeyModalProps) => {
   const [pk, setPk] = useState<string | null>(null);
+  const [pkVisible, setPkVisible] = useState(false);
 
   useEffect(() => {
     const value = localStorage.getItem("burnerWallet.pk");
@@ -33,9 +34,17 @@ export const PrivateKeyModal = ({ address, modalId }: PrivateKeyModalProps) => {
               <div className="flex flex-col items-center gap-6">
                 <Address address={address} format="long" disableAddressLink />
                 <div>
+                  <div className="text-[11px]">This is your private key. Keep it safe!</div>
+                </div>
+                <div>
+                  <button className="btn btn-primary btn-sm" onClick={() => setPkVisible(!pkVisible)}>
+                    {pkVisible ? "Hide Private Key" : "Show Private Key"}
+                  </button>
+                </div>
+                <div>
                   Private key:{" "}
                   <span className="text-[11px]">
-                    {pk}
+                    {pkVisible ? pk : "Click 'Show Private Key' to reveal"}
                     <CopyToClipboard
                       text={pk || ""}
                       onCopy={() => {
