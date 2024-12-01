@@ -20,7 +20,7 @@ const ITEMS_PER_PAGE = 15;
 const Artist = ({ params }: { params: { address: string } }) => {
   const address = params?.address;
   const [inks, setInks] = useState<Ink[]>([]);
-  const { loading, data, fetchMore } = useQuery(ARTISTS_QUERY, {
+  const { data, fetchMore } = useQuery(ARTISTS_QUERY, {
     variables: { address: address, first: ITEMS_PER_PAGE + 1, skip: 0 },
   });
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(true);
@@ -64,13 +64,23 @@ const Artist = ({ params }: { params: { address: string } }) => {
 
         setInks([...inks, ...(fetchedInks as Ink[])]);
       } catch (error) {
-        console.error("Error fetching inks or metadata:", error);
+        console.error("Error setting inks or metadata:", error);
       } finally {
         // Ensure loading states are updated even if there was an error
         setMoreInksLoading(false);
       }
     };
-    data !== undefined && data.artists[0] ? getInks(data.artists[0].inks) : console.log("loading");
+
+    if (!data) {
+      console.log("loading");
+      return;
+    }
+
+    if (data.artists?.length > 0) {
+      getInks(data.artists[0].inks);
+    } else {
+      setMoreInksLoading(false);
+    }
   }, [data]);
 
   useInfiniteScroll(loadMoreInks, inks.length);
@@ -81,7 +91,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
       label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🖼️ Inks</p>,
       children: (
         <>
-          {loading ? (
+          {moreInksLoading && inks.length === 0 ? (
             <Loader />
           ) : (
             <InkListArtist
