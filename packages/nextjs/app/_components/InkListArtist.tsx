@@ -29,38 +29,41 @@ export const InkListArtist = ({
         <ul className="">
           {inks.length > 0 ? (
             <>
-              {inks.map(ink => (
-                <SingleInk key={ink.id} ink={ink} connectedAddress={connectedAddress}>
-                  <div className="flex flex-col items-center">
-                    {ink?.bestPrice > 0 ? (
-                      <div className="flex m-0">
-                        <p className="text-gray-600 dark:text-gray-400 m-0">
-                          <b>{parseFloat(formatEther(BigInt(ink?.bestPrice)))} </b>
+              {inks.map(
+                ink =>
+                  ink.metadata && ( // skip inks without metadata
+                    <SingleInk key={ink.id} ink={ink} connectedAddress={connectedAddress}>
+                      <div className="flex flex-col items-center">
+                        {ink?.bestPrice > 0 ? (
+                          <div className="flex m-0">
+                            <p className="text-gray-600 dark:text-gray-400 m-0">
+                              <b>{parseFloat(formatEther(BigInt(ink?.bestPrice)))} </b>
+                            </p>
+                            <Image
+                              src={xDai.src}
+                              width={xDai.width}
+                              height={xDai.height}
+                              alt="xdai"
+                              className="ml-1 mb-1"
+                            />
+                          </div>
+                        ) : (
+                          <Image
+                            src={xDai.src}
+                            width={xDai.width}
+                            height={xDai.height}
+                            alt="xdai"
+                            className="ml-1 mb-1 invisible"
+                          />
+                        )}
+                        <div className="w-full h-px bg-gray-400 mb-1" />
+                        <p className="text-gray-600 dark:text-gray-400 m-0 text-sm">
+                          {"Edition: " + ink?.count + (Number(ink?.limit) > 0 ? "/" + ink?.limit : "")}
                         </p>
-                        <Image
-                          src={xDai.src}
-                          width={xDai.width}
-                          height={xDai.height}
-                          alt="xdai"
-                          className="ml-1 mb-1"
-                        />
                       </div>
-                    ) : (
-                      <Image
-                        src={xDai.src}
-                        width={xDai.width}
-                        height={xDai.height}
-                        alt="xdai"
-                        className="ml-1 mb-1 invisible"
-                      />
-                    )}
-                    <div className="w-full h-px bg-gray-400 mb-1" />
-                    <p className="text-gray-600 dark:text-gray-400 m-0 text-sm">
-                      {"Edition: " + ink?.count + (Number(ink?.limit) > 0 ? "/" + ink?.limit : "")}
-                    </p>
-                  </div>
-                </SingleInk>
-              ))}
+                    </SingleInk>
+                  ),
+              )}
               <LoadMoreButton
                 allItemsLoaded={allItemsLoaded}
                 allItemsLoadedText={"All inks were loaded."}
