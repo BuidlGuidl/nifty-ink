@@ -13,18 +13,18 @@ import StatCard from "~~/app/_components/StatCard";
 import Loader from "~~/components/Loader";
 import useInfiniteScroll from "~~/hooks/useInfiniteScroll";
 import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
-import { getMetadata } from "~~/utils/helpers";
+import { getMetadataWithTimeout } from "~~/utils/helpers";
 
 const ITEMS_PER_PAGE = 15;
 
 const Artist = ({ params }: { params: { address: string } }) => {
   const address = params?.address;
   const [inks, setInks] = useState<Ink[]>([]);
-  const { loading, data, fetchMore } = useQuery(ARTISTS_QUERY, {
+  const { data, fetchMore } = useQuery(ARTISTS_QUERY, {
     variables: { address: address, first: ITEMS_PER_PAGE + 1, skip: 0 },
   });
   const [allItemsLoaded, setAllItemsLoaded] = useState<boolean>(true);
-  const [moreInksLoading, setMoreInksLoading] = useState<boolean>(false);
+  const [moreInksLoading, setMoreInksLoading] = useState<boolean>(true);
 
   const loadMoreInks = async () => {
     if (!moreInksLoading && !allItemsLoaded) {
@@ -43,7 +43,6 @@ const Artist = ({ params }: { params: { address: string } }) => {
 
   useEffect(() => {
     const getInks = async (data: Ink[]) => {
-      const metadataPromises = data.slice(0, ITEMS_PER_PAGE).map(ink => getMetadata(ink.jsonUrl));
       const hasMoreNewItems = data?.length > ITEMS_PER_PAGE;
       if (!hasMoreNewItems) {
         setAllItemsLoaded(true);
@@ -51,23 +50,37 @@ const Artist = ({ params }: { params: { address: string } }) => {
         setAllItemsLoaded(false);
       }
       try {
-        const metadataResults = await Promise.all(metadataPromises);
+        const fetchedInks = await Promise.all(
+          data.slice(0, ITEMS_PER_PAGE).map(async ink => {
+            try {
+              const metadata = await getMetadataWithTimeout(ink.jsonUrl, 3000);
+              return { ...ink, metadata };
+            } catch (error) {
+              console.error(`Error fetching metadata for ink ${ink.jsonUrl}:`, error);
+              return { ...ink, metadata: null };
+            }
+          }),
+        );
 
-        // Combine each ink with its metadata
-        const updatedInks = data.slice(0, ITEMS_PER_PAGE).map((ink, index) => ({
-          ...ink,
-          metadata: metadataResults[index],
-        }));
-
-        setInks([...inks, ...updatedInks]);
+        setInks([...inks, ...(fetchedInks as Ink[])]);
       } catch (error) {
-        console.error("Error fetching inks or metadata:", error);
+        console.error("Error setting inks or metadata:", error);
       } finally {
         // Ensure loading states are updated even if there was an error
         setMoreInksLoading(false);
       }
     };
-    data !== undefined && data.artists[0] ? getInks(data.artists[0].inks) : console.log("loading");
+
+    if (!data) {
+      console.log("loading");
+      return;
+    }
+
+    if (data.artists?.length > 0) {
+      getInks(data.artists[0].inks);
+    } else {
+      setMoreInksLoading(false);
+    }
   }, [data]);
 
   useInfiniteScroll(loadMoreInks, inks.length);
@@ -78,7 +91,7 @@ const Artist = ({ params }: { params: { address: string } }) => {
       label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🖼️ Inks</p>,
       children: (
         <>
-          {loading ? (
+          {moreInksLoading && inks.length === 0 ? (
             <Loader />
           ) : (
             <InkListArtist

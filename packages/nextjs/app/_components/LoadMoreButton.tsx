@@ -17,7 +17,7 @@ const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
     <div className="flex items-center justify-center">
       <div aria-label="Page navigation" className="flex space-x-2">
         <div>
-          {allItemsLoaded ? (
+          {allItemsLoaded && !moreInksLoading ? (
             <div className="mt-2 text-lg">{allItemsLoadedText}</div>
           ) : (
             <button

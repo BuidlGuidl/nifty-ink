@@ -5,6 +5,8 @@ export const calculateStartingDate = (period: string) => {
   switch (period) {
     case "year":
       return startOfDay.subtract(1, "year").unix();
+    case "sixmonth":
+      return startOfDay.subtract(6, "month").unix();
     case "threemonth":
       return startOfDay.subtract(3, "month").unix();
     case "month":
@@ -28,4 +30,19 @@ export const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
   const data: InkMetadata = await response.json();
   data.image = data.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/");
   return data;
+};
+
+export const getMetadataWithTimeout = async (jsonURL: string, timeout = 2000): Promise<InkMetadata> => {
+  const fetchPromise = (async () => {
+    const response = await fetch(`https://gateway.nifty.ink:42069/ipfs/${jsonURL}`);
+    const data: InkMetadata = await response.json();
+    data.image = data.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/");
+    return data;
+  })();
+
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("Request timed out")), timeout),
+  );
+
+  return Promise.race([fetchPromise, timeoutPromise]);
 };
