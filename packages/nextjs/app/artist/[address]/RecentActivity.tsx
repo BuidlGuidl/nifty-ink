@@ -101,9 +101,9 @@ const createActivityArray = (user: any) => {
 
 export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
   const [activity, setActivity] = useState<Activity[]>([]);
-  const [startFrom, setStartFrom] = useState<number>(calculateStartingDate("threemonth"));
-  const dateRange = 7776000; // three months
-  const [userFirstActivity, setUserFirstActivity] = useState<number>(calculateStartingDate("threemonth"));
+  const [startFrom, setStartFrom] = useState<number>(calculateStartingDate("sixmonth"));
+  const dateRange = 2592000 * 3; // three months
+  const [userFirstActivity, setUserFirstActivity] = useState<number>(calculateStartingDate("sixmonth"));
   const [isActivityLoading, setIsActivityLoading] = useState<boolean>(true);
 
   const {
@@ -165,7 +165,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
         <Loader />
       ) : (
         <div className="">
-          {activity?.length > 0 ? (
+          {userFirstActivity ? (
             <ul className="list-none p-0 text-left mt-5">
               {activity
                 .sort((a, b) => b.createdAt - a.createdAt)
@@ -274,9 +274,10 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
               <div className="flex justify-center">
                 {`Since ${new Date(startFrom * 1000).toISOString().slice(0, 10)}`}
               </div>
-              {activity[activity.length - 1].createdAt > userFirstActivity && (
-                <Button type="dashed" size="large" block onClick={() => onLoadMore()}>
-                  Load more
+              {(!activity[activity.length - 1]?.createdAt ||
+                activity[activity.length - 1].createdAt > userFirstActivity) && (
+                <Button type="dashed" size="large" block onClick={() => onLoadMore()} disabled={isLoadingDataActivity}>
+                  {isLoadingDataActivity ? "Loading..." : "Load more"}
                 </Button>
               )}
             </ul>

@@ -5,6 +5,8 @@ export const calculateStartingDate = (period: string) => {
   switch (period) {
     case "year":
       return startOfDay.subtract(1, "year").unix();
+    case "sixmonth":
+      return startOfDay.subtract(6, "month").unix();
     case "threemonth":
       return startOfDay.subtract(3, "month").unix();
     case "month":
