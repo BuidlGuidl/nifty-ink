@@ -69,7 +69,7 @@ const ViewInk = ({ params }: { params: { inkId: string } }) => {
           <InkCanvas ink={dataRaw?.ink} inkJson={inkJson} connectedAddress={connectedAddress} inkId={inkId} />
         )}
 
-        <div className="flex flex-col items-center text-center mb-5 mt-3">
+        <div className="flex flex-col items-center text-center mb-5 mt-8">
           <p className="my-0 text-xl">Artist:</p>
           <Link href={`/artist/${dataRaw?.ink?.artist?.id}`} className="my-1">
             <Address address={dataRaw?.ink?.artist?.id} size="2xl" disableAddressLink />
