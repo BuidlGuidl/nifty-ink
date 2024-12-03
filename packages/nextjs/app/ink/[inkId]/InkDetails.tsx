@@ -74,15 +74,9 @@ export const InkDetails = ({
       <Row style={{ justifyContent: "center" }}>
         <List
           header={
-            <Row
-              style={{
-                display: "inline-flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <div className="flex justify-center gap-2">
               <p className={`${TEXT_PRIMARY_COLOR} text-xl my-0`}>{mintDescription}</p>{" "}
-              {isConnectedAddressArtist && <MintButton inkId={inkId} />}
+              {isConnectedAddressArtist && ink.limit && ink.count < ink.limit && <MintButton inkId={inkId} />}
               {isConnectedAddressArtist && isBuyButtonVisible ? (
                 <NiftyShop
                   type={"ink"}
@@ -94,7 +88,7 @@ export const InkDetails = ({
               ) : (
                 <NiftyShopBuy type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} inkName={inkJson.name} />
               )}
-            </Row>
+            </div>
           }
           itemLayout="horizontal"
           dataSource={ink.tokens}
