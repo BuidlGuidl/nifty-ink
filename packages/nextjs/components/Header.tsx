@@ -45,10 +45,10 @@ export const menuLinks: HeaderMenuLink[] = [
     label: "📊 stats",
     href: "/stats",
   },
-  // {
-  //   label: "💡 help",
-  //   href: "/help",
-  // },
+  {
+    label: "💬 chat",
+    href: "https://t.me/joinchat/KByvmRpuA2XzQVYXWICiSg",
+  },
   // {
   //   label: "Debug Contracts",
   //   href: "/debug",
@@ -78,6 +78,22 @@ export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPl
   return (
     <>
       {menuLinks.map(({ label, href, icon, sublinks, subnames }) => {
+        if (label === "💬 chat") {
+          return (
+            <li key={href} className="relative group mb-2">
+              <Link
+                href="https://t.me/joinchat/KByvmRpuA2XzQVYXWICiSg"
+                target="_blank"
+                rel="noreferrer"
+                passHref
+                className={`hover:bg-secondary hover:shadow-md focus:bg-secondary active:text-neutral py-1.5 px-3 text-sm rounded-full flex items-center`}
+              >
+                <span className="ml-2">{label}</span>
+              </Link>
+            </li>
+          );
+        }
+
         const isActive = pathname === href;
         return (
           <li key={href} className="relative group mb-2">
@@ -136,9 +152,9 @@ export const Header = () => {
   );
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
+    <div className="sticky min-[1100px]:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
-        <div className="lg:hidden dropdown" ref={burgerMenuRef}>
+        <div className="min-[1100px]:hidden dropdown" ref={burgerMenuRef}>
           <label
             tabIndex={0}
             className={`ml-1 btn btn-ghost ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
@@ -160,12 +176,12 @@ export const Header = () => {
             </ul>
           )}
         </div>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
+        <Link href="/" passHref className="hidden min-[1100px]:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative text-2xl">
             <span className="mb-2">🎨 Nifty Ink</span>
           </div>
         </Link>
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
+        <ul className="hidden min-[1100px]:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
           <HeaderMenuLinks placement={"bottom"} />
         </ul>
       </div>
