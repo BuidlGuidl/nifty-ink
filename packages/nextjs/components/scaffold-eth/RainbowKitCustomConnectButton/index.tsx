@@ -1,15 +1,14 @@
 "use client";
 
 // @refresh reset
-import { useCallback, useState } from "react";
 import { Balance } from "../Balance";
 import { AddressInfoDropdown } from "./AddressInfoDropdown";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
 import { PrivateKeyModal } from "./PrivateKeyModal";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useReadLocalStorage } from "usehooks-ts";
 import { Address } from "viem";
+import { useAccount } from "wagmi";
 import { useNetworkColor } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
@@ -20,15 +19,7 @@ import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
 export const RainbowKitCustomConnectButton = () => {
   const networkColor = useNetworkColor();
   const { targetNetwork } = useTargetNetwork();
-  const initialConnectorId = useReadLocalStorage<string>("wagmi.recentConnectorId");
-  const [recentConnectorId, setRecentConnectorId] = useState<string | undefined>(initialConnectorId ?? undefined);
-
-  const handleStorageChange = useCallback(() => {
-    if (typeof window !== "undefined") {
-      const updatedValue = localStorage.getItem("wagmi.recentConnectorId");
-      setRecentConnectorId(updatedValue ?? undefined);
-    }
-  }, []);
+  const { connector } = useAccount();
 
   return (
     <ConnectButton.Custom>
@@ -41,7 +32,6 @@ export const RainbowKitCustomConnectButton = () => {
         return (
           <>
             {(() => {
-              handleStorageChange();
               if (!connected) {
                 return (
                   <button className="btn btn-primary btn-sm" onClick={openConnectModal} type="button">
@@ -67,7 +57,7 @@ export const RainbowKitCustomConnectButton = () => {
                     displayName={account.displayName}
                     ensAvatar={account.ensAvatar}
                     blockExplorerAddressLink={blockExplorerAddressLink}
-                    recentConnectorId={recentConnectorId}
+                    connectorName={connector?.name}
                   />
                   <AddressQRCodeModal address={account.address as Address} modalId="qrcode-modal" />
                   <PrivateKeyModal address={account.address as Address} modalId="pk-modal" />
