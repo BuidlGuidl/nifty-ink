@@ -3,6 +3,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { InkingFreeButton } from "./scaffold-eth/RainbowKitCustomConnectButton/InkingFreeButton";
 import { Popover } from "antd";
 import { TooltipPlacement } from "antd/es/tooltip";
 import { useAccount } from "wagmi";
@@ -152,9 +153,9 @@ export const Header = () => {
   );
 
   return (
-    <div className="sticky min-[1100px]:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
+    <div className="sticky min-[1150px]:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
-        <div className="min-[1100px]:hidden dropdown" ref={burgerMenuRef}>
+        <div className="min-[1150px]:hidden dropdown" ref={burgerMenuRef}>
           <label
             tabIndex={0}
             className={`ml-1 btn btn-ghost ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
@@ -176,18 +177,19 @@ export const Header = () => {
             </ul>
           )}
         </div>
-        <Link href="/" passHref className="hidden min-[1100px]:flex items-center gap-2 ml-4 mr-6 shrink-0">
+        <Link href="/" passHref className="hidden min-[1150px]:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative text-2xl">
             <span className="mb-2">🎨 Nifty Ink</span>
           </div>
         </Link>
-        <ul className="hidden min-[1100px]:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
+        <ul className="hidden min-[1150px]:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
           <HeaderMenuLinks placement={"bottom"} />
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
         <RainbowKitCustomConnectButton />
         <FaucetButton />
+        <InkingFreeButton />
       </div>
     </div>
   );

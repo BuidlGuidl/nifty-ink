@@ -4,7 +4,6 @@
 import { Balance } from "../Balance";
 import { AddressInfoDropdown } from "./AddressInfoDropdown";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
-import { FirstVisitModal } from "./FirstVisitModal";
 import { PrivateKeyModal } from "./PrivateKeyModal";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -26,7 +25,6 @@ export const RainbowKitCustomConnectButton = () => {
     <ConnectButton.Custom>
       {({ account, chain, openConnectModal, mounted }) => {
         const connected = mounted && account && chain;
-        console.log(account);
         const blockExplorerAddressLink = account
           ? getBlockExplorerAddressLink(targetNetwork, account.address)
           : undefined;
@@ -61,7 +59,6 @@ export const RainbowKitCustomConnectButton = () => {
                     blockExplorerAddressLink={blockExplorerAddressLink}
                     connectorName={connector?.name}
                   />
-                  <FirstVisitModal balance={account?.balanceFormatted || "0"} />
                   <AddressQRCodeModal address={account.address as Address} modalId="qrcode-modal" />
                   <PrivateKeyModal address={account.address as Address} modalId="pk-modal" />
                 </>
