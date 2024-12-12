@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlaySquareOutlined, QuestionCircleOutlined, XOutlined } from "@ant-design/icons";
+import { LinkOutlined, PlaySquareOutlined, QuestionCircleOutlined, XOutlined } from "@ant-design/icons";
 import { Button, Descriptions, InputNumber, Popover, Row, Spin } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
+import CopyToClipboard from "react-copy-to-clipboard";
 import { useLocalStorage } from "usehooks-ts";
 import { formatEther } from "viem";
 import { LikeButton } from "~~/app/_components/LikeButton";
@@ -105,7 +106,7 @@ export const InkCanvas = ({
       </Descriptions.Item>
       <Descriptions.Item label="Count">{ink?.count ? ink?.count : "0"}</Descriptions.Item>
       <Descriptions.Item label="Limit">{ink?.limit}</Descriptions.Item>
-      <Descriptions.Item label="Description">{inkJson.description}</Descriptions.Item>
+      {/* <Descriptions.Item label="Description">{inkJson.description}</Descriptions.Item> */}
       <Descriptions.Item label="Price">
         {ink?.mintPrice && ink?.mintPrice > 0 ? formatEther(BigInt(ink?.mintPrice)) : "No price set"}
       </Descriptions.Item>
@@ -170,18 +171,6 @@ export const InkCanvas = ({
               </span>{" "}
               FORK
             </Button>
-            <Button
-              className="mt-1 ml-1"
-              onClick={() => {
-                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                  "Check out my drawing here:",
-                )}&url=${encodeURIComponent(`https://nifty.ink/ink/${inkId}`)}${`&hashtags=${encodeURIComponent(
-                  "handmade #onchain",
-                )}`}${`&via=${encodeURIComponent("NiftyInk")}`}`;
-                window.open(twitterUrl, "_blank");
-              }}
-              icon={<XOutlined />}
-            />
           </>
         )}
       </Row>
@@ -245,26 +234,46 @@ export const InkCanvas = ({
             }
           </div>
         </div>
-        <div style={{ marginLeft: calculatedCanvaSize - 10, marginTop: calculatedCanvaSize - 20 }}>
-          <LikeButton
-            likeCount={ink?.likeCount}
-            hasLiked={ink?.likes?.length > 0}
-            targetId={ink?.inkNumber}
-            connectedAddress={connectedAddress}
-          />
-        </div>
-        <div className="-mt-[10px] opacity-80">
-          <Popover
-            content={detailContent}
-            title="Ink Details"
-            placement="topLeft"
-            arrow={false}
-            overlayStyle={{
-              maxWidth: 700,
-            }}
-          >
-            <QuestionCircleOutlined />
-          </Popover>
+        <div style={{ marginLeft: calculatedCanvaSize - 10, marginTop: calculatedCanvaSize + 5 }}></div>
+        <div className="mt-15 flex justify-between gap-1">
+          <div className="flex gap-2">
+            <LikeButton
+              likeCount={ink?.likeCount}
+              hasLiked={ink?.likes?.length > 0}
+              targetId={ink?.inkNumber}
+              connectedAddress={connectedAddress}
+            />
+            <div className="hidden sm:block">
+              <Popover
+                content={detailContent}
+                title="Ink Details"
+                placement="topLeft"
+                arrow={false}
+                overlayStyle={{
+                  maxWidth: "500px",
+                }}
+              >
+                <Button shape="circle" icon={<QuestionCircleOutlined />} />
+              </Popover>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              shape="circle"
+              onClick={() => {
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                  "Check out my drawing here:",
+                )}&url=${encodeURIComponent(`https://nifty.ink/ink/${inkId}`)}${`&hashtags=${encodeURIComponent(
+                  "handmade #onchain",
+                )}`}${`&via=${encodeURIComponent("NiftyInk")}`}`;
+                window.open(twitterUrl, "_blank");
+              }}
+              icon={<XOutlined />}
+            />
+            <CopyToClipboard text={`https://nifty.ink/ink/${inkId}`}>
+              <Button shape="circle" className="border-2" icon={<LinkOutlined />} />
+            </CopyToClipboard>
+          </div>
         </div>
       </div>
     </>

@@ -25,7 +25,7 @@ type AddressInfoDropdownProps = {
   blockExplorerAddressLink: string | undefined;
   displayName: string;
   ensAvatar?: string;
-  recentConnectorId?: string | undefined;
+  connectorName?: string;
 };
 
 export const AddressInfoDropdown = ({
@@ -33,13 +33,13 @@ export const AddressInfoDropdown = ({
   ensAvatar,
   displayName,
   blockExplorerAddressLink,
-  recentConnectorId,
+  connectorName,
 }: AddressInfoDropdownProps) => {
   const { disconnect } = useDisconnect();
   const checkSumAddress = getAddress(address);
 
   const [addressCopied, setAddressCopied] = useState(false);
-  const displayPrivateKey = recentConnectorId === `"burnerWallet"` || recentConnectorId === undefined; // connected with burnerwaller or first time
+  const displayPrivateKey = connectorName === "Burner Wallet";
 
   const [selectingNetwork, setSelectingNetwork] = useState(false);
   const dropdownRef = useRef<HTMLDetailsElement>(null);

@@ -26,7 +26,7 @@
     "@uniswap/v2-sdk": "^3.0.1",
     "antd": "^5.17.3",
     "blo": "^1.0.1",
-    "burner-connector": "^0.0.6",
+    "burner-connector": "^0.0.8",
     "daisyui": "4.5.0",
     "dayjs": "^1.11.11",
     "ethers": "^6.13.1",
