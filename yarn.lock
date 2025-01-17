@@ -2683,6 +2683,7 @@ __metadata:
     kubo-rpc-client: ^4.1.1
     lz-string: ^1.5.0
     next: ^14.0.4
+    next-plausible: ^3.12.4
     next-themes: ^0.2.1
     nprogress: ^0.2.0
     postcss: ^8.4.16
@@ -11781,6 +11782,17 @@ __metadata:
   version: 2.6.2
   resolution: "neo-async@npm:2.6.2"
   checksum: deac9f8d00eda7b2e5cd1b2549e26e10a0faa70adaa6fdadca701cc55f49ee9018e427f424bac0c790b7c7e2d3068db97f3093f1093975f2acb8f8818b936ed9
+  languageName: node
+  linkType: hard
+
+"next-plausible@npm:^3.12.4":
+  version: 3.12.4
+  resolution: "next-plausible@npm:3.12.4"
+  peerDependencies:
+    next: "^11.1.0 || ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0 "
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: f8ae32eae3b8f4f45e1bdf1ab1aaf6be9ff184468c90253f4920a0cca01b426610c7ac85d082970e614f6f05b3679b9e68aae13ee5081a3d5bd003baaf11005a
   languageName: node
   linkType: hard
 
