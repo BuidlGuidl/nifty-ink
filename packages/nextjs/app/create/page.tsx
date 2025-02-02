@@ -6,10 +6,9 @@ import { BrushControls } from "./_components/BrushControls";
 import { CanvasActions } from "./_components/CanvasActions";
 import { CanvasControls } from "./_components/CanvasControls";
 import { ColorPicker } from "./_components/ColorPicker";
-import { CreateInkForm } from "./_components/CreateInkForm";
 import { DraftManager } from "./_components/DraftManager";
+import { CreateInkModal } from "./_components/create/CreateInkModal";
 import { useCanvasActions } from "./_hooks/useCanvasActions";
-import { useCreateInk } from "./_hooks/useCreateInk";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import "./styles.css";
 import LZ from "lz-string";
@@ -19,6 +18,7 @@ import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
 import { getColorOptions } from "~~/utils/constants";
+import { notification } from "~~/utils/scaffold-eth";
 
 let compressionWorker: Worker | null = null;
 
@@ -37,7 +37,7 @@ const createRGBA = (r: number, g: number, b: number, a: number): string => {
 const CreateInk = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const { address: connectedAddress } = useAccount();
+  const { address: connectedAddress, chain } = useAccount();
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
   const calculatedCanvaSize = Math.round(0.85 * Math.min(width, height));
@@ -156,14 +156,6 @@ const CreateInk = () => {
     setIsSaving(false);
   };
 
-  const { createInk, sending, setSending } = useCreateInk(
-    drawingCanvas,
-    connectedAddress,
-    router,
-    saveDrawing,
-    handleChangeDrawing,
-  );
-
   useEffect(() => {
     const loadPage = async () => {
       console.log("loadpage");
@@ -244,21 +236,42 @@ const CreateInk = () => {
 
   return (
     <div className="create-ink-container mt-5">
-      {portrait && (
+      {chain && connectedAddress && (
         <div className="title-top">
-          <CreateInkForm onFinish={createInk} sending={sending} />
-          <CanvasControls
-            canvasDisabled={canvasDisabled}
-            isSaving={isSaving}
+          <label
+            className="btn btn-primary"
+            onClick={() => {
+              if (currentLines.current.length === 0) {
+                notification.error("Your canvas is empty");
+                return;
+              }
+              saveDrawing(drawingCanvas.current, true);
+              const targetElement = document.getElementById("create-ink-modal");
+              if (targetElement) {
+                targetElement.click();
+              }
+            }}
+          >
+            Ink!
+          </label>
+          <CreateInkModal
+            modalId="create-ink-modal"
+            chain={chain}
+            connectedAddress={connectedAddress}
             drawingCanvas={drawingCanvas}
-            saveDrawing={saveDrawing}
-            undo={undo}
-            handleChangeDrawing={handleChangeDrawing}
-            setCanvasDisabled={setCanvasDisabled}
           />
         </div>
       )}
       <div className="canvas">
+        <CanvasControls
+          canvasDisabled={canvasDisabled}
+          isSaving={isSaving}
+          drawingCanvas={drawingCanvas}
+          saveDrawing={saveDrawing}
+          undo={undo}
+          handleChangeDrawing={handleChangeDrawing}
+          setCanvasDisabled={setCanvasDisabled}
+        />
         {width > 0 && height > 0 && isClient ? (
           <div
             style={{
@@ -291,20 +304,6 @@ const CreateInk = () => {
         )}
       </div>
       <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
-        {!portrait && (
-          <>
-            <CreateInkForm onFinish={createInk} sending={sending} />
-            <CanvasControls
-              canvasDisabled={canvasDisabled}
-              isSaving={isSaving}
-              drawingCanvas={drawingCanvas}
-              saveDrawing={saveDrawing}
-              undo={undo}
-              handleChangeDrawing={handleChangeDrawing}
-              setCanvasDisabled={setCanvasDisabled}
-            />
-          </>
-        )}
         <div className={portrait ? "" : "edit-tools-side"}>
           <ColorPicker
             color={color}

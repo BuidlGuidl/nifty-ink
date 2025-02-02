@@ -17,38 +17,46 @@ type HeaderMenuLink = {
   icon?: React.ReactNode;
   sublinks?: string[];
   subnames?: string[];
+  chains?: number[];
 };
 
 export const menuLinks: HeaderMenuLink[] = [
   {
     label: "Home",
     href: "/",
+    chains: [100],
   },
   {
     label: "🖌 create",
     href: "/create",
+    chains: [100, 84532],
   },
   {
     label: "🖼 inks",
     href: "/artist",
+    chains: [100],
   },
   {
     label: "👛 holdings",
     href: "/holdings",
+    chains: [100],
   },
   {
     label: "🏆 leaderboard",
     href: "/leaderboard",
     subnames: ["🧑‍🎨 artists", "🕶 collectors"],
     sublinks: ["artists", "collectors"],
+    chains: [100],
   },
   {
     label: "📊 stats",
     href: "/stats",
+    chains: [100],
   },
   {
     label: "💬 chat",
     href: "https://t.me/joinchat/KByvmRpuA2XzQVYXWICiSg",
+    chains: [100, 84532],
   },
   // {
   //   label: "Debug Contracts",
@@ -59,7 +67,7 @@ export const menuLinks: HeaderMenuLink[] = [
 
 export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPlacement }) => {
   const pathname = usePathname();
-  const { address: connectedAddress } = useAccount();
+  const { address: connectedAddress, chainId } = useAccount();
 
   if (!connectedAddress) {
     return (
@@ -78,7 +86,10 @@ export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPl
 
   return (
     <>
-      {menuLinks.map(({ label, href, icon, sublinks, subnames }) => {
+      {menuLinks.map(({ label, href, icon, sublinks, subnames, chains }) => {
+        if (chainId && !chains?.includes(chainId)) {
+          return <></>;
+        }
         if (label === "💬 chat") {
           return (
             <li key={href} className="relative group mb-2">
