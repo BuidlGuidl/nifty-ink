@@ -315,8 +315,8 @@ export const CreateInkZoraForm = ({ connectedAddress, drawingCanvas, chainId }: 
   ) : (
     <div className="success-message">
       <CheckCircleIcon className="h-24 w-24 mx-auto text-green-500" />
-      <p>
-        🎉 Check your Ink on{" "}
+      <p className="mb-0">
+        🎉 Ink was created on{" "}
         <a
           className="link"
           href={`https://zora.co/manage/1155/base:${createdContract}`}
@@ -326,6 +326,19 @@ export const CreateInkZoraForm = ({ connectedAddress, drawingCanvas, chainId }: 
           Zora
         </a>
       </p>
+      <p className="mt-0">Make sure that you are logged in.</p>
+      <button
+        className="btn btn-primary mt-5"
+        onClick={() => {
+          setCollectionName("");
+          setCollectionDescription("");
+          setInkName("");
+          setInkDescription("");
+          setFormState("fill");
+        }}
+      >
+        Create a new ink
+      </button>
     </div>
   );
 };
