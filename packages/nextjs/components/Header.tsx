@@ -29,7 +29,7 @@ export const menuLinks: HeaderMenuLink[] = [
   {
     label: "🖌 create",
     href: "/create",
-    chains: [100, 84532],
+    chains: [100, 8453],
   },
   {
     label: "🖼 inks",
@@ -56,7 +56,7 @@ export const menuLinks: HeaderMenuLink[] = [
   {
     label: "💬 chat",
     href: "https://t.me/joinchat/KByvmRpuA2XzQVYXWICiSg",
-    chains: [100, 84532],
+    chains: [100, 8453],
   },
   // {
   //   label: "Debug Contracts",

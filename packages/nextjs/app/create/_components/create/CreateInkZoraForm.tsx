@@ -316,14 +316,14 @@ export const CreateInkZoraForm = ({ connectedAddress, drawingCanvas, chainId }: 
     <div className="success-message">
       <CheckCircleIcon className="h-24 w-24 mx-auto text-green-500" />
       <p>
-        🎉 Check your Ink on Zora{" "}
+        🎉 Check your Ink on{" "}
         <a
           className="link"
-          href={`https://testnet.zora.co/collect/bsep:${createdContract}/1`}
+          href={`https://zora.co/manage/1155/base:${createdContract}`}
           target="_blank"
           rel="noopener noreferrer"
         >
-          Here
+          Zora
         </a>
       </p>
     </div>
