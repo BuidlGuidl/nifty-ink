@@ -2848,7 +2848,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@uniswap/sdk-core": ^4.0.1
     "@uniswap/v2-sdk": ^3.0.1
-    "@zoralabs/protocol-sdk": ^0.13.0
+    "@zoralabs/protocol-sdk": ^0.13.2
     abitype: ^1.0.2
     antd: ^5.17.3
     autoprefixer: ^10.4.12
@@ -5072,22 +5072,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zoralabs/protocol-deployments@npm:^0.4.2":
-  version: 0.4.2
-  resolution: "@zoralabs/protocol-deployments@npm:0.4.2"
-  checksum: f98fca3e67b8073977229c768b51c20d81c08b0f0a360e36b0a90691c15fb10419c15d65f5130fe3935a58ef6d5d4626a067972596fb81d0ef7e2f7e0a4d6735
+"@zoralabs/protocol-deployments@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "@zoralabs/protocol-deployments@npm:0.5.1"
+  checksum: 8bc443ae83dff352b88931912249bb55e886cae02a6395aaf8aaa7ab2b0285e21b967b572984a79276fe6ffed2a416b10f1048fad6c19bbd1d637afbd0cb9010
   languageName: node
   linkType: hard
 
-"@zoralabs/protocol-sdk@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "@zoralabs/protocol-sdk@npm:0.13.0"
+"@zoralabs/protocol-sdk@npm:^0.13.2":
+  version: 0.13.2
+  resolution: "@zoralabs/protocol-sdk@npm:0.13.2"
   dependencies:
-    "@zoralabs/protocol-deployments": ^0.4.2
+    "@zoralabs/protocol-deployments": ^0.5.1
   peerDependencies:
     abitype: ^1.0.2
     viem: ^2.21.21
-  checksum: 0f100faee3d0c7706cffd1fe8f5bbb6c9e4bb99a1f64f742c1fc5d031588703d2de93d269de5e883af80117ce0be43c8800e122a1c68372839a9321153f56235
+  checksum: 90346de2d8a4e8a0b42a3ba56444ef35f293edb1a68c301c525e1b5c650de70debf243d9c59fda5bfeb733694e2f9913aa1d3feabfceb0b3da5b0e110ee6b873
   languageName: node
   linkType: hard
 
