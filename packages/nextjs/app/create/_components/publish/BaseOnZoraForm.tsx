@@ -227,91 +227,93 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
   }
 
   return formState !== "success" ? (
-    <form className="flex justify-center form-control w-full max-w-xs" onSubmit={handleSubmit}>
-      <div className="flex gap-2">
-        <div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Select Collection</span>
-            </label>
-            <select
-              className="select select-sm select-bordered rounded-xl w-full max-w-xs"
-              value={selectedContract}
-              onChange={e => setSelectedContract(e.target.value)}
-              disabled={!collections}
-              required
-            >
-              <option value={NEW_COLLECTION_VAL}>New Collection</option>
-              {collections?.map(collection => (
-                <option key={collection[0]} value={collection}>
-                  {collection[1]} {collection[0].slice(0, 4)}...{collection[0].slice(-4)}
-                </option>
-              ))}
-            </select>
+    <div className="flex justify-center">
+      <form className="flex justify-center form-control w-full max-w-xs" onSubmit={handleSubmit}>
+        <div className="flex gap-2">
+          <div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Select Collection</span>
+              </label>
+              <select
+                className="select select-sm select-bordered rounded-xl w-full max-w-xs"
+                value={selectedContract}
+                onChange={e => setSelectedContract(e.target.value)}
+                disabled={!collections}
+                required
+              >
+                <option value={NEW_COLLECTION_VAL}>New Collection</option>
+                {collections?.map(collection => (
+                  <option key={collection[0]} value={collection}>
+                    {collection[1]} {collection[0].slice(0, 4)}...{collection[0].slice(-4)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Collection Name</span>
+              </label>
+              <input
+                type="text"
+                placeholder="name"
+                className="input input-sm input-bordered rounded-xl w-full max-w-xs"
+                value={selectedContract !== NEW_COLLECTION_VAL ? selectedContract?.split(",")[1] : collectionName}
+                onChange={e => setCollectionName(e.target.value)}
+                disabled={selectedContract !== NEW_COLLECTION_VAL}
+                required
+              />
+            </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Collection Description</span>
+              </label>
+              <textarea
+                placeholder="description"
+                className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
+                value={collectionDescription}
+                onChange={e => setCollectionDescription(e.target.value)}
+                disabled={selectedContract !== NEW_COLLECTION_VAL}
+                required
+              />
+            </div>
           </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Collection Name</span>
-            </label>
-            <input
-              type="text"
-              placeholder="name"
-              className="input input-sm input-bordered rounded-xl w-full max-w-xs"
-              value={selectedContract !== NEW_COLLECTION_VAL ? selectedContract?.split(",")[1] : collectionName}
-              onChange={e => setCollectionName(e.target.value)}
-              disabled={selectedContract !== NEW_COLLECTION_VAL}
-              required
-            />
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Collection Description</span>
-            </label>
-            <textarea
-              placeholder="description"
-              className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
-              value={collectionDescription}
-              onChange={e => setCollectionDescription(e.target.value)}
-              disabled={selectedContract !== NEW_COLLECTION_VAL}
-              required
-            />
+          <div>
+            <div className="form-control mt-[68px]">
+              <label className="label">
+                <span className="label-text">Ink Name</span>
+              </label>
+              <input
+                type="text"
+                placeholder="name"
+                className="input input-sm input-bordered rounded-xl w-full max-w-xs"
+                value={inkName}
+                onChange={e => setInkName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Ink Description</span>
+              </label>
+              <textarea
+                placeholder="description"
+                className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
+                value={inkDescription}
+                onChange={e => setInkDescription(e.target.value)}
+                required
+              />
+            </div>
           </div>
         </div>
-        <div>
-          <div className="form-control mt-[68px]">
-            <label className="label">
-              <span className="label-text">Ink Name</span>
-            </label>
-            <input
-              type="text"
-              placeholder="name"
-              className="input input-sm input-bordered rounded-xl w-full max-w-xs"
-              value={inkName}
-              onChange={e => setInkName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Ink Description</span>
-            </label>
-            <textarea
-              placeholder="description"
-              className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
-              value={inkDescription}
-              onChange={e => setInkDescription(e.target.value)}
-              required
-            />
-          </div>
+        <div className="form-control mt-6">
+          <button className="btn btn-primary" disabled={formState === "loading"} type="submit">
+            {formState === "loading" && <span className="loading loading-spinner loading-sm"></span>}
+            <span>Ink!</span>
+          </button>
         </div>
-      </div>
-      <div className="form-control mt-6">
-        <button className="btn btn-primary" disabled={formState === "loading"} type="submit">
-          {formState === "loading" && <span className="loading loading-spinner loading-sm"></span>}
-          <span>Ink!</span>
-        </button>
-      </div>
-    </form>
+      </form>
+    </div>
   ) : (
     <div className="success-message">
       <CheckCircleIcon className="h-24 w-24 mx-auto text-green-500" />

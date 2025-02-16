@@ -3,8 +3,10 @@ import { BaseOnZoraForm } from "./BaseOnZoraForm";
 import { GnosisForm } from "./GnosisForm";
 import SelectChain from "./SelectChain";
 import { Chain } from "viem";
+import { useSwitchChain } from "wagmi";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { Chains } from "~~/types/chains";
+import { getChainId } from "~~/utils/chains";
 
 type PublishContentProps = {
   chain: Chain;
@@ -13,10 +15,11 @@ type PublishContentProps = {
 };
 
 export const PublishContent = ({ chain, connectedAddress, drawingCanvas }: PublishContentProps) => {
+  const { switchChain } = useSwitchChain();
   const [selectedChain, setSelectedChain] = useState<Chains>(Chains.gnosis);
 
   const handleChangeChain = (newValue: Chains) => {
-    console.log("newValue", newValue);
+    switchChain?.({ chainId: getChainId(newValue) });
     setSelectedChain(newValue);
   };
 

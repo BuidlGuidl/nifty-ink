@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 import { Chains } from "~~/types/chains";
 
 type SelectChainProps = {
