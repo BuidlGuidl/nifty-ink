@@ -62,13 +62,13 @@ const handleJsonUpload = async (json: object, filename: string) => {
   }
 };
 
-type CreateInkZoraFormProps = {
+type BaseOnZoraFormProps = {
   connectedAddress: string;
   drawingCanvas: React.RefObject<CanvasDrawLines>;
   chainId: number;
 };
 
-export const CreateInkZoraForm = ({ connectedAddress, drawingCanvas, chainId }: CreateInkZoraFormProps) => {
+export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: BaseOnZoraFormProps) => {
   const { connector } = useAccount();
 
   const IPFS_BASE_URL = "https://azure-qualified-blackbird-912.mypinata.cloud/ipfs/";

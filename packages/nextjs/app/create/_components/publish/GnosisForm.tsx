@@ -8,16 +8,16 @@ import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
 import { addToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
 
-type CreateInkGnosisFormProps = {
+type GnosisFormProps = {
   connectedAddress: string;
   drawingCanvas: React.RefObject<CanvasDrawLines>;
 };
 
-export const CreateInkGnosisForm = ({ connectedAddress, drawingCanvas }: CreateInkGnosisFormProps) => {
+export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps) => {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [inkName, setInkName] = useState<string>("");
-  const [inkNumber, setInkNumber] = useState<number>(0);
+  const [inkNumber, setInkNumber] = useState<number | undefined>(undefined);
   const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("NiftyInk");
 
   const createInkGnosis = async () => {
@@ -41,7 +41,7 @@ export const CreateInkGnosisForm = ({ connectedAddress, drawingCanvas }: CreateI
         attributes: [
           {
             trait_type: "Limit",
-            value: inkNumber.toString(),
+            value: (inkNumber ?? 0).toString(),
           },
         ],
         name: inkName,
@@ -63,7 +63,7 @@ export const CreateInkGnosisForm = ({ connectedAddress, drawingCanvas }: CreateI
 
       await writeYourContractAsync({
         functionName: "createInk",
-        args: [drawingHash, jsonHash, BigInt(inkNumber)],
+        args: [drawingHash, jsonHash, BigInt(inkNumber ?? 0)],
       });
 
       router.push(`/ink/${drawingHash}`);
@@ -103,7 +103,7 @@ export const CreateInkGnosisForm = ({ connectedAddress, drawingCanvas }: CreateI
           </label>
           <input
             type="number"
-            placeholder="limit"
+            placeholder="unlimited"
             className="input input-sm input-bordered w-full max-w-xs"
             value={inkNumber}
             onChange={e => setInkNumber(Number(e.target.value))}
