@@ -4,6 +4,7 @@ import LZ from "lz-string";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { uploadFileToIPFS, uploadJsonToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
 
 // Helper function: Convert Data URL to File
@@ -18,48 +19,6 @@ const dataURLToFile = (dataURL: string, filename: string): File => {
   }
 
   return new File([u8arr], filename, { type: mime });
-};
-
-const handleFileUpload = async (file: File) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("/api/pinFile", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      throw new Error("Failed to upload the file");
-    }
-
-    const { IpfsHash } = await res.json();
-    return IpfsHash;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const handleJsonUpload = async (json: object, filename: string) => {
-  try {
-    const res = await fetch(`/api/pinJson?filename=${encodeURIComponent(filename)}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(json),
-    });
-
-    if (!res.ok) {
-      throw new Error("Failed to upload the JSON data");
-    }
-
-    const { IpfsHash } = await res.json();
-    return IpfsHash as string;
-  } catch (error) {
-    console.log(error);
-  }
 };
 
 type BaseOnZoraFormProps = {
@@ -133,23 +92,25 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
     const drawingFile = new File([drawingBlob], `${inkName}_${connectedAddress}_${currentTime}.lz`, {
       type: "application/octet-stream",
     });
-    const drawingResult = await handleFileUpload(drawingFile);
+    const uploadedDrawing = await uploadFileToIPFS(drawingFile);
+    if (!uploadedDrawing.success) {
+      return uploadedDrawing;
+    }
+    console.log("uploadedDrawing", uploadedDrawing);
 
     const inkMetadataJson = {
       name: inkName,
       description: inkDescription,
       content: {
         mime: "text/html",
-        uri: `${VIEW_INK_URL}${drawingResult}`,
+        uri: `${VIEW_INK_URL}${uploadedDrawing?.cid}`,
       },
       image: `${IPFS_BASE_URL}${imageResult}`,
-      animation_url: `${VIEW_INK_URL}${drawingResult}`,
+      animation_url: `${VIEW_INK_URL}${uploadedDrawing?.cid}`,
     };
-    const inkMetadataUri = await handleJsonUpload(
-      inkMetadataJson,
-      `${inkName}_${connectedAddress}_${currentTime}.json`,
-    );
-    return inkMetadataUri;
+    const uploadedInkMetadata = await uploadJsonToIPFS(inkMetadataJson);
+    console.log("uploadedInkMetadata", uploadedInkMetadata);
+    return uploadedInkMetadata;
   };
 
   const createZoraInk = async (imageResult: string, inkMetadataUri: string, currentTime: string) => {
@@ -160,13 +121,15 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
         image: `${IPFS_BASE_URL}${imageResult}`,
       };
 
-      const contractMetadataUri =
-        (await handleJsonUpload(contractMetadataJson, `${collectionName}_${connectedAddress}_${currentTime}.json`)) ||
-        "";
+      const contractMetadata = await uploadJsonToIPFS(contractMetadataJson);
+      console.log("contractMetadata", contractMetadata);
+      if (!contractMetadata) {
+        return null;
+      }
       const { parameters, contractAddress } = await create1155({
         contract: {
           name: collectionName,
-          uri: `${IPFS_BASE_URL}${contractMetadataUri}`,
+          uri: `${IPFS_BASE_URL}${contractMetadata?.cid}`,
         },
         token: {
           tokenMetadataURI: `${IPFS_BASE_URL}${inkMetadataUri}`,
@@ -197,16 +160,27 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
 
     const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
     const imageFile = dataURLToFile(imageData, `${inkName}_${connectedAddress}_${currentTime}.png`);
-    const imageResult = await handleFileUpload(imageFile);
+    const uploadedImage = await uploadFileToIPFS(imageFile);
+    console.log("imageResult", uploadedImage);
+    if (!uploadedImage.success) {
+      notification.error("Failed to upload the image");
+      setFormState("fill");
+      return;
+    }
 
-    const inkMetadataUri = await uploadInkMetadata(imageResult, currentTime);
-    if (!inkMetadataUri) {
+    const inkMetadata = await uploadInkMetadata(uploadedImage?.cid, currentTime);
+    if (!inkMetadata?.success) {
       setFormState("fill");
       notification.error("Failed to upload ink metadata");
       return;
     }
 
-    const parameters = await createZoraInk(imageResult, inkMetadataUri, currentTime);
+    const parameters = await createZoraInk(uploadedImage?.cid, inkMetadata?.cid, currentTime);
+    if (!parameters) {
+      setFormState("fill");
+      notification.error("Failed to create the ink");
+      return;
+    }
     const hash = await writeContractAsync(parameters);
     await publicClient.waitForTransactionReceipt({ hash });
 
