@@ -15,23 +15,26 @@ export function createIPFSUploader() {
         url: "https://ipfs.nifty.ink:3001",
       },
     },
+    {
+      url: "https://upload.bgipfs.com",
+      headers: {
+        "X-API-Key": process.env.NEXT_PUBLIC_BGIPFS_API_KEY || "",
+      },
+    },
   ]);
 
   return multiUploader;
 }
 
-export async function uploadFileToIPFS(fileToUpload: any) {
+export async function uploadToIPFS(fileToUpload: any, type: "file" | "json" | "buffer") {
   const multiUploader = createIPFSUploader();
-  const fileResult = multiUploader.add.file(fileToUpload);
-  console.log("fileResult", fileResult);
-  return fileResult;
-}
-
-export async function uploadJsonToIPFS(fileToUpload: any) {
-  const multiUploader = createIPFSUploader();
-  const fileResult = multiUploader.add.json(fileToUpload);
-  console.log("fileResult", fileResult);
-  return fileResult;
+  if (type === "json") {
+    return multiUploader.add.json(fileToUpload);
+  } else if (type === "buffer") {
+    return multiUploader.add.buffer(fileToUpload);
+  } else {
+    return multiUploader.add.file(fileToUpload);
+  }
 }
 
 const ipfsConfig = {

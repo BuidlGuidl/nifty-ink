@@ -4,22 +4,8 @@ import LZ from "lz-string";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
-import { uploadFileToIPFS, uploadJsonToIPFS } from "~~/utils/ipfs";
+import { uploadToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
-
-// Helper function: Convert Data URL to File
-const dataURLToFile = (dataURL: string, filename: string): File => {
-  const [header, base64] = dataURL.split(",");
-  const mime = header.match(/:(.*?);/)?.[1] || "image/png";
-  const binary = atob(base64);
-  const u8arr = new Uint8Array(binary.length);
-
-  for (let i = 0; i < binary.length; i++) {
-    u8arr[i] = binary.charCodeAt(i);
-  }
-
-  return new File([u8arr], filename, { type: mime });
-};
 
 type BaseOnZoraFormProps = {
   connectedAddress: string;
@@ -92,7 +78,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
     const drawingFile = new File([drawingBlob], `${inkName}_${connectedAddress}_${currentTime}.lz`, {
       type: "application/octet-stream",
     });
-    const uploadedDrawing = await uploadFileToIPFS(drawingFile);
+    const uploadedDrawing = await uploadToIPFS(drawingFile, "file");
     if (!uploadedDrawing.success) {
       return uploadedDrawing;
     }
@@ -108,7 +94,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
       image: `${IPFS_BASE_URL}${imageResult}`,
       animation_url: `${VIEW_INK_URL}${uploadedDrawing?.cid}`,
     };
-    const uploadedInkMetadata = await uploadJsonToIPFS(inkMetadataJson);
+    const uploadedInkMetadata = await uploadToIPFS(inkMetadataJson, "json");
     console.log("uploadedInkMetadata", uploadedInkMetadata);
     return uploadedInkMetadata;
   };
@@ -121,7 +107,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
         image: `${IPFS_BASE_URL}${imageResult}`,
       };
 
-      const contractMetadata = await uploadJsonToIPFS(contractMetadataJson);
+      const contractMetadata = await uploadToIPFS(contractMetadataJson, "json");
       console.log("contractMetadata", contractMetadata);
       if (!contractMetadata) {
         return null;
@@ -159,8 +145,8 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
     const currentTime = new Date().toISOString().replace(/[:.]/g, "-");
 
     const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
-    const imageFile = dataURLToFile(imageData, `${inkName}_${connectedAddress}_${currentTime}.png`);
-    const uploadedImage = await uploadFileToIPFS(imageFile);
+    const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
+    const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
     console.log("imageResult", uploadedImage);
     if (!uploadedImage.success) {
       notification.error("Failed to upload the image");
