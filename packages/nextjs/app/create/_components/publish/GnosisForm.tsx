@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import * as Hash from "ipfs-only-hash";
 import LZ from "lz-string";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
-import { addToIPFS } from "~~/utils/ipfs";
+import { uploadToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
 
 type GnosisFormProps = {
@@ -26,7 +25,12 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
 
       const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
       const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
-      const imageHash = await Hash.of(imageBuffer);
+      const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
+      const imageCID = uploadedImage.cid.toString();
+      console.log("imageResult", uploadedImage);
+      if (!uploadedImage.success) {
+        throw new Error("Failed to upload image to IPFS");
+      }
 
       const saveData = drawingCanvas?.current?.getSaveData();
       if (!saveData) {
@@ -34,7 +38,12 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
       }
       const compressedArray = LZ.compressToUint8Array(saveData);
       const drawingBuffer = Buffer.from(compressedArray);
-      const drawingHash = await Hash.of(drawingBuffer);
+      const uploadedDrawing = await uploadToIPFS(drawingBuffer, "buffer");
+      const drawingCID = uploadedDrawing.cid.toString();
+      console.log("drawingResult", uploadedDrawing);
+      if (!uploadedDrawing.success) {
+        throw new Error("Failed to upload drawing to IPFS");
+      }
 
       const timeInMs = new Date();
       const currentInk = {
@@ -46,27 +55,28 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
         ],
         name: inkName,
         description: `A Nifty Ink by ${connectedAddress} on ${timeInMs}`,
-        drawing: drawingHash,
-        image: `https://ipfs.io/ipfs/${imageHash}`,
-        external_url: `https://nifty.ink/${drawingHash}`,
+        drawing: drawingCID,
+        image: `https://ipfs.io/ipfs/${imageCID}`,
+        external_url: `https://nifty.ink/${drawingCID}`,
       };
 
       const inkStr = JSON.stringify(currentInk);
       const inkBuffer = Buffer.from(inkStr);
-      const jsonHash = await Hash.of(inkBuffer);
+      const uploadedInk = await uploadToIPFS(inkBuffer, "buffer");
+      const jsonCID = uploadedInk.cid.toString();
+      console.log("inkResult", uploadedInk);
+      if (!uploadedInk.success) {
+        throw new Error("Failed to upload ink to IPFS");
+      }
 
       await checkAddressAndFund(connectedAddress);
 
-      const uploadResults = await Promise.all([addToIPFS(drawingBuffer), addToIPFS(imageBuffer), addToIPFS(inkBuffer)]);
-
-      console.log("FINISHED UPLOADING TO PINNER", uploadResults);
-
       await writeYourContractAsync({
         functionName: "createInk",
-        args: [drawingHash, jsonHash, BigInt(inkNumber ?? 0)],
+        args: [drawingCID, jsonCID, BigInt(inkNumber ?? 0)],
       });
 
-      router.push(`/ink/${drawingHash}`);
+      router.push(`/ink/${drawingCID}`);
     } catch (e) {
       console.error(e);
       notification.error(`📛 Ink creation failed. Please wait a moment and try again: ${(e as Error).message}`);
@@ -108,7 +118,6 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
             value={inkNumber}
             onChange={e => setInkNumber(Number(e.target.value))}
             min="0"
-            required
           />
         </div>
 
