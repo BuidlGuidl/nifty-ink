@@ -16,8 +16,8 @@ type BaseOnZoraFormProps = {
 export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: BaseOnZoraFormProps) => {
   const { connector } = useAccount();
 
-  const IPFS_BASE_URL = "https://azure-qualified-blackbird-912.mypinata.cloud/ipfs/";
-  const VIEW_INK_URL = "https://nifty-view.vercel.app/ink/";
+  const IPFS_BASE_URL = "ipfs://";
+  const VIEW_INK_URL = "https://view.nifty.ink/ink/";
   const NEW_COLLECTION_VAL = "newcollection";
   const [formState, setFormState] = useState<"fill" | "loading" | "success">("fill");
   const [collectionName, setCollectionName] = useState<string>("");
