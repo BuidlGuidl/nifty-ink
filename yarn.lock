@@ -3774,7 +3774,7 @@ __metadata:
     graphql: ^16.8.2
     ipfs-http-client: ^60.0.1
     ipfs-only-hash: ^4.0.0
-    ipfs-uploader: ^0.0.7
+    ipfs-uploader: ^0.0.8
     kubo-rpc-client: ^4.1.1
     lz-string: ^1.5.0
     next: ^14.0.4
@@ -12442,9 +12442,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ipfs-uploader@npm:^0.0.7":
-  version: 0.0.7
-  resolution: "ipfs-uploader@npm:0.0.7"
+"ipfs-uploader@npm:^0.0.8":
+  version: 0.0.8
+  resolution: "ipfs-uploader@npm:0.0.8"
   dependencies:
     "@aws-sdk/client-s3": 3.726.0
     "@aws-sdk/lib-storage": ^3.750.0
@@ -12454,7 +12454,7 @@ __metadata:
     it-all: ^3.0.6
     kubo-rpc-client: ^5.0.2
     multiformats: ^13.3.1
-  checksum: 30fe82218d37c602ea32c36c4c2dd263a7e32b5a96ffa7b06d14d5e30f4219e14d3484424d2685313f8f4fa562d6301670719e7f577ad71767e3af4500f001e0
+  checksum: 283ba7a17f93803b47c54ad9854ff85bbfb2cfe757b0f1c4f7fe06c56539b5cf2868805243c492e3459080ad3fb054726268adc13f0d0dff18134c56ebcbb220
   languageName: node
   linkType: hard
 
