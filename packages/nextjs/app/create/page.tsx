@@ -235,16 +235,6 @@ const CreateInk = () => {
 
   return (
     <div className="create-ink-container mt-5">
-      {/* {chain && connectedAddress && (
-        <div className="title-top">
-          <CreateInkModal
-            modalId="create-ink-modal"
-            chain={chain}
-            connectedAddress={connectedAddress}
-            drawingCanvas={drawingCanvas}
-          />
-        </div>
-      )} */}
       <div className="canvas">
         {width > 0 && height > 0 && isClient ? (
           <div
@@ -281,10 +271,7 @@ const CreateInk = () => {
         <div className={portrait ? "" : "edit-tools-side"}>
           <div role="tablist" className="tabs tabs-lifted">
             <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="Create" defaultChecked />
-            <div
-              role="tabpanel"
-              className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-[${portrait ? "100%" : "80%"}]`}
-            >
+            <div role="tabpanel" className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-full`}>
               <CanvasControls
                 canvasDisabled={canvasDisabled}
                 isSaving={isSaving}
@@ -322,10 +309,7 @@ const CreateInk = () => {
             </div>
 
             <input type="radio" name="my_tabs_2" role="tab" className="tab flex items-center" aria-label="Publish" />
-            <div
-              role="tabpanel"
-              className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-[${portrait ? "100%" : "80%"}]`}
-            >
+            <div role="tabpanel" className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-full`}>
               {chain && connectedAddress && (
                 <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
               )}
