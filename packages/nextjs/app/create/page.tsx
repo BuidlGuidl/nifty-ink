@@ -270,7 +270,7 @@ const CreateInk = () => {
       <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
         <div className={portrait ? "" : "edit-tools-side"}>
           <div role="tablist" className="tabs tabs-lifted">
-            <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="Create" defaultChecked />
+            <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="1 Create" defaultChecked />
             <div role="tabpanel" className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-full`}>
               <CanvasControls
                 canvasDisabled={canvasDisabled}
@@ -308,7 +308,7 @@ const CreateInk = () => {
               />
             </div>
 
-            <input type="radio" name="my_tabs_2" role="tab" className="tab flex items-center" aria-label="Publish" />
+            <input type="radio" name="my_tabs_2" role="tab" className="tab flex items-center" aria-label="2 Publish" />
             <div role="tabpanel" className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-full`}>
               {chain && connectedAddress && (
                 <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />

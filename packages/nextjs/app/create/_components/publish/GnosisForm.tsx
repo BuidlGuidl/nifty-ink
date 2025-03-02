@@ -109,7 +109,7 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
 
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Ink Number</span>
+            <span className="label-text">Editions</span>
           </label>
           <input
             type="number"
