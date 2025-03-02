@@ -66,115 +66,133 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
   }, []);
 
   const uploadInkMetadata = async (imageResult: string, currentTime: string) => {
-    const saveData = drawingCanvas?.current?.getSaveData();
-    if (!saveData) {
-      setFormState("fill");
-      notification.error("Failed to get save data from canvas");
-      return;
-    }
-    const compressedArray = LZ.compressToUint8Array(saveData);
-    const drawingBuffer = Buffer.from(compressedArray);
-    const drawingBlob = new Blob([drawingBuffer], { type: "application/octet-stream" });
-    const drawingFile = new File([drawingBlob], `${inkName}_${connectedAddress}_${currentTime}.lz`, {
-      type: "application/octet-stream",
-    });
-    const uploadedDrawing = await uploadToIPFS(drawingFile, "file");
-    if (!uploadedDrawing.success) {
-      return uploadedDrawing;
-    }
-    console.log("uploadedDrawing", uploadedDrawing);
+    try {
+      const saveData = drawingCanvas?.current?.getSaveData();
+      if (!saveData) {
+        throw new Error("Failed to get save data from canvas");
+      }
 
-    const inkMetadataJson = {
-      name: inkName,
-      description: inkDescription,
-      content: {
-        mime: "text/html",
-        uri: `${VIEW_INK_URL}${uploadedDrawing?.cid}`,
-      },
-      image: `${IPFS_BASE_URL}${imageResult}`,
-      animation_url: `${VIEW_INK_URL}${uploadedDrawing?.cid}`,
-    };
-    const uploadedInkMetadata = await uploadToIPFS(inkMetadataJson, "json");
-    console.log("uploadedInkMetadata", uploadedInkMetadata);
-    return uploadedInkMetadata;
+      // Create drawing file
+      const compressedArray = LZ.compressToUint8Array(saveData);
+      const drawingBuffer = Buffer.from(compressedArray);
+      const drawingBlob = new Blob([drawingBuffer], { type: "application/octet-stream" });
+      const drawingFile = new File([drawingBlob], `${inkName}_${connectedAddress}_${currentTime}.lz`, {
+        type: "application/octet-stream",
+      });
+
+      // Upload drawing
+      const uploadedDrawing = await uploadToIPFS(drawingFile, "file");
+      if (!uploadedDrawing?.cid) {
+        throw new Error("Failed to upload drawing to IPFS");
+      }
+
+      // Create and upload metadata
+      const inkMetadataJson = {
+        name: inkName,
+        description: inkDescription,
+        content: {
+          mime: "text/html",
+          uri: `${VIEW_INK_URL}${uploadedDrawing.cid}`,
+        },
+        image: `${IPFS_BASE_URL}${imageResult}`,
+        animation_url: `${VIEW_INK_URL}${uploadedDrawing.cid}`,
+      };
+
+      const uploadedInkMetadata = await uploadToIPFS(inkMetadataJson, "json");
+      if (!uploadedInkMetadata?.cid) {
+        throw new Error("Failed to upload ink metadata to IPFS");
+      }
+
+      return uploadedInkMetadata;
+    } catch (error) {
+      notification.error(`Error uploading metadata: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw error;
+    }
   };
 
   const createZoraInk = async (imageResult: string, inkMetadataUri: string, currentTime: string) => {
-    if (selectedContract === NEW_COLLECTION_VAL) {
-      const contractMetadataJson = {
-        name: collectionName,
-        description: collectionDescription,
-        image: `${IPFS_BASE_URL}${imageResult}`,
-      };
-
-      const contractMetadata = await uploadToIPFS(contractMetadataJson, "json");
-      console.log("contractMetadata", contractMetadata);
-      if (!contractMetadata) {
-        return null;
-      }
-      const { parameters, contractAddress } = await create1155({
-        contract: {
+    try {
+      if (selectedContract === NEW_COLLECTION_VAL) {
+        const contractMetadataJson = {
           name: collectionName,
-          uri: `${IPFS_BASE_URL}${contractMetadata?.cid}`,
-        },
-        token: {
-          tokenMetadataURI: `${IPFS_BASE_URL}${inkMetadataUri}`,
-        },
-        account: connectedAddress,
-        publicClient,
-      });
-      setCreatedContract(contractAddress);
-      return parameters;
-    } else {
-      const { parameters } = await createNew1155Token({
-        contractAddress: selectedContract?.split(",")[0],
-        token: {
-          tokenMetadataURI: `${IPFS_BASE_URL}${inkMetadataUri}`,
-        },
-        account: connectedAddress,
-        chainId: publicClient.chain.id,
-      });
-      setCreatedContract(selectedContract?.split(",")[0]);
-      return parameters;
+          description: collectionDescription,
+          image: `${IPFS_BASE_URL}${imageResult}`,
+        };
+
+        const contractMetadata = await uploadToIPFS(contractMetadataJson, "json");
+        if (!contractMetadata?.cid) {
+          throw new Error("Failed to upload contract metadata to IPFS");
+        }
+
+        const { parameters, contractAddress } = await create1155({
+          contract: {
+            name: collectionName,
+            uri: `${IPFS_BASE_URL}${contractMetadata.cid}`,
+          },
+          token: {
+            tokenMetadataURI: `${IPFS_BASE_URL}${inkMetadataUri}`,
+          },
+          account: connectedAddress,
+          publicClient,
+        });
+        setCreatedContract(contractAddress);
+        return parameters;
+      } else {
+        const { parameters } = await createNew1155Token({
+          contractAddress: selectedContract?.split(",")[0],
+          token: {
+            tokenMetadataURI: `${IPFS_BASE_URL}${inkMetadataUri}`,
+          },
+          account: connectedAddress,
+          chainId: publicClient.chain.id,
+        });
+        setCreatedContract(selectedContract?.split(",")[0]);
+        return parameters;
+      }
+    } catch (error) {
+      notification.error(`Error creating Zora ink: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw error;
     }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setFormState("loading");
-    const currentTime = new Date().toISOString().replace(/[:.]/g, "-");
+    try {
+      setFormState("loading");
+      const currentTime = new Date().toISOString().replace(/[:.]/g, "-");
 
-    const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
-    const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
-    const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
-    console.log("imageResult", uploadedImage);
-    if (!uploadedImage.success) {
-      notification.error("Failed to upload the image");
-      setFormState("fill");
-      return;
-    }
+      // Upload image
+      const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
+      if (!imageData) {
+        throw new Error("Failed to get image data from canvas");
+      }
 
-    const inkMetadata = await uploadInkMetadata(uploadedImage?.cid, currentTime);
-    if (!inkMetadata?.success) {
-      setFormState("fill");
-      notification.error("Failed to upload ink metadata");
-      return;
-    }
+      const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
+      const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
+      if (!uploadedImage?.cid) {
+        throw new Error("Failed to upload image to IPFS");
+      }
 
-    const parameters = await createZoraInk(uploadedImage?.cid, inkMetadata?.cid, currentTime);
-    if (!parameters) {
-      setFormState("fill");
-      notification.error("Failed to create the ink");
-      return;
-    }
-    const hash = await writeContractAsync(parameters);
-    await publicClient.waitForTransactionReceipt({ hash });
+      // Upload metadata
+      const inkMetadata = await uploadInkMetadata(uploadedImage.cid, currentTime);
+      if (!inkMetadata?.cid) {
+        throw new Error("Failed to upload ink metadata");
+      }
 
-    if (status === "error") {
-      notification.error("Failed to create the ink");
-      setFormState("fill");
-    } else {
+      // Create Zora ink
+      const parameters = await createZoraInk(uploadedImage.cid, inkMetadata.cid, currentTime);
+      if (!parameters) {
+        throw new Error("Failed to create Zora ink parameters");
+      }
+
+      // Submit transaction
+      const hash = await writeContractAsync(parameters);
+      await publicClient.waitForTransactionReceipt({ hash });
+
       setFormState("success");
+    } catch (error) {
+      setFormState("fill");
+      notification.error(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 

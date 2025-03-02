@@ -4,9 +4,17 @@ import { create } from "kubo-rpc-client";
 import * as uint8arrays from "uint8arrays";
 
 export function createIPFSUploader() {
+  if (!process.env.NEXT_PUBLIC_PINATA_JWT) {
+    throw new Error("NEXT_PUBLIC_PINATA_JWT environment variable is not set");
+  }
+
+  if (!process.env.NEXT_PUBLIC_BGIPFS_API_KEY) {
+    throw new Error("NEXT_PUBLIC_BGIPFS_API_KEY environment variable is not set");
+  }
+
   const multiUploader = createUploader([
     {
-      jwt: process.env.NEXT_PUBLIC_PINATA_JWT || "",
+      jwt: process.env.NEXT_PUBLIC_PINATA_JWT,
       gateway: "http://azure-qualified-blackbird-912.mypinata.cloud",
     },
     {
@@ -18,7 +26,7 @@ export function createIPFSUploader() {
     {
       url: "https://upload.bgipfs.com",
       headers: {
-        "X-API-Key": process.env.NEXT_PUBLIC_BGIPFS_API_KEY || "",
+        "X-API-Key": process.env.NEXT_PUBLIC_BGIPFS_API_KEY,
       },
     },
   ]);
@@ -27,13 +35,18 @@ export function createIPFSUploader() {
 }
 
 export async function uploadToIPFS(fileToUpload: any, type: "file" | "json" | "buffer") {
-  const multiUploader = createIPFSUploader();
-  if (type === "json") {
-    return multiUploader.add.json(fileToUpload);
-  } else if (type === "buffer") {
-    return multiUploader.add.buffer(fileToUpload);
-  } else {
-    return multiUploader.add.file(fileToUpload);
+  try {
+    const multiUploader = createIPFSUploader();
+    if (type === "json") {
+      return await multiUploader.add.json(fileToUpload);
+    } else if (type === "buffer") {
+      return await multiUploader.add.buffer(fileToUpload);
+    } else {
+      return await multiUploader.add.file(fileToUpload);
+    }
+  } catch (error) {
+    console.error("Error uploading to IPFS:", error);
+    throw new Error(`Failed to upload to IPFS: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
 
