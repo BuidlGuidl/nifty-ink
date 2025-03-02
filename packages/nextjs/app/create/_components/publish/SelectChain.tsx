@@ -10,11 +10,11 @@ const SelectChain: React.FC<SelectChainProps> = ({ onSelect }) => {
     <div className="mb-4 flex items-center justify-center">
       <label className="">
         <div className="label">
-          <span className="label-text">Pick the chain</span>
+          <span className="label-text">Pick the platform</span>
         </div>
         <select className="select select-bordered select-sm" onChange={e => onSelect(e.target.value as Chains)}>
-          <option value={Chains.gnosis}>Gnosis</option>
-          <option value={Chains.base}>Base</option>
+          <option value={Chains.gnosis}>nifty.ink</option>
+          <option value={Chains.base}>Zora</option>
         </select>
       </label>
     </div>

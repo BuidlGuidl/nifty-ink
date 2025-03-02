@@ -93,6 +93,7 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
   return (
     <div className="flex justify-center">
       <form className="form-control w-full max-w-xs" onSubmit={handleSubmit}>
+        <h3 className="font-bold">Publishing to nifty.ink on Gnosis</h3>
         <div className="form-control">
           <label className="label">
             <span className="label-text">Ink Name</span>
@@ -106,7 +107,6 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
             required
           />
         </div>
-
         <div className="form-control">
           <label className="label">
             <span className="label-text">Editions</span>
@@ -120,7 +120,6 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
             min="0"
           />
         </div>
-
         <div className="form-control mt-6">
           <button className="btn btn-primary" disabled={isCreating} type="submit">
             {isCreating && <span className="loading loading-spinner loading-sm"></span>}

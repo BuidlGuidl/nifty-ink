@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { create1155, createNew1155Token } from "@zoralabs/protocol-sdk";
 import LZ from "lz-string";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
-import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { uploadToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
@@ -189,6 +189,15 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
   return formState !== "success" ? (
     <div className="flex justify-center">
       <form className="flex justify-center form-control w-full max-w-xs" onSubmit={handleSubmit}>
+        <div className="flex justify-center gap-1">
+          <h3 className="font-bold indicator">Publishing to Zora on Base </h3>
+          <div
+            className="tooltip tooltip-info tooltip-top"
+            data-tip={"This allows you to publish your inks directly to Zora on Base"}
+          >
+            <QuestionMarkCircleIcon className="h-4 w-4" />
+          </div>
+        </div>
         <div className="flex gap-2">
           <div>
             <div className="form-control">
