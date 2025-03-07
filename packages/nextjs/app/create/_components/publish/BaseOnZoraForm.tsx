@@ -82,7 +82,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
 
       // Upload drawing
       const uploadedDrawing = await uploadToIPFS(drawingFile, "file");
-      if (!uploadedDrawing?.cid) {
+      if (!uploadedDrawing.success) {
         throw new Error("Failed to upload drawing to IPFS");
       }
 
@@ -99,7 +99,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
       };
 
       const uploadedInkMetadata = await uploadToIPFS(inkMetadataJson, "json");
-      if (!uploadedInkMetadata?.cid) {
+      if (!uploadedInkMetadata.success) {
         throw new Error("Failed to upload ink metadata to IPFS");
       }
 
@@ -120,7 +120,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
         };
 
         const contractMetadata = await uploadToIPFS(contractMetadataJson, "json");
-        if (!contractMetadata?.cid) {
+        if (!contractMetadata?.success) {
           throw new Error("Failed to upload contract metadata to IPFS");
         }
 
@@ -169,13 +169,13 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
 
       const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
       const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
-      if (!uploadedImage?.cid) {
+      if (!uploadedImage?.success) {
         throw new Error("Failed to upload image to IPFS");
       }
 
       // Upload metadata
       const inkMetadata = await uploadInkMetadata(uploadedImage.cid, currentTime);
-      if (!inkMetadata?.cid) {
+      if (!inkMetadata?.success) {
         throw new Error("Failed to upload ink metadata");
       }
 
