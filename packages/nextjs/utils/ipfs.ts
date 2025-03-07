@@ -15,7 +15,7 @@ export function createIPFSUploader() {
   const multiUploader = createUploader([
     {
       jwt: process.env.NEXT_PUBLIC_PINATA_JWT,
-      gateway: "http://azure-qualified-blackbird-912.mypinata.cloud",
+      gateway: process.env.NEXT_PUBLIC_PINATA_GATEWAY,
     },
     {
       id: "nifty-ipfs",
