@@ -1,5 +1,5 @@
 export async function getFromIPFS(hashToGet: string, timeout: number) {
-  const url = `${process.env.NEXT_PUBLIC_IPFS_LINK}/${hashToGet}`;
+  const url = `${process.env.NEXT_PUBLIC_IPFS_LINK}/ipfs/${hashToGet}`;
   const response = await fetch(url);
   console.log(timeout);
 

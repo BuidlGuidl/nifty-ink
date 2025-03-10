@@ -27,7 +27,7 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
   }, []);
 
   const fetchAndShowDrawing = async () => {
-    const url = `${process.env.NEXT_PUBLIC_IPFS_LINK}/${cid}`;
+    const url = `${process.env.NEXT_PUBLIC_IPFS_LINK}/ipfs/${cid}`;
     try {
       console.log(`fetching from IPFS ${new Date().toISOString()}`);
       const response = await fetch(url);
