@@ -6,10 +6,9 @@ import { BrushControls } from "./_components/BrushControls";
 import { CanvasActions } from "./_components/CanvasActions";
 import { CanvasControls } from "./_components/CanvasControls";
 import { ColorPicker } from "./_components/ColorPicker";
-import { CreateInkForm } from "./_components/CreateInkForm";
 import { DraftManager } from "./_components/DraftManager";
+import { PublishContent } from "./_components/publish/PublishContent";
 import { useCanvasActions } from "./_hooks/useCanvasActions";
-import { useCreateInk } from "./_hooks/useCreateInk";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import "./styles.css";
 import LZ from "lz-string";
@@ -37,7 +36,7 @@ const createRGBA = (r: number, g: number, b: number, a: number): string => {
 const CreateInk = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const { address: connectedAddress } = useAccount();
+  const { address: connectedAddress, chain } = useAccount();
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
   const calculatedCanvaSize = Math.round(0.85 * Math.min(width, height));
@@ -156,14 +155,6 @@ const CreateInk = () => {
     setIsSaving(false);
   };
 
-  const { createInk, sending, setSending } = useCreateInk(
-    drawingCanvas,
-    connectedAddress,
-    router,
-    saveDrawing,
-    handleChangeDrawing,
-  );
-
   useEffect(() => {
     const loadPage = async () => {
       console.log("loadpage");
@@ -244,20 +235,6 @@ const CreateInk = () => {
 
   return (
     <div className="create-ink-container mt-5">
-      {portrait && (
-        <div className="title-top">
-          <CreateInkForm onFinish={createInk} sending={sending} />
-          <CanvasControls
-            canvasDisabled={canvasDisabled}
-            isSaving={isSaving}
-            drawingCanvas={drawingCanvas}
-            saveDrawing={saveDrawing}
-            undo={undo}
-            handleChangeDrawing={handleChangeDrawing}
-            setCanvasDisabled={setCanvasDisabled}
-          />
-        </div>
-      )}
       <div className="canvas">
         {width > 0 && height > 0 && isClient ? (
           <div
@@ -291,46 +268,53 @@ const CreateInk = () => {
         )}
       </div>
       <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
-        {!portrait && (
-          <>
-            <CreateInkForm onFinish={createInk} sending={sending} />
-            <CanvasControls
-              canvasDisabled={canvasDisabled}
-              isSaving={isSaving}
-              drawingCanvas={drawingCanvas}
-              saveDrawing={saveDrawing}
-              undo={undo}
-              handleChangeDrawing={handleChangeDrawing}
-              setCanvasDisabled={setCanvasDisabled}
-            />
-          </>
-        )}
         <div className={portrait ? "" : "edit-tools-side"}>
-          <ColorPicker
-            color={color}
-            updateColor={updateColor}
-            colorArray={colorArray}
-            setColorArray={setColorArray}
-            setPicker={setPicker}
-            picker={picker}
-            colorOptions={colorOptions}
-          />
-          <BrushControls brushRadius={brushRadius} updateBrushRadius={updateBrushRadius} />
-          <CanvasActions
-            fillBackground={fillBackground}
-            drawFrame={drawFrame}
-            color={color}
-            brushRadius={brushRadius}
-          />
-          <DraftManager
-            saveDraft={saveDraft}
-            downloadCanvas={downloadCanvas}
-            uploadFileChange={uploadFileChange}
-            uploadCanvas={uploadCanvas}
-            canvasFile={canvasFile}
-            drawingCanvas={drawingCanvas}
-            uploadRef={uploadRef}
-          />
+          <div role="tablist" className="tabs tabs-lifted">
+            <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="1 Create" defaultChecked />
+            <div role="tabpanel" className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-full`}>
+              <CanvasControls
+                canvasDisabled={canvasDisabled}
+                isSaving={isSaving}
+                drawingCanvas={drawingCanvas}
+                saveDrawing={saveDrawing}
+                undo={undo}
+                handleChangeDrawing={handleChangeDrawing}
+                setCanvasDisabled={setCanvasDisabled}
+              />
+              <ColorPicker
+                color={color}
+                updateColor={updateColor}
+                colorArray={colorArray}
+                setColorArray={setColorArray}
+                setPicker={setPicker}
+                picker={picker}
+                colorOptions={colorOptions}
+              />
+              <BrushControls brushRadius={brushRadius} updateBrushRadius={updateBrushRadius} />
+              <CanvasActions
+                fillBackground={fillBackground}
+                drawFrame={drawFrame}
+                color={color}
+                brushRadius={brushRadius}
+              />
+              <DraftManager
+                saveDraft={saveDraft}
+                downloadCanvas={downloadCanvas}
+                uploadFileChange={uploadFileChange}
+                uploadCanvas={uploadCanvas}
+                canvasFile={canvasFile}
+                drawingCanvas={drawingCanvas}
+                uploadRef={uploadRef}
+              />
+            </div>
+
+            <input type="radio" name="my_tabs_2" role="tab" className="tab flex items-center" aria-label="2 Publish" />
+            <div role="tabpanel" className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-full`}>
+              {chain && connectedAddress && (
+                <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

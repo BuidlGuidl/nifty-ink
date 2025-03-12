@@ -23,7 +23,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   setCanvasDisabled,
 }) => {
   return (
-    <div style={{ marginTop: 16 }}>
+    <div className="my-5">
       <Tooltip title="save to local storage">
         <Button
           disabled={canvasDisabled || isSaving}

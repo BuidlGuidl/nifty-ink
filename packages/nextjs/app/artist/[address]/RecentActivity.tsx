@@ -208,11 +208,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                           />
                           for {formatEther(BigInt(e.price!))}{" "}
                           <img src={xDai.src} alt="xdai" className="ml-[1px] mr-[3px]" />{" "}
-                          <a
-                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={`https://gnosisscan.io/tx/${e.txHash}`} target="_blank" rel="noopener noreferrer">
                             <LinkOutlined />
                           </a>
                         </p>
@@ -227,11 +223,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                           />
                           sent to{" "}
                           <Address address={e.to} disableAddressLink={true} showCopy={true} format="short" size="xs" />
-                          <a
-                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={`https://gnosisscan.io/tx/${e.txHash}`} target="_blank" rel="noopener noreferrer">
                             <LinkOutlined />
                           </a>
                         </p>
@@ -245,11 +237,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                             format="short"
                             size="xs"
                           />
-                          <a
-                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={`https://gnosisscan.io/tx/${e.txHash}`} target="_blank" rel="noopener noreferrer">
                             <LinkOutlined />
                           </a>
                         </p>
@@ -258,11 +246,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                       ) : (
                         <p className="m-0">
                           Ink minted
-                          <a
-                            href={`https://blockscout.com/xdai/mainnet/tx/${e.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={`https://gnosisscan.io/tx/${e.txHash}`} target="_blank" rel="noopener noreferrer">
                             <LinkOutlined />
                           </a>
                         </p>
