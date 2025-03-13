@@ -30,7 +30,7 @@ export const PublishContent = ({ chain, connectedAddress, drawingCanvas }: Publi
         <GnosisForm connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
       )}
       {selectedChain === Chains.base && (
-        <BaseOnZoraForm connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} chainId={chain.id} />
+        <BaseOnZoraForm connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
       )}
     </div>
   );
