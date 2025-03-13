@@ -14,7 +14,7 @@ type PublishContentProps = {
   drawingCanvas: React.RefObject<CanvasDrawLines>;
 };
 
-export const PublishContent = ({ chain, connectedAddress, drawingCanvas }: PublishContentProps) => {
+export const PublishContent = ({ connectedAddress, drawingCanvas }: PublishContentProps) => {
   const { switchChain } = useSwitchChain();
   const [selectedChain, setSelectedChain] = useState<Chains>(Chains.gnosis);
 
