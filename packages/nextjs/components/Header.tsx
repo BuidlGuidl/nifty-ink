@@ -10,6 +10,7 @@ import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
@@ -56,21 +57,6 @@ export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPl
   const pathname = usePathname();
   const { address: connectedAddress } = useAccount();
 
-  if (!connectedAddress) {
-    return (
-      <>
-        {menuLinks.map((item, index) => (
-          <li key={index} className="relative group mb-2">
-            <div className="py-1.5 px-3 text-sm rounded-full flex items-center">
-              <div className="w-4 h-4 bg-gray-200 rounded-full animate-pulse"></div>
-              <div className="w-16 h-4 bg-gray-200 rounded-full animate-pulse"></div>
-            </div>
-          </li>
-        ))}
-      </>
-    );
-  }
-
   return (
     <>
       {menuLinks.map(({ label, href, icon, sublinks, subnames }) => {
@@ -91,6 +77,20 @@ export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPl
         }
 
         const isActive = pathname === href;
+        if (!connectedAddress && (href === "/artist" || href === "/holdings")) {
+          return (
+            <li
+              key={href}
+              className="relative group mb-2"
+              onClick={() => {
+                notification.error("Please connect your wallet to view this page.");
+              }}
+            >
+              {icon}
+              <span className="ml-2">{label}</span>
+            </li>
+          );
+        }
         return (
           <li key={href} className="relative group mb-2">
             <Link
