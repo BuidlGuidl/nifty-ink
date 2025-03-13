@@ -4,17 +4,19 @@ import LZ from "lz-string";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { CheckCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { Chains } from "~~/types/chains";
+import { getChainId } from "~~/utils/chains";
 import { uploadToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
 
 type BaseOnZoraFormProps = {
   connectedAddress: string;
   drawingCanvas: React.RefObject<CanvasDrawLines>;
-  chainId: number;
 };
 
-export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: BaseOnZoraFormProps) => {
+export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFormProps) => {
   const { connector } = useAccount();
+  const chainId = getChainId(Chains.base);
 
   const IPFS_BASE_URL = "ipfs://";
   const VIEW_INK_URL = "https://view.nifty.ink/ink/";
@@ -27,6 +29,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
   const [collections, setCollections] = useState<any[]>([]);
   const [selectedContract, setSelectedContract] = useState<string>(NEW_COLLECTION_VAL);
   const [createdContract, setCreatedContract] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const publicClient = usePublicClient()!;
 
   const { writeContractAsync, status } = useWriteContract();
@@ -40,26 +43,36 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch data from the API
-      const response = await fetch(`https://api.indexsupply.net/query?chain=${chainId}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify([
-          {
-            event_signatures: [
-              "SetupNewContract(address indexed newContract, address indexed creator, address indexed defaultAdmin, string contractURI, string name, (uint32,uint32,address) defaultRoyaltyConfiguration)",
-            ],
-            query: `select newContract, name
-                    from setupnewcontract
-                    where creator = ${connectedAddress}`,
-          },
-        ]),
-        method: "POST",
-      });
+      if (!connectedAddress || !chainId) return;
 
-      const apiResult = await response.json();
-      setCollections(apiResult?.result?.[0].slice(1));
+      setIsLoading(true);
+      try {
+        // Fetch data from the API
+        const response = await fetch(`https://api.indexsupply.net/query?chain=${chainId}`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([
+            {
+              event_signatures: [
+                "SetupNewContract(address indexed newContract, address indexed creator, address indexed defaultAdmin, string contractURI, string name, (uint32,uint32,address) defaultRoyaltyConfiguration)",
+              ],
+              query: `select newContract, name
+                      from setupnewcontract
+                      where creator = ${connectedAddress}`,
+            },
+          ]),
+          method: "POST",
+        });
+
+        const apiResult = await response.json();
+        const collectionsData = apiResult?.result?.[0].slice(1) || [];
+        setCollections(collectionsData);
+      } catch (error) {
+        console.error("Failed to fetch collections:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
@@ -202,6 +215,10 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas, chainId }: Bas
         <p>Burner Wallet is not supported for this network</p>
       </div>
     );
+  }
+
+  if (isLoading) {
+    return <span className="loading loading-spinner loading-xs"></span>;
   }
 
   return formState !== "success" ? (
