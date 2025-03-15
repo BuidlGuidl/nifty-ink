@@ -26,7 +26,7 @@ export const SingleInk = ({ ink, layout = "cards", connectedAddress, children }:
       {layout === "cards" && (
         <div className="flex flex-col items-center">
           <h3 className="my-2 text-md font-bold">
-            {ink?.metadata?.name?.length ?? 0 > 18 // review for zero
+            {(ink?.metadata?.name?.length ?? 0) > 18 // review for zero
               ? ink?.metadata?.name.slice(0, 15).concat("...")
               : ink?.metadata?.name}
           </h3>
