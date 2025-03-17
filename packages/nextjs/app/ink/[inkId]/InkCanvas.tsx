@@ -99,7 +99,10 @@ export const InkCanvas = ({
       <Descriptions.Item label="jsonUrl">{ink?.jsonUrl}</Descriptions.Item>
       <Descriptions.Item label="Image">
         {
-          <a href={inkJson.image} target="_blank">
+          <a
+            href={inkJson?.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/")}
+            target="_blank"
+          >
             {inkJson.image}
           </a>
         }

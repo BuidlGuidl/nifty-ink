@@ -1,0 +1,72 @@
+import React, { useEffect, useState } from "react";
+import ZoraCollections from "./ZoraCollections";
+import { Chains } from "~~/types/chains";
+import { Collection } from "~~/types/zora";
+import { getChainId } from "~~/utils/chains";
+import { getFetchableUrl } from "~~/utils/ipfs";
+
+type ZoraCollectionsContainerProps = {
+  connectedAddress: string;
+};
+
+const ZoraCollectionsContainer: React.FC<ZoraCollectionsContainerProps> = ({ connectedAddress }) => {
+  const chainId = getChainId(Chains.base);
+
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!connectedAddress || !chainId) return;
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(`https://api.indexsupply.net/query?chain=${chainId}`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([
+            {
+              event_signatures: [
+                "SetupNewContract(address indexed newContract, address indexed creator, address indexed defaultAdmin, string contractURI, string name, (uint32,uint32,address) defaultRoyaltyConfiguration)",
+              ],
+              query: `select newContract, contractURI
+                      from setupnewcontract
+                      where creator = ${connectedAddress}`,
+            },
+          ]),
+          method: "POST",
+        });
+
+        const apiResult = await response.json();
+        const collectionsData = apiResult?.result?.[0].slice(1) || [];
+
+        const collectionDetails = await Promise.all(
+          collectionsData.map(async (collection: any) => {
+            try {
+              const url = getFetchableUrl(collection[1]);
+              const contractResponse = await fetch(url);
+              const contractData = await contractResponse.json();
+              return { ...contractData, contractAddress: collection[0] };
+            } catch (error) {
+              console.error(`Failed to fetch contract data for URI: ${collection[1]}`, error);
+              return null;
+            }
+          }),
+        );
+
+        setCollections(collectionDetails.filter((collection: any) => collection !== null));
+      } catch (error) {
+        console.error("Failed to fetch collections:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return <ZoraCollections isLoading={isLoading} collections={collections} />;
+};
+
+export default ZoraCollectionsContainer;

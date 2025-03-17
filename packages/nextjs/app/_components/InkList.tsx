@@ -65,7 +65,7 @@ export const InkList = ({
                             <>
                               <div className="flex flex-col items-center w-44">
                                 <h3 className="my-2 text-md font-bold">
-                                  {inks[ink]?.metadata?.name?.length ?? 0 > 18 // review for zero
+                                  {(inks[ink]?.metadata?.name?.length ?? 0) > 18
                                     ? inks[ink]?.metadata?.name.slice(0, 15).concat("...")
                                     : inks[ink]?.metadata?.name}
                                 </h3>

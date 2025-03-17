@@ -68,3 +68,12 @@ export async function addToIPFS(fileToUpload: any) {
   const result = await ipfs.add(fileToUpload);
   return result;
 }
+
+export function getFetchableUrl(uri: string): string {
+  if (uri.startsWith("http://")) return "";
+  if (uri.startsWith("https://")) return uri;
+
+  const ipfsHash = uri.split("ipfs://").pop();
+  const gatewayUrl = `https://gateway.nifty.ink:42069/ipfs/${ipfsHash}`;
+  return gatewayUrl;
+}
