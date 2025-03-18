@@ -70,18 +70,6 @@ export const PrivateKeyModal = ({ address, modalId }: PrivateKeyModalProps) => {
                     </CopyToClipboard>
                   </span>
                 </div>
-                <div>
-                  Open in{" "}
-                  <a
-                    target="_blank"
-                    href={`https://punkwallet.io/pk#${pk}`}
-                    rel="noopener noreferrer"
-                    className="underline text-blue-500"
-                  >
-                    Punk Wallet
-                  </a>{" "}
-                  to manage your wallet.
-                </div>
               </div>
             </div>
           </label>

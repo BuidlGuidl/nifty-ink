@@ -41,7 +41,7 @@ export const InkHistory = ({ inkTokenTransfers }: { inkTokenTransfers: any }) =>
               <span className="flex-1" style={{ flexBasis: "10%" }}>
                 <Link
                   href={{
-                    pathname: `https://blockscout.com/xdai/mainnet/tx/${transfer.transactionHash}`,
+                    pathname: `https://gnosisscan.io/tx/${transfer.transactionHash}`,
                   }}
                   target="_blank"
                   rel="noopener noreferrer"

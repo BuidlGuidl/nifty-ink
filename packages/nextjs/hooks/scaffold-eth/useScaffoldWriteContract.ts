@@ -6,6 +6,8 @@ import { Config, UseWriteContractParameters, useAccount, useWriteContract } from
 import { WriteContractErrorType, WriteContractReturnType } from "wagmi/actions";
 import { WriteContractVariables } from "wagmi/query";
 import { useDeployedContractInfo, useTransactor } from "~~/hooks/scaffold-eth";
+import { Chains } from "~~/types/chains";
+import { getChainId } from "~~/utils/chains";
 import { notification } from "~~/utils/scaffold-eth";
 import {
   ContractAbi,
@@ -39,6 +41,12 @@ export const useScaffoldWriteContract = <TContractName extends ContractName>(
     variables: ScaffoldWriteContractVariables<TContractName, TFunctionName>,
     options?: ScaffoldWriteContractOptions,
   ) => {
+    if (!deployedContractData && chain?.id === getChainId(Chains.base)) {
+      // scaffoldwritehooks used only for gnosis chain
+      notification.error("You are on the wrong network, please switch to Gnosis");
+      return;
+    }
+
     if (!deployedContractData) {
       notification.error("Target Contract is not deployed, did you forget to run `yarn deploy`?");
       return;
@@ -89,6 +97,12 @@ export const useScaffoldWriteContract = <TContractName extends ContractName>(
     variables: ScaffoldWriteContractVariables<TContractName, TFunctionName>,
     options?: Omit<ScaffoldWriteContractOptions, "onBlockConfirmation" | "blockConfirmations">,
   ) => {
+    if (!deployedContractData && chain?.id === getChainId(Chains.base)) {
+      // scaffoldwritehooks used only for gnosis chain
+      notification.error("You are on the wrong network, please switch to Gnosis");
+      return;
+    }
+
     if (!deployedContractData) {
       notification.error("Target Contract is not deployed, did you forget to run `yarn deploy`?");
       return;

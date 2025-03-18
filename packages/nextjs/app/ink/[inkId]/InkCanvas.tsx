@@ -97,13 +97,18 @@ export const InkCanvas = ({
       </Descriptions.Item>
       <Descriptions.Item label="id">{ink?.inkNumber}</Descriptions.Item>
       <Descriptions.Item label="jsonUrl">{ink?.jsonUrl}</Descriptions.Item>
-      <Descriptions.Item label="Image">
-        {
-          <a href={inkJson.image} target="_blank">
-            {inkJson.image}
-          </a>
-        }
-      </Descriptions.Item>
+      {inkJson.image && (
+        <Descriptions.Item label="Image">
+          {
+            <a
+              href={inkJson.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/")}
+              target="_blank"
+            >
+              {inkJson.image}
+            </a>
+          }
+        </Descriptions.Item>
+      )}
       <Descriptions.Item label="Count">{ink?.count ? ink?.count : "0"}</Descriptions.Item>
       <Descriptions.Item label="Limit">{ink?.limit}</Descriptions.Item>
       {/* <Descriptions.Item label="Description">{inkJson.description}</Descriptions.Item> */}
@@ -180,7 +185,6 @@ export const InkCanvas = ({
           width: size[0],
           height: size[0],
           margin: "0 auto",
-          outline: "3px solid #999999",
         }}
       >
         <div style={{ position: "relative" }}>

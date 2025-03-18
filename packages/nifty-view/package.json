@@ -1,0 +1,46 @@
+{
+  "name": "@se-2/nifty-view",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev",
+    "start": "next dev",
+    "build": "next build",
+    "serve": "next start",
+    "lint": "next lint",
+    "format": "prettier --write . '!(node_modules|.next|contracts)/**/*'",
+    "check-types": "tsc --noEmit --incremental",
+    "vercel": "vercel",
+    "vercel:yolo": "vercel --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.12",
+    "daisyui": "4.5.0",
+    "lz-string": "^1.5.0",
+    "next": "^14.2.11",
+    "react": "^18.3.1",
+    "react-canvas-draw": "^1.2.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.3"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/node": "^18.19.50",
+    "@types/react": "^18.3.5",
+    "@types/react-canvas-draw": "^1.2.3",
+    "@types/react-copy-to-clipboard": "^5.0.4",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "abitype": "1.0.6",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.15",
+    "eslint-config-prettier": "^8.10.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "postcss": "^8.4.45",
+    "prettier": "^3.3.3",
+    "tailwindcss": "^3.4.11",
+    "type-fest": "^4.26.1",
+    "typescript": "<5.6.0",
+    "vercel": "^39.1.3"
+  }
+}

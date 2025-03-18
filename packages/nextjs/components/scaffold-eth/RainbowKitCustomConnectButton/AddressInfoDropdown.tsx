@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { ManageWalletButton } from "./ManageWalletButton";
 import { NetworkOptions } from "./NetworkOptions";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { getAddress } from "viem";
@@ -39,7 +40,7 @@ export const AddressInfoDropdown = ({
   const checkSumAddress = getAddress(address);
 
   const [addressCopied, setAddressCopied] = useState(false);
-  const displayPrivateKey = connectorName === "Burner Wallet";
+  const isBurnerWalletConnected = connectorName === "Burner Wallet";
 
   const [selectingNetwork, setSelectingNetwork] = useState(false);
   const dropdownRef = useRef<HTMLDetailsElement>(null);
@@ -99,12 +100,17 @@ export const AddressInfoDropdown = ({
               <span className="whitespace-nowrap">View QR Code</span>
             </label>
           </li>
-          {displayPrivateKey && (
+          {isBurnerWalletConnected && (
             <li className={selectingNetwork ? "hidden" : ""}>
               <label htmlFor="pk-modal" className="btn-sm !rounded-xl flex gap-3 py-3">
                 <KeyIcon className="h-6 w-4 ml-2 sm:ml-0" />
                 <span className="whitespace-nowrap">View Private Key</span>
               </label>
+            </li>
+          )}
+          {isBurnerWalletConnected && (
+            <li className={selectingNetwork ? "hidden" : ""}>
+              <ManageWalletButton />
             </li>
           )}
           <li className={selectingNetwork ? "hidden" : ""}>

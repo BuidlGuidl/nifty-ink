@@ -46,3 +46,7 @@ export const getMetadataWithTimeout = async (jsonURL: string, timeout = 2000): P
 
   return Promise.race([fetchPromise, timeoutPromise]);
 };
+
+export const isGnosisChain = (chainId: number): boolean => {
+  return chainId === 100;
+};
