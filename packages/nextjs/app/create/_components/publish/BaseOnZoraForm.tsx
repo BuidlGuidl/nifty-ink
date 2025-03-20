@@ -21,9 +21,8 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
   const VIEW_INK_URL = "https://view.nifty.ink/ink/";
   const PLATFORM_REFERRER = "0x60D9d464549Dd2d5040EF2D56be10218dc1B9090";
   const [formState, setFormState] = useState<"fill" | "loading" | "success">("fill");
-  const [inkName, setInkName] = useState<string>("");
-  const [inkDescription, setInkDescription] = useState<string>("");
-  const [tokenSymbol, setTokenSymbol] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [caption, setCaption] = useState<string>("");
   const [coinAddress, setCoinAddress] = useState<string>("");
   const publicClient = usePublicClient()!;
 
@@ -51,7 +50,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
       const compressedArray = LZ.compressToUint8Array(saveData);
       const drawingBuffer = Buffer.from(compressedArray);
       const drawingBlob = new Blob([drawingBuffer], { type: "application/octet-stream" });
-      const drawingFile = new File([drawingBlob], `${inkName}_${connectedAddress}_${currentTime}.lz`, {
+      const drawingFile = new File([drawingBlob], `${title}_${connectedAddress}_${currentTime}.lz`, {
         type: "application/octet-stream",
       });
 
@@ -63,8 +62,8 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
 
       // Create and upload metadata
       const inkMetadataJson = {
-        name: inkName,
-        description: inkDescription,
+        name: title,
+        description: caption,
         content: {
           mime: "text/html",
           uri: `${VIEW_INK_URL}${uploadedDrawing.cid}`,
@@ -88,20 +87,18 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
   const createZoraInk = async (inkMetadataCID: string) => {
     try {
       const createCoinParams = {
-        name: inkName,
-        symbol: tokenSymbol,
+        name: title,
+        symbol: title,
         uri: `ipfs://${inkMetadataCID}`,
         payoutRecipient: connectedAddress,
         platformReferrer: PLATFORM_REFERRER,
       };
-      console.log(createCoinParams);
 
       const client = await getWalletClient(wagmiConfig);
       if (!client) {
         throw new Error("Failed to get wallet client");
       }
       const result = await createCoin(createCoinParams, client, publicClient);
-      console.log(result);
       setCoinAddress(result.address || "");
       return result;
     } catch (error) {
@@ -125,9 +122,8 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
       await createZoraInk(inkMetadata.cid);
 
       setFormState("success");
-      setInkName("");
-      setInkDescription("");
-      setTokenSymbol("");
+      setTitle("");
+      setCaption("");
     } catch (error) {
       setFormState("fill");
       notification.error(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
@@ -157,40 +153,26 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
         <div className="flex flex-col gap-2">
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Ink Name</span>
+              <span className="label-text">Title</span>
             </label>
             <input
               type="text"
               placeholder="name"
               className="input input-sm input-bordered rounded-xl w-full max-w-xs"
-              value={inkName}
-              onChange={e => setInkName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Token Symbol</span>
-            </label>
-            <input
-              type="text"
-              placeholder="name"
-              className="input input-sm input-bordered rounded-xl w-full max-w-xs"
-              value={tokenSymbol}
-              onChange={e => setTokenSymbol(e.target.value)}
+              value={title}
+              onChange={e => setTitle(e.target.value)}
               required
             />
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Ink Description</span>
+              <span className="label-text">Caption</span>
             </label>
             <textarea
               placeholder="description"
               className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
-              value={inkDescription}
-              onChange={e => setInkDescription(e.target.value)}
+              value={caption}
+              onChange={e => setCaption(e.target.value)}
               required
             />
           </div>
