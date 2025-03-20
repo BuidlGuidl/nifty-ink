@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { create1155, createNew1155Token } from "@zoralabs/protocol-sdk";
+import { getWalletClient } from "@wagmi/core";
+import { createCoin } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { CheckCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
+import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { Chains } from "~~/types/chains";
 import { getChainId } from "~~/utils/chains";
@@ -20,16 +22,13 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
 
   const IPFS_BASE_URL = "ipfs://";
   const VIEW_INK_URL = "https://view.nifty.ink/ink/";
-  const NEW_COLLECTION_VAL = "newcollection";
+  const PLATFORM_REFERRER = "0x60D9d464549Dd2d5040EF2D56be10218dc1B9090";
   const [formState, setFormState] = useState<"fill" | "loading" | "success">("fill");
-  const [collectionName, setCollectionName] = useState<string>("");
-  const [collectionDescription, setCollectionDescription] = useState<string>("");
   const [inkName, setInkName] = useState<string>("");
   const [inkDescription, setInkDescription] = useState<string>("");
-  const [collections, setCollections] = useState<any[]>([]);
-  const [selectedContract, setSelectedContract] = useState<string>(NEW_COLLECTION_VAL);
-  const [createdContract, setCreatedContract] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [tokenName, setTokenName] = useState<string>("");
+  const [tokenSymbol, setTokenSymbol] = useState<string>("");
+  const [coinAddress, setCoinAddress] = useState<string>("");
   const publicClient = usePublicClient()!;
 
   const { writeContractAsync, status } = useWriteContract();
@@ -41,48 +40,24 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
     }
   }, [status]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!connectedAddress || !chainId) return;
-
-      setIsLoading(true);
-      try {
-        // Fetch data from the API
-        const response = await fetch(`https://api.indexsupply.net/query?chain=${chainId}`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify([
-            {
-              event_signatures: [
-                "SetupNewContract(address indexed newContract, address indexed creator, address indexed defaultAdmin, string contractURI, string name, (uint32,uint32,address) defaultRoyaltyConfiguration)",
-              ],
-              query: `select newContract, name
-                      from setupnewcontract
-                      where creator = ${connectedAddress}`,
-            },
-          ]),
-          method: "POST",
-        });
-
-        const apiResult = await response.json();
-        const collectionsData = apiResult?.result?.[0].slice(1) || [];
-        setCollections(collectionsData);
-      } catch (error) {
-        console.error("Failed to fetch collections:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const uploadInkMetadata = async (imageResult: string, currentTime: string) => {
+  const uploadInkMetadata = async () => {
     try {
+      const currentTime = new Date().toISOString().replace(/[:.]/g, "-");
+
       const saveData = drawingCanvas?.current?.getSaveData();
       if (!saveData) {
         throw new Error("Failed to get save data from canvas");
+      }
+
+      // Upload image
+      const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
+      if (!imageData) {
+        throw new Error("Failed to get image data from canvas");
+      }
+      const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
+      const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
+      if (!uploadedImage?.success) {
+        throw new Error("Failed to upload image to IPFS");
       }
 
       // Create drawing file
@@ -107,7 +82,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
           mime: "text/html",
           uri: `${VIEW_INK_URL}${uploadedDrawing.cid}`,
         },
-        image: `${IPFS_BASE_URL}${imageResult}`,
+        image: `${IPFS_BASE_URL}${uploadedImage.cid}`,
         animation_url: `${VIEW_INK_URL}${uploadedDrawing.cid}`,
       };
 
@@ -123,45 +98,25 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
     }
   };
 
-  const createZoraInk = async (imageResult: string, inkMetadataUri: string, currentTime: string) => {
+  const createZoraInk = async (inkMetadataCID: string) => {
     try {
-      if (selectedContract === NEW_COLLECTION_VAL) {
-        const contractMetadataJson = {
-          name: collectionName,
-          description: collectionDescription,
-          image: `${IPFS_BASE_URL}${imageResult}`,
-        };
+      const createCoinParams = {
+        name: tokenName,
+        symbol: tokenSymbol,
+        uri: `ipfs://${inkMetadataCID}`,
+        payoutRecipient: connectedAddress,
+        platformReferrer: PLATFORM_REFERRER,
+      };
+      console.log(createCoinParams);
 
-        const contractMetadata = await uploadToIPFS(contractMetadataJson, "json");
-        if (!contractMetadata?.success) {
-          throw new Error("Failed to upload contract metadata to IPFS");
-        }
-
-        const { parameters, contractAddress } = await create1155({
-          contract: {
-            name: collectionName,
-            uri: `${IPFS_BASE_URL}${contractMetadata.cid}`,
-          },
-          token: {
-            tokenMetadataURI: `${IPFS_BASE_URL}${inkMetadataUri}`,
-          },
-          account: connectedAddress,
-          publicClient,
-        });
-        setCreatedContract(contractAddress);
-        return parameters;
-      } else {
-        const { parameters } = await createNew1155Token({
-          contractAddress: selectedContract?.split(",")[0],
-          token: {
-            tokenMetadataURI: `${IPFS_BASE_URL}${inkMetadataUri}`,
-          },
-          account: connectedAddress,
-          chainId: publicClient.chain.id,
-        });
-        setCreatedContract(selectedContract?.split(",")[0]);
-        return parameters;
+      const client = await getWalletClient(wagmiConfig);
+      if (!client) {
+        throw new Error("Failed to get wallet client");
       }
+      const result = await createCoin(createCoinParams, client, publicClient);
+      console.log(result);
+      setCoinAddress(result.address || "");
+      return result;
     } catch (error) {
       notification.error(`Error creating Zora ink: ${error instanceof Error ? error.message : "Unknown error"}`);
       throw error;
@@ -172,37 +127,21 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
     event.preventDefault();
     try {
       setFormState("loading");
-      const currentTime = new Date().toISOString().replace(/[:.]/g, "-");
-
-      // Upload image
-      const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
-      if (!imageData) {
-        throw new Error("Failed to get image data from canvas");
-      }
-
-      const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
-      const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
-      if (!uploadedImage?.success) {
-        throw new Error("Failed to upload image to IPFS");
-      }
 
       // Upload metadata
-      const inkMetadata = await uploadInkMetadata(uploadedImage.cid, currentTime);
+      const inkMetadata = await uploadInkMetadata();
       if (!inkMetadata?.success) {
         throw new Error("Failed to upload ink metadata");
       }
 
       // Create Zora ink
-      const parameters = await createZoraInk(uploadedImage.cid, inkMetadata.cid, currentTime);
-      if (!parameters) {
-        throw new Error("Failed to create Zora ink parameters");
-      }
-
-      // Submit transaction
-      const hash = await writeContractAsync(parameters);
-      await publicClient.waitForTransactionReceipt({ hash });
+      await createZoraInk(inkMetadata.cid);
 
       setFormState("success");
+      setInkName("");
+      setInkDescription("");
+      setTokenName("");
+      setTokenSymbol("");
     } catch (error) {
       setFormState("fill");
       notification.error(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
@@ -215,10 +154,6 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
         <p>Burner Wallet is not supported for this network</p>
       </div>
     );
-  }
-
-  if (isLoading) {
-    return <span className="loading loading-spinner loading-xs"></span>;
   }
 
   return formState !== "success" ? (
@@ -236,54 +171,6 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
         <div className="flex gap-2">
           <div>
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Select Collection</span>
-              </label>
-              <select
-                className="select select-sm select-bordered rounded-xl w-full max-w-xs"
-                value={selectedContract}
-                onChange={e => setSelectedContract(e.target.value)}
-                disabled={!collections}
-                required
-              >
-                <option value={NEW_COLLECTION_VAL}>New Collection</option>
-                {collections?.map(collection => (
-                  <option key={collection[0]} value={collection}>
-                    {collection[1]} {collection[0].slice(0, 4)}...{collection[0].slice(-4)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Collection Name</span>
-              </label>
-              <input
-                type="text"
-                placeholder="name"
-                className="input input-sm input-bordered rounded-xl w-full max-w-xs"
-                value={selectedContract !== NEW_COLLECTION_VAL ? selectedContract?.split(",")[1] : collectionName}
-                onChange={e => setCollectionName(e.target.value)}
-                disabled={selectedContract !== NEW_COLLECTION_VAL}
-                required
-              />
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Collection Description</span>
-              </label>
-              <textarea
-                placeholder="description"
-                className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
-                value={collectionDescription}
-                onChange={e => setCollectionDescription(e.target.value)}
-                disabled={selectedContract !== NEW_COLLECTION_VAL}
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <div className="form-control mt-[68px]">
               <label className="label">
                 <span className="label-text">Ink Name</span>
               </label>
@@ -309,6 +196,34 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
               />
             </div>
           </div>
+          <div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Token Name</span>
+              </label>
+              <input
+                type="text"
+                placeholder="name"
+                className="input input-sm input-bordered rounded-xl w-full max-w-xs"
+                value={tokenName}
+                onChange={e => setTokenName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Token SYMBOL</span>
+              </label>
+              <input
+                type="text"
+                placeholder="name"
+                className="input input-sm input-bordered rounded-xl w-full max-w-xs"
+                value={tokenSymbol}
+                onChange={e => setTokenSymbol(e.target.value)}
+                required
+              />
+            </div>
+          </div>
         </div>
         <div className="form-control mt-6">
           <button className="btn btn-primary" disabled={formState === "loading"} type="submit">
@@ -323,12 +238,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
       <CheckCircleIcon className="h-24 w-24 mx-auto text-green-500" />
       <p className="mb-0">
         🎉 Ink was created on{" "}
-        <a
-          className="link"
-          href={`https://zora.co/manage/1155/base:${createdContract}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a className="link" href={`https://zora.co/coin/base:${coinAddress}`} target="_blank" rel="noopener noreferrer">
           Zora
         </a>
       </p>
@@ -336,10 +246,6 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
       <button
         className="btn btn-primary mt-5"
         onClick={() => {
-          setCollectionName("");
-          setCollectionDescription("");
-          setInkName("");
-          setInkDescription("");
           setFormState("fill");
         }}
       >
