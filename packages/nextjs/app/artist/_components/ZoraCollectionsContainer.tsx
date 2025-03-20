@@ -3,6 +3,7 @@ import ZoraCollections from "./ZoraCollections";
 import { Chains } from "~~/types/chains";
 import { Collection } from "~~/types/zora";
 import { getChainId } from "~~/utils/chains";
+import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { getFetchableUrl } from "~~/utils/ipfs";
 
 type ZoraCollectionsContainerProps = {
@@ -28,11 +29,13 @@ const ZoraCollectionsContainer: React.FC<ZoraCollectionsContainerProps> = ({ con
           body: JSON.stringify([
             {
               event_signatures: [
-                "SetupNewContract(address indexed newContract, address indexed creator, address indexed defaultAdmin, string contractURI, string name, (uint32,uint32,address) defaultRoyaltyConfiguration)",
+                "CoinCreated (address indexed caller, address indexed payoutRecipient, address indexed platformReferrer, address currency, string uri, string name, string symbol, address coin, address pool, string version)",
               ],
-              query: `select newContract, contractURI
-                      from setupnewcontract
-                      where creator = ${connectedAddress}`,
+              query: `select caller, platformReferrer, coin, uri, name
+                      from coincreated
+                      where caller = ${connectedAddress} 
+                      and 
+                      platformReferrer = ${baseAddressPlatformReferrer}`,
             },
           ]),
           method: "POST",
@@ -44,10 +47,10 @@ const ZoraCollectionsContainer: React.FC<ZoraCollectionsContainerProps> = ({ con
         const collectionDetails = await Promise.all(
           collectionsData.map(async (collection: any) => {
             try {
-              const url = getFetchableUrl(collection[1]);
+              const url = getFetchableUrl(collection[3]);
               const contractResponse = await fetch(url);
               const contractData = await contractResponse.json();
-              return { ...contractData, contractAddress: collection[0] };
+              return { ...contractData, contractAddress: collection[2] };
             } catch (error) {
               console.error(`Failed to fetch contract data for URI: ${collection[1]}`, error);
               return null;

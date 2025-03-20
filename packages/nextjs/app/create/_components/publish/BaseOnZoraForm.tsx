@@ -7,6 +7,7 @@ import { CheckCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/out
 import { FormInput } from "~~/components/shared/FormInput";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { uploadToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -14,7 +15,7 @@ import { notification } from "~~/utils/scaffold-eth";
 const CONSTANTS = {
   IPFS_BASE_URL: "ipfs://",
   VIEW_INK_URL: "https://view.nifty.ink/ink/",
-  PLATFORM_REFERRER: "0x60D9d464549Dd2d5040EF2D56be10218dc1B9090",
+  PLATFORM_REFERRER: baseAddressPlatformReferrer,
   MAX_TITLE_LENGTH: 64,
   MAX_CAPTION_LENGTH: 180,
 } as const;
