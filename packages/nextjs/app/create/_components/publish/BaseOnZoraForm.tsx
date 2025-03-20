@@ -154,25 +154,29 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
           <div className="form-control">
             <label className="label">
               <span className="label-text">Title</span>
+              <span className="label-text-alt">{title.length}/64</span>
             </label>
             <input
               type="text"
               placeholder="name"
               className="input input-sm input-bordered rounded-xl w-full max-w-xs"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={e => setTitle(e.target.value.slice(0, 64))}
+              maxLength={64}
               required
             />
           </div>
           <div className="form-control">
             <label className="label">
               <span className="label-text">Caption</span>
+              <span className="label-text-alt">{caption.length}/180</span>
             </label>
             <textarea
               placeholder="description"
               className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
               value={caption}
-              onChange={e => setCaption(e.target.value)}
+              onChange={e => setCaption(e.target.value.slice(0, 180))}
+              maxLength={180}
               required
             />
           </div>
