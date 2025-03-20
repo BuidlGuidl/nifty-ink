@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getWalletClient } from "@wagmi/core";
 import { createCoin } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
-import { useAccount, usePublicClient, useWriteContract } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import { CheckCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
-import { Chains } from "~~/types/chains";
-import { getChainId } from "~~/utils/chains";
 import { uploadToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -18,7 +16,6 @@ type BaseOnZoraFormProps = {
 
 export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFormProps) => {
   const { connector } = useAccount();
-  const chainId = getChainId(Chains.base);
 
   const IPFS_BASE_URL = "ipfs://";
   const VIEW_INK_URL = "https://view.nifty.ink/ink/";
@@ -26,19 +23,9 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
   const [formState, setFormState] = useState<"fill" | "loading" | "success">("fill");
   const [inkName, setInkName] = useState<string>("");
   const [inkDescription, setInkDescription] = useState<string>("");
-  const [tokenName, setTokenName] = useState<string>("");
   const [tokenSymbol, setTokenSymbol] = useState<string>("");
   const [coinAddress, setCoinAddress] = useState<string>("");
   const publicClient = usePublicClient()!;
-
-  const { writeContractAsync, status } = useWriteContract();
-
-  useEffect(() => {
-    if (status === "error") {
-      notification.error("Failed to create the ink");
-      setFormState("fill");
-    }
-  }, [status]);
 
   const uploadInkMetadata = async () => {
     try {
@@ -101,7 +88,7 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
   const createZoraInk = async (inkMetadataCID: string) => {
     try {
       const createCoinParams = {
-        name: tokenName,
+        name: inkName,
         symbol: tokenSymbol,
         uri: `ipfs://${inkMetadataCID}`,
         payoutRecipient: connectedAddress,
@@ -140,7 +127,6 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
       setFormState("success");
       setInkName("");
       setInkDescription("");
-      setTokenName("");
       setTokenSymbol("");
     } catch (error) {
       setFormState("fill");
@@ -168,61 +154,45 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
             <QuestionMarkCircleIcon className="h-4 w-4" />
           </div>
         </div>
-        <div className="flex gap-2">
-          <div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Ink Name</span>
-              </label>
-              <input
-                type="text"
-                placeholder="name"
-                className="input input-sm input-bordered rounded-xl w-full max-w-xs"
-                value={inkName}
-                onChange={e => setInkName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Ink Description</span>
-              </label>
-              <textarea
-                placeholder="description"
-                className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
-                value={inkDescription}
-                onChange={e => setInkDescription(e.target.value)}
-                required
-              />
-            </div>
+        <div className="flex flex-col gap-2">
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Ink Name</span>
+            </label>
+            <input
+              type="text"
+              placeholder="name"
+              className="input input-sm input-bordered rounded-xl w-full max-w-xs"
+              value={inkName}
+              onChange={e => setInkName(e.target.value)}
+              required
+            />
           </div>
-          <div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Token Name</span>
-              </label>
-              <input
-                type="text"
-                placeholder="name"
-                className="input input-sm input-bordered rounded-xl w-full max-w-xs"
-                value={tokenName}
-                onChange={e => setTokenName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Token SYMBOL</span>
-              </label>
-              <input
-                type="text"
-                placeholder="name"
-                className="input input-sm input-bordered rounded-xl w-full max-w-xs"
-                value={tokenSymbol}
-                onChange={e => setTokenSymbol(e.target.value)}
-                required
-              />
-            </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Token Symbol</span>
+            </label>
+            <input
+              type="text"
+              placeholder="name"
+              className="input input-sm input-bordered rounded-xl w-full max-w-xs"
+              value={tokenSymbol}
+              onChange={e => setTokenSymbol(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Ink Description</span>
+            </label>
+            <textarea
+              placeholder="description"
+              className="textarea textarea-md textarea-bordered rounded-xl w-full max-w-xs"
+              value={inkDescription}
+              onChange={e => setInkDescription(e.target.value)}
+              required
+            />
           </div>
         </div>
         <div className="form-control mt-6">
