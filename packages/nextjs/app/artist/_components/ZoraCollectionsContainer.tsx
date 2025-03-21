@@ -4,6 +4,7 @@ import { Chains } from "~~/types/chains";
 import { Collection } from "~~/types/zora";
 import { getChainId } from "~~/utils/chains";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
+
 import { getFetchableUrl } from "~~/utils/ipfs";
 
 type ZoraCollectionsContainerProps = {
