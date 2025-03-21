@@ -19,7 +19,7 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
 
   useEffect(() => {
     if (!isMounted.current) {
-      const size = Math.round(0.7 * Math.min(window.innerWidth, window.innerHeight));
+      const size = Math.round(0.85 * Math.min(window.innerWidth, window.innerHeight));
       fetchAndShowDrawing();
       setCalculatedCanvaSize(size);
       isMounted.current = true;
@@ -74,7 +74,7 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
           height={calculatedCanvaSize}
           src={`${finalDrawing}`}
           alt="Your drawing"
-          className={`border-2 border-gray-300 rounded-md bg-white absolute top-0 left-0 ${isDrawing ? "-z-10" : "z-10"}`}
+          className={`bg-white absolute top-0 left-0 ${isDrawing ? "opacity-0" : "opacity-100"}`}
         />
         <CanvasDraw
           ref={drawingCanvas}
@@ -94,7 +94,7 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
               console.log(e);
             }
           }}
-          className="border-2 border-gray-300 rounded-md"
+          className={`${isDrawing ? "opacity-100" : "opacity-0"}`}
         />
       </div>
     </div>
