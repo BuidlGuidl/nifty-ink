@@ -160,3 +160,5 @@ export const shortCutsInfo = [
     action: "Decrease current color opacity by 10%",
   },
 ];
+
+export const baseAddressPlatformReferrer = "0x60D9d464549Dd2d5040EF2D56be10218dc1B9090";

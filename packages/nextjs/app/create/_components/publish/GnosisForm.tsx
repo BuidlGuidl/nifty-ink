@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import LZ from "lz-string";
+import { FormInput } from "~~/components/shared/FormInput";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
@@ -71,12 +72,17 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
 
       await checkAddressAndFund(connectedAddress);
 
-      await writeYourContractAsync({
-        functionName: "createInk",
-        args: [drawingCID, jsonCID, BigInt(inkNumber ?? 0)],
-      });
-
-      router.push(`/ink/${drawingCID}`);
+      await writeYourContractAsync(
+        {
+          functionName: "createInk",
+          args: [drawingCID, jsonCID, BigInt(inkNumber ?? 0)],
+        },
+        {
+          onBlockConfirmation: () => {
+            router.push(`/ink/${drawingCID}`);
+          },
+        },
+      );
     } catch (e) {
       console.error(e);
       notification.error(`📛 Ink creation failed. Please wait a moment and try again: ${(e as Error).message}`);
@@ -94,30 +100,16 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
     <div className="flex justify-center">
       <form className="form-control w-full max-w-xs" onSubmit={handleSubmit}>
         <h3 className="font-bold">Publishing to nifty.ink on Gnosis</h3>
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">Ink Name</span>
-          </label>
-          <input
-            type="text"
-            placeholder="name"
-            className="input input-sm input-bordered w-full max-w-xs"
-            value={inkName}
-            onChange={e => setInkName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">Editions</span>
-          </label>
-          <input
+        <div className="flex flex-col gap-2">
+          <FormInput label="Ink Name" value={inkName} onChange={setInkName} placeholder="name" required />
+          <FormInput
+            label="Editions"
+            value={inkNumber?.toString() ?? ""}
+            onChange={value => setInkNumber(value ? Number(value) : undefined)}
             type="number"
             placeholder="unlimited"
-            className="input input-sm input-bordered w-full max-w-xs"
-            value={inkNumber}
-            onChange={e => setInkNumber(Number(e.target.value))}
-            min="0"
+            required={false}
+            min={0}
           />
         </div>
         <div className="form-control mt-6">

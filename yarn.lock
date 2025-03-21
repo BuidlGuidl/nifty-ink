@@ -1734,6 +1734,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hey-api/client-fetch@npm:^0.8.3":
+  version: 0.8.3
+  resolution: "@hey-api/client-fetch@npm:0.8.3"
+  checksum: 0a156f3728a0f6bb7adec4ecb8b6fffcb1f07450569bd40587980162cb99fca57223e6a1d6a915671cbe16aa993debd605f351825afbb56954f35e3db1a39fd5
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.11.14":
   version: 0.11.14
   resolution: "@humanwhocodes/config-array@npm:0.11.14"
@@ -3169,10 +3176,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/contracts-upgradeable@npm:^5.0.2":
+  version: 5.2.0
+  resolution: "@openzeppelin/contracts-upgradeable@npm:5.2.0"
+  peerDependencies:
+    "@openzeppelin/contracts": 5.2.0
+  checksum: 5736d40287899e72e240acdcddd72961f792a0c90a22a96f2a6705aa01286ab99ca96e800567d763d66cf90b40d814fa1f1ff48844dfa0676b96a85edf9854b3
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/contracts@npm:^4.8.1":
   version: 4.9.6
   resolution: "@openzeppelin/contracts@npm:4.9.6"
   checksum: 274b6e968268294f12d5ca4f0278f6e6357792c8bb4d76664f83dbdc325f780541538a127e6a6e97e4f018088b42f65952014dec9c745c0fa25081f43ef9c4bf
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:^5.0.2":
+  version: 5.2.0
+  resolution: "@openzeppelin/contracts@npm:5.2.0"
+  checksum: badff8c3be46b099c331e90ba27f75e36f7af681279952cf0b123c7448bc53cd541ef447de8e6ebc38e7b29aed8f17dacf0756aac5891eed03fe96a0a4eba1a0
   languageName: node
   linkType: hard
 
@@ -3758,7 +3781,8 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@uniswap/sdk-core": ^4.0.1
     "@uniswap/v2-sdk": ^3.0.1
-    "@zoralabs/protocol-sdk": ^0.13.2
+    "@zoralabs/coins-sdk": ^0.0.2-sdkalpha.3
+    "@zoralabs/protocol-sdk": ^0.13.4
     abitype: ^1.0.2
     antd: ^5.17.3
     autoprefixer: ^10.4.12
@@ -6622,22 +6646,45 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zoralabs/protocol-deployments@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@zoralabs/protocol-deployments@npm:0.5.1"
-  checksum: 8bc443ae83dff352b88931912249bb55e886cae02a6395aaf8aaa7ab2b0285e21b967b572984a79276fe6ffed2a416b10f1048fad6c19bbd1d637afbd0cb9010
+"@zoralabs/coins-sdk@npm:^0.0.2-sdkalpha.3":
+  version: 0.0.2-sdkalpha.3
+  resolution: "@zoralabs/coins-sdk@npm:0.0.2-sdkalpha.3"
+  dependencies:
+    "@hey-api/client-fetch": ^0.8.3
+    "@zoralabs/coins": ^0.5.1-sdkalpha.0
+  peerDependencies:
+    abitype: ^1.0.8
+    viem: ^2.21.55
+  checksum: d91a5d6782b94e40c903f2fd419844c944b84b91b283f86c07b3c9975df0c063e76a26617b2cecd8915fcf389c87e2a0c0deb859338952e5e1b97255977d731b
   languageName: node
   linkType: hard
 
-"@zoralabs/protocol-sdk@npm:^0.13.2":
-  version: 0.13.2
-  resolution: "@zoralabs/protocol-sdk@npm:0.13.2"
+"@zoralabs/coins@npm:^0.5.1-sdkalpha.0":
+  version: 0.5.1-sdkalpha.0
+  resolution: "@zoralabs/coins@npm:0.5.1-sdkalpha.0"
   dependencies:
-    "@zoralabs/protocol-deployments": ^0.5.1
+    "@openzeppelin/contracts": ^5.0.2
+    "@openzeppelin/contracts-upgradeable": ^5.0.2
+  checksum: a9279940116d4125a0b6a74b769cddb1fe29a53806449243939f30f367d9fb0a60a4a01dd1da39a1d1918b120ac37671ac8db9476a07486b559f1edbd74b9f7d
+  languageName: node
+  linkType: hard
+
+"@zoralabs/protocol-deployments@npm:^0.5.3":
+  version: 0.5.3
+  resolution: "@zoralabs/protocol-deployments@npm:0.5.3"
+  checksum: 2e407936a90fe588881cedb8643b0df97ae7027bb860f876d44f71507701406e4d88efc2e9f4322b6d0e5f6f5bd0761e69fab8d12c3820508224fefbc7b208e9
+  languageName: node
+  linkType: hard
+
+"@zoralabs/protocol-sdk@npm:^0.13.4":
+  version: 0.13.4
+  resolution: "@zoralabs/protocol-sdk@npm:0.13.4"
+  dependencies:
+    "@zoralabs/protocol-deployments": ^0.5.3
   peerDependencies:
     abitype: ^1.0.2
     viem: ^2.21.21
-  checksum: 90346de2d8a4e8a0b42a3ba56444ef35f293edb1a68c301c525e1b5c650de70debf243d9c59fda5bfeb733694e2f9913aa1d3feabfceb0b3da5b0e110ee6b873
+  checksum: d82b2bcb61b47bc7550b6babd5ad7cba70532116be5a4ce2cfc3c87c5f81e2747e88d061f0e852f0a54bf06c20a325aeb67ff4ed43e30fdd8b149c6d515ff479
   languageName: node
   linkType: hard
 
