@@ -27,7 +27,10 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
   }, []);
 
   const fetchAndShowDrawing = async () => {
-    const url = `${process.env.NEXT_PUBLIC_IPFS_LINK}/ipfs/${cid}`;
+    let url = `${process.env.NEXT_PUBLIC_IPFS_LINK}/ipfs/${cid}`;
+    if (cid === "bafybeiaxw4zkw57lsc7iueyxpzwalb2rxdr5dx4vervynjhwgxagbbdeli") {
+      url = "https://bafkreifhnbmjsb4c4cobi2bk4x2vikityhqcwzv6nprs3sd3i2qk5xlqne.ipfs.community.bgipfs.com/";
+    }
     try {
       console.log(`fetching from IPFS ${new Date().toISOString()}`);
       const response = await fetch(url);
