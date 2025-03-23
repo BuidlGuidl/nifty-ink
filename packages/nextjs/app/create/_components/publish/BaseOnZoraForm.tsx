@@ -64,7 +64,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       const compressedArray = LZ.compressToUint8Array(saveData);
       const drawingBuffer = Buffer.from(compressedArray);
       const drawingBlob = new Blob([drawingBuffer], { type: "application/octet-stream" });
-      const drawingFile = new File([drawingBlob], `${formData.title}_${connectedAddress}_${currentTime}.lz`, {
+      const drawingFile = new File([drawingBlob], `${connectedAddress}_${currentTime}.lz`, {
         type: "application/octet-stream",
       });
 
