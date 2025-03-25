@@ -2,14 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Loader from "~~/components/Loader";
 import { Chains } from "~~/types/chains";
-import { Collection } from "~~/types/zora";
+import { Post } from "~~/types/zora";
 import { getChainId } from "~~/utils/chains";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { getFetchableUrl } from "~~/utils/ipfs";
 
-// LazyImage component for handling image loading
-const LazyImage: React.FC<{ src: string; alt: string; width: number; height: number }> = ({
-  src,
+const LazyImage: React.FC<{ uri: string; alt: string; width: number; height: number }> = ({
+  uri,
   alt,
   width,
   height,
@@ -18,12 +17,25 @@ const LazyImage: React.FC<{ src: string; alt: string; width: number; height: num
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
+  const fetchMetadata = async () => {
+    try {
+      const url = getFetchableUrl(uri);
+      const contractResponse = await fetch(url);
+      const contractData = await contractResponse.json();
+      return contractData.image;
+    } catch (error) {
+      console.error(`Failed to fetch contract data for URI: ${uri}`, error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
-        entries.forEach(entry => {
+        entries.forEach(async entry => {
           if (entry.isIntersecting && !isLoaded) {
-            setImageSrc(src);
+            const image = await fetchMetadata();
+            setImageSrc(getFetchableUrl(image));
             setIsLoaded(true);
           }
         });
@@ -43,12 +55,14 @@ const LazyImage: React.FC<{ src: string; alt: string; width: number; height: num
         observer.unobserve(imgRef.current);
       }
     };
-  }, [src, isLoaded]);
+  }, [uri, isLoaded]);
 
   return (
-    <div ref={imgRef} style={{ width, height }} className="border border-gray-200 rounded-lg bg-white">
-      {imageSrc && (
-        <img src={imageSrc} alt={alt} width={width} height={height} className="border border-gray-200 rounded-lg" />
+    <div ref={imgRef} style={{ width, height }} className="rounded-lg bg-white">
+      {imageSrc ? (
+        <img src={imageSrc} alt={alt} width={width} height={height} className="rounded-lg" />
+      ) : (
+        <div className="skeleton w-full h-full"></div>
       )}
     </div>
   );
@@ -57,7 +71,7 @@ const LazyImage: React.FC<{ src: string; alt: string; width: number; height: num
 const ExploreZoraInks = () => {
   const chainId = getChainId(Chains.base);
 
-  const [collections, setCollections] = useState<Collection[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -82,23 +96,13 @@ const ExploreZoraInks = () => {
         });
 
         const apiResult = await response.json();
-        const collectionsData = apiResult?.result?.[0].slice(1) || [];
-
-        const collectionDetails = await Promise.all(
-          collectionsData.map(async (collection: any) => {
-            try {
-              const url = getFetchableUrl(collection[3]);
-              const contractResponse = await fetch(url);
-              const contractData = await contractResponse.json();
-              return { ...contractData, contractAddress: collection[2] };
-            } catch (error) {
-              console.error(`Failed to fetch contract data for URI: ${collection[1]}`, error);
-              return null;
-            }
-          }),
-        );
-
-        setCollections(collectionDetails.filter((collection: any) => collection !== null));
+        const postsResult = apiResult?.result?.[0].slice(1) || [];
+        const postsObj = postsResult.map((post: any) => ({
+          contractAddress: post[2],
+          uri: post[3],
+          name: post[4],
+        }));
+        setPosts(postsObj);
       } catch (error) {
         console.error("Failed to fetch collections:", error);
       } finally {
@@ -109,19 +113,19 @@ const ExploreZoraInks = () => {
     fetchData();
   }, []);
 
-  return <ZoraCollections isLoading={isLoading} collections={collections} />;
+  return <ZoraCollections isLoading={isLoading} posts={posts} />;
 };
 
 type ZoraCollectionsProps = {
   isLoading: boolean;
-  collections: Collection[];
+  posts: Post[];
 };
 
-const ZoraCollections: React.FC<ZoraCollectionsProps> = ({ isLoading, collections }) => {
+const ZoraCollections: React.FC<ZoraCollectionsProps> = ({ isLoading, posts }) => {
   if (isLoading) {
     return <Loader />;
   }
-  if (collections.length === 0) {
+  if (posts.length === 0) {
     return <p className="text-center text-lg">No collections were found on Zora on Base chain</p>;
   }
 
@@ -129,26 +133,21 @@ const ZoraCollections: React.FC<ZoraCollectionsProps> = ({ isLoading, collection
     <div className="max-w-2xl mx-auto text-center">
       <div className="flex items-center justify-center flex-col flex-grow">
         <ul className="">
-          {collections.map((collection, index) => {
+          {posts.map((post, index) => {
             return (
               <li
-                key={`${collection.name}-${index}`}
+                key={`${post.name}-${index}`}
                 className={`inline-block border-2 border-gray-200 rounded-lg m-2 p-2 font-bold`}
               >
                 <Link
-                  href={`https://zora.co/coin/base:${collection.contractAddress}`}
+                  href={`https://zora.co/coin/base:${post.contractAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <LazyImage
-                    src={getFetchableUrl(collection?.image)}
-                    alt={collection?.name as string}
-                    width={150}
-                    height={150}
-                  />
+                  <LazyImage uri={post?.uri} alt={post?.name as string} width={150} height={150} />
                   <div className="flex flex-col items-center">
                     <h3 className="my-2 text-md font-bold">
-                      {collection.name?.length > 18 ? collection.name.slice(0, 15).concat("...") : collection.name}
+                      {post.name?.length > 18 ? post.name.slice(0, 15).concat("...") : post.name}
                     </h3>
                   </div>
                 </Link>
