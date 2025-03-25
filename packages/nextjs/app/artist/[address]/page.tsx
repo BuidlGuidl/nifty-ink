@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import ZoraCollectionsContainer from "../_components/ZoraCollectionsContainer";
+import ZoraPostsContainer from "../_components/ZoraPostsContainer";
 import { RecentActivity } from "./RecentActivity";
 import { useQuery } from "@apollo/client";
 import { Tabs, TabsProps } from "antd";
@@ -111,10 +111,10 @@ const Artist = ({ params }: { params: { address: string } }) => {
       label: (
         <p className={`${TEXT_PRIMARY_COLOR} my-0 flex items-center`}>
           <Image src="/zora.png" alt="zora" width={16} height={16} className="w-4 h-4 flex-shrink-0" />
-          &nbsp;Zora Collections
+          &nbsp;Zora Posts
         </p>
       ),
-      children: <ZoraCollectionsContainer connectedAddress={address} />,
+      children: <ZoraPostsContainer connectedAddress={address} />,
     },
     {
       key: "3",

@@ -35,11 +35,13 @@ const ExploreZoraInks = () => {
 
         const apiResult = await response.json();
         const postsResult = apiResult?.result?.[0].slice(1) || [];
-        const postsObj = postsResult.map((post: any) => ({
-          contractAddress: post[2],
-          uri: post[3],
-          name: post[4],
-        }));
+        const postsObj = postsResult
+          .map((post: string[]) => ({
+            contractAddress: post[2],
+            uri: post[3],
+            name: post[4],
+          }))
+          .reverse();
         setPosts(postsObj);
       } catch (error) {
         notification.error("Failed to fetch posts");
@@ -52,7 +54,11 @@ const ExploreZoraInks = () => {
     fetchData();
   }, []);
 
-  return <ZoraPosts isLoading={isLoading} posts={posts} />;
+  return (
+    <div className="mt-10">
+      <ZoraPosts isLoading={isLoading} posts={posts} />
+    </div>
+  );
 };
 
 export default ExploreZoraInks;

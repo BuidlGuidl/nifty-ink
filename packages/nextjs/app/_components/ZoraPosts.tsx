@@ -17,7 +17,7 @@ const ZoraPosts: React.FC<ZoraPostsProps> = ({ isLoading, posts }) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-center">
         <ul className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {posts.map((post, index) => {
