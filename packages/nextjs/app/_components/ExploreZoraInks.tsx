@@ -7,12 +7,13 @@ import { getChainId } from "~~/utils/chains";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { getFetchableUrl } from "~~/utils/ipfs";
 
-const LazyImage: React.FC<{ uri: string; alt: string; width: number; height: number }> = ({
-  uri,
-  alt,
-  width,
-  height,
-}) => {
+const LazyImage: React.FC<{
+  uri: string;
+  alt: string;
+  width: number;
+  height: number;
+  className?: string;
+}> = ({ uri, alt, width, height, className }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -58,11 +59,11 @@ const LazyImage: React.FC<{ uri: string; alt: string; width: number; height: num
   }, [uri, isLoaded]);
 
   return (
-    <div ref={imgRef} style={{ width, height }} className="rounded-lg bg-white">
+    <div ref={imgRef} className={`rounded-lg bg-white ${className}`}>
       {imageSrc ? (
-        <img src={imageSrc} alt={alt} width={width} height={height} className="rounded-lg" />
+        <img src={imageSrc} alt={alt} width={width} height={height} className={`rounded-lg ${className}`} />
       ) : (
-        <div className="skeleton w-full h-full"></div>
+        <div className="skeleton w-full h-full rounded-lg"></div>
       )}
     </div>
   );
@@ -130,24 +131,33 @@ const ZoraCollections: React.FC<ZoraCollectionsProps> = ({ isLoading, posts }) =
   }
 
   return (
-    <div className="max-w-2xl mx-auto text-center">
-      <div className="flex items-center justify-center flex-col flex-grow">
-        <ul className="">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+      <div className="flex items-center justify-center">
+        <ul className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {posts.map((post, index) => {
             return (
               <li
                 key={`${post.name}-${index}`}
-                className={`inline-block border-2 border-gray-200 rounded-lg m-2 p-2 font-bold`}
+                className="border-2 border-gray-200 rounded-lg p-2 transition-transform hover:scale-105  max-w-[150px]"
               >
                 <Link
                   href={`https://zora.co/coin/base:${post.contractAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="block w-full"
                 >
-                  <LazyImage uri={post?.uri} alt={post?.name as string} width={150} height={150} />
+                  <div className="aspect-square w-full mx-auto">
+                    <LazyImage
+                      uri={post?.uri}
+                      alt={post?.name as string}
+                      width={0}
+                      height={0}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <div className="flex flex-col items-center">
-                    <h3 className="my-2 text-md font-bold">
-                      {post.name?.length > 18 ? post.name.slice(0, 15).concat("...") : post.name}
+                    <h3 className="my-2 text-sm md:text-md lg:text-md xl:text-md font-bold truncate w-full text-center">
+                      {post.name}
                     </h3>
                   </div>
                 </Link>
