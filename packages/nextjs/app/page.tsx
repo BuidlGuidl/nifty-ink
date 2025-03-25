@@ -20,10 +20,6 @@ const HomeWithSuspense = () => {
 const Home: NextPage = () => {
   const { chain } = useAccount();
 
-  // TODO:
-  // consider if address is not connected
-  // Check the query parameters
-
   if (chain?.id === getChainId(Chains.base)) {
     return <ExploreZoraInks />;
   }
