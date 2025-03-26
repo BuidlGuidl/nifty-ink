@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react";
-import ZoraCollections from "./ZoraCollections";
+import ZoraPosts from "~~/app/_components/ZoraPosts";
 import { Chains } from "~~/types/chains";
-import { Collection } from "~~/types/zora";
+import { Post } from "~~/types/zora";
 import { getChainId } from "~~/utils/chains";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
+import { notification } from "~~/utils/scaffold-eth";
 
-import { getFetchableUrl } from "~~/utils/ipfs";
-
-type ZoraCollectionsContainerProps = {
+type ZoraPostsContainerProps = {
   connectedAddress: string;
 };
 
-const ZoraCollectionsContainer: React.FC<ZoraCollectionsContainerProps> = ({ connectedAddress }) => {
+const ZoraPostsContainer: React.FC<ZoraPostsContainerProps> = ({ connectedAddress }) => {
   const chainId = getChainId(Chains.base);
 
-  const [collections, setCollections] = useState<Collection[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -43,25 +42,18 @@ const ZoraCollectionsContainer: React.FC<ZoraCollectionsContainerProps> = ({ con
         });
 
         const apiResult = await response.json();
-        const collectionsData = apiResult?.result?.[0].slice(1) || [];
-
-        const collectionDetails = await Promise.all(
-          collectionsData.map(async (collection: any) => {
-            try {
-              const url = getFetchableUrl(collection[3]);
-              const contractResponse = await fetch(url);
-              const contractData = await contractResponse.json();
-              return { ...contractData, contractAddress: collection[2] };
-            } catch (error) {
-              console.error(`Failed to fetch contract data for URI: ${collection[1]}`, error);
-              return null;
-            }
-          }),
-        );
-
-        setCollections(collectionDetails.filter((collection: any) => collection !== null));
+        const postsResult = apiResult?.result?.[0].slice(1) || [];
+        const postsObj = postsResult
+          .map((post: string[]) => ({
+            contractAddress: post[2],
+            uri: post[3],
+            name: post[4],
+          }))
+          .reverse();
+        setPosts(postsObj);
       } catch (error) {
-        console.error("Failed to fetch collections:", error);
+        notification.error("Failed to fetch posts");
+        console.error("Failed to fetch posts:", error);
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +62,7 @@ const ZoraCollectionsContainer: React.FC<ZoraCollectionsContainerProps> = ({ con
     fetchData();
   }, []);
 
-  return <ZoraCollections isLoading={isLoading} collections={collections} />;
+  return <ZoraPosts isLoading={isLoading} posts={posts} />;
 };
 
-export default ZoraCollectionsContainer;
+export default ZoraPostsContainer;
