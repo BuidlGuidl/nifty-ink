@@ -186,7 +186,7 @@ const ExploreGnosisInks = () => {
           <Loader />
         ) : (
           <>
-            <Row className="mt-5 mb-3 justify-center">
+            <Row className="mt-2 mb-3 justify-center">
               <Form
                 layout={"inline"}
                 initialValues={{
