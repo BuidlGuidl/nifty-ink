@@ -39,7 +39,7 @@ const CreateInk = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const { address: connectedAddress, chain } = useAccount();
-  const { paramValue: activity, updateSearchParam: setActivity } = useSearchParamsHandler("activity", "create");
+  const { paramValue: activity, updateSearchParam: setActivity } = useSearchParamsHandler("activity", "draw");
 
   const handleActivityChange = (key: string) => {
     console.log(key);
@@ -297,7 +297,7 @@ const CreateInk = () => {
             tabBarStyle={{ marginBottom: 0 }}
           />
           {activity === "draw" ? (
-            <div className={`bg-base-100 border-base-300 rounded-box p-6`}>
+            <div className={`bg-base-100 border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
               <CanvasControls
                 canvasDisabled={canvasDisabled}
                 isSaving={isSaving}
@@ -334,7 +334,7 @@ const CreateInk = () => {
               />
             </div>
           ) : (
-            <div className={`bg-base-100 border-base-300 rounded-box p-6`}>
+            <div className={`bg-base-100 border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
               {chain && connectedAddress && (
                 <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
               )}
