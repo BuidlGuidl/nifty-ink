@@ -11,13 +11,15 @@ import { PublishContent } from "./_components/publish/PublishContent";
 import { useCanvasActions } from "./_hooks/useCanvasActions";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import "./styles.css";
+import { Tabs, TabsProps } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
+import { useSearchParamsHandler } from "~~/hooks/useSearchParamsHandler";
 import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
-import { getColorOptions } from "~~/utils/constants";
+import { TEXT_PRIMARY_COLOR, getColorOptions } from "~~/utils/constants";
 
 let compressionWorker: Worker | null = null;
 
@@ -37,6 +39,12 @@ const CreateInk = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const { address: connectedAddress, chain } = useAccount();
+  const { paramValue: activity, updateSearchParam: setActivity } = useSearchParamsHandler("activity", "create");
+
+  const handleActivityChange = (key: string) => {
+    console.log(key);
+    setActivity(key);
+  };
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
   const calculatedCanvaSize = Math.round(0.85 * Math.min(width, height));
@@ -233,6 +241,17 @@ const CreateInk = () => {
 
   useHotkeyBindings(brushRadius, updateBrushRadius, updateOpacity, undo);
 
+  const items: TabsProps["items"] = [
+    {
+      key: "draw",
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🎨 Draw</p>,
+    },
+    {
+      key: "publish",
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🖼️ Publish</p>,
+    },
+  ];
+
   return (
     <div className="create-ink-container mt-5">
       <div className="canvas">
@@ -268,10 +287,17 @@ const CreateInk = () => {
         )}
       </div>
       <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
-        <div className={portrait ? "" : "edit-tools-side"}>
-          <div role="tablist" className="tabs tabs-lifted">
-            <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="1 Create" defaultChecked />
-            <div role="tabpanel" className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-full`}>
+        <div className={portrait ? "" : "edit-tools-side max-w-xl flex flex-col items-center"}>
+          <Tabs
+            defaultActiveKey={activity}
+            type="card"
+            centered
+            onChange={handleActivityChange}
+            items={items}
+            tabBarStyle={{ marginBottom: 0 }}
+          />
+          {activity === "draw" ? (
+            <div className={`bg-base-100 border-base-300 rounded-box p-6`}>
               <CanvasControls
                 canvasDisabled={canvasDisabled}
                 isSaving={isSaving}
@@ -307,14 +333,13 @@ const CreateInk = () => {
                 uploadRef={uploadRef}
               />
             </div>
-
-            <input type="radio" name="my_tabs_2" role="tab" className="tab flex items-center" aria-label="2 Publish" />
-            <div role="tabpanel" className={`tab-content bg-base-100 border-base-300 rounded-box p-6 w-full`}>
+          ) : (
+            <div className={`bg-base-100 border-base-300 rounded-box p-6`}>
               {chain && connectedAddress && (
                 <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
               )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
