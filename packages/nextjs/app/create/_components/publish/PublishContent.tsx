@@ -1,11 +1,12 @@
-import { useState } from "react";
 import { BaseOnZoraForm } from "./BaseOnZoraForm";
 import { GnosisForm } from "./GnosisForm";
-import SelectChain from "./SelectChain";
+import SelectPlatform from "./SelectPlatform";
 import { Chain } from "viem";
 import { useSwitchChain } from "wagmi";
+import { useSearchParamsHandler } from "~~/hooks/useSearchParamsHandler";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { Chains } from "~~/types/chains";
+import { Platform } from "~~/types/utils";
 import { getChainId } from "~~/utils/chains";
 
 type PublishContentProps = {
@@ -16,22 +17,18 @@ type PublishContentProps = {
 
 export const PublishContent = ({ connectedAddress, drawingCanvas }: PublishContentProps) => {
   const { switchChain } = useSwitchChain();
-  const [selectedChain, setSelectedChain] = useState<Chains>(Chains.gnosis);
+  const { paramValue: platform, updateSearchParam: setPlatform } = useSearchParamsHandler("platform", "niftyink");
 
-  const handleChangeChain = (newValue: Chains) => {
-    switchChain?.({ chainId: getChainId(newValue) });
-    setSelectedChain(newValue);
+  const handleChangePlatform = (newValue: Platform) => {
+    switchChain?.({ chainId: getChainId(newValue === "niftyink" ? Chains.gnosis : Chains.base) });
+    setPlatform(newValue);
   };
 
   return (
     <div>
-      <SelectChain onSelect={handleChangeChain} />
-      {selectedChain === Chains.gnosis && (
-        <GnosisForm connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
-      )}
-      {selectedChain === Chains.base && (
-        <BaseOnZoraForm connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
-      )}
+      <SelectPlatform selectedPlatform={platform as Platform} onSelect={handleChangePlatform} />
+      {platform === "niftyink" && <GnosisForm connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />}
+      {platform === "zora" && <BaseOnZoraForm connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />}
     </div>
   );
 };
