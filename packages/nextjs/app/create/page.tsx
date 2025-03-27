@@ -248,7 +248,7 @@ const CreateInk = () => {
     },
     {
       key: "publish",
-      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🖼️ Publish</p>,
+      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🚀 Publish</p>,
     },
   ];
 
@@ -335,8 +335,10 @@ const CreateInk = () => {
             </div>
           ) : (
             <div className={`bg-base-100 border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
-              {chain && connectedAddress && (
+              {chain && connectedAddress ? (
                 <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
+              ) : (
+                <p>Please connect your wallet to proceed</p>
               )}
             </div>
           )}
