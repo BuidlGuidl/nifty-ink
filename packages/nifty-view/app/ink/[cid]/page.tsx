@@ -5,10 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { CanvasDrawLines } from "../../../types/canvasDrawing";
+import Loader from "~~/app/_components/Loader";
 
 const NiftyView = ({ params }: { params: { cid: string } }) => {
   const cid = params?.cid;
   const [calculatedCanvaSize, setCalculatedCanvaSize] = useState<number>(500);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDrawing, setIsDrawing] = useState<boolean>(true);
   const [finalDrawing, setFinalDrawing] = useState<string>("");
   const totalLines = useRef<number>(0);
@@ -38,22 +40,18 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
         throw new Error("Failed to fetch drawing content");
       }
       const drawingContent = await response.arrayBuffer();
-      console.log(`received from IPFS ${new Date().toISOString()}`);
-
-      console.log(`decompressing ${new Date().toISOString()}`);
 
       const decompressed = LZ.decompressFromUint8Array(new Uint8Array(drawingContent));
       const parsedDrawing = JSON.parse(decompressed);
       totalLines.current = parsedDrawing.lines.length;
 
-      console.log(`finding length ${new Date().toISOString()}`);
       setDrawingData(decompressed);
       drawingCanvas.current?.loadSaveData(decompressed, true);
       setFinalDrawing(drawingCanvas.current?.canvas.drawing.toDataURL("image/png"));
-      console.log(`saving ${new Date().toISOString()}`);
-      console.log(`done ${new Date().toISOString()}`);
     } catch (e) {
       console.error("Error loading or decompressing drawing:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -72,6 +70,11 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
         </button>
       </div>
       <div className="relative">
+        {isLoading && (
+          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+            <Loader />
+          </div>
+        )}
         <Image
           width={calculatedCanvaSize}
           height={calculatedCanvaSize}
