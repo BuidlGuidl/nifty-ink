@@ -3,7 +3,7 @@ import { getWalletClient } from "@wagmi/core";
 import { createCoin } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
 import { useAccount, usePublicClient } from "wagmi";
-import { CheckCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ExclamationCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { FormInput } from "~~/components/shared/FormInput";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
@@ -21,7 +21,7 @@ const CONSTANTS = {
 } as const;
 
 // Types
-type FormState = "fill" | "loading" | "success";
+type FormState = "fill" | "loading" | "success" | "error";
 
 interface FormData {
   title: string;
@@ -120,11 +120,12 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       setFormState("loading");
       const inkMetadata = await uploadInkMetadata();
       if (!inkMetadata?.success) throw new Error("Failed to upload ink metadata");
-      await createZoraInk(inkMetadata.cid);
+      const res = await createZoraInk(inkMetadata.cid);
+      if (!res || res.address === undefined) throw new Error("Failed to create Zora ink");
       setFormState("success");
       setFormData({ title: "", caption: "" });
     } catch (error) {
-      setFormState("fill");
+      setFormState("error");
       notification.error(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
@@ -155,6 +156,21 @@ const SuccessMessage = ({ coinAddress, onReset }: { coinAddress: string; onReset
   </div>
 );
 
+const ErrorMessage = ({ onReset }: { onReset: () => void }) => (
+  <div className="error-message text-center">
+    <div className="flex justify-center mb-4">
+      <ExclamationCircleIcon className="h-24 w-24 text-red-600" />
+    </div>
+    <p className="text-red-600">Failed to create ink. Please try again.</p>
+    <p className="text-xs my-0">Note: If you continue to encounter this error,</p>
+    <p className="text-xs my-0">try making a change to your ink and attempt again.</p>
+    <p className="text-xs mt-0 mb-2">If the issue persists, please reach out to support for assistance (in 💬Chat).</p>
+    <button className="btn btn-primary" onClick={onReset}>
+      Try Again
+    </button>
+  </div>
+);
+
 export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFormProps) => {
   const { connector } = useAccount();
   const { formState, formData, coinAddress, handleInputChange, handleSubmit, resetForm } = useZoraForm(
@@ -172,6 +188,10 @@ export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFo
 
   if (formState === "success") {
     return <SuccessMessage coinAddress={coinAddress} onReset={resetForm} />;
+  }
+
+  if (formState === "error") {
+    return <ErrorMessage onReset={resetForm} />;
   }
 
   return (
