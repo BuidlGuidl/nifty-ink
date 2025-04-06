@@ -8,7 +8,6 @@ import { DraftManager } from "./_components/DraftManager";
 import { PublishModal } from "./_components/publish/PublishModal";
 import { useCanvasActions } from "./_hooks/useCanvasActions";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
-import "./styles.css";
 import { Slider } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
@@ -245,7 +244,7 @@ const CreateInk = () => {
       />
 
       <div className="flex justify-center text-center flex-wrap mt-2">
-        <div className="">
+        <div>
           <CanvasControls
             canvasDisabled={canvasDisabled}
             isSaving={isSaving}
@@ -300,38 +299,36 @@ const CreateInk = () => {
             />
           </div>
         </div>
-        <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
-          <div className={portrait ? "" : "max-w-xl flex flex-col items-center"}>
-            <div className={`border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
-              <div className="flex flex-col items-center my-4 gap-4">
-                <AlphaPicker onChangeComplete={updateColor} color={color} />
-                <Slider
-                  min={1}
-                  max={100}
-                  onChange={updateBrushRadius}
-                  value={typeof brushRadius === "number" ? brushRadius : 0}
-                  className="w-full"
-                />
-              </div>
-              <ColorPicker
-                color={color}
-                updateColor={updateColor}
-                colorArray={colorArray}
-                setColorArray={setColorArray}
-                setPicker={setPicker}
-                picker={picker}
-                colorOptions={colorOptions}
-              />
-              {/* <BrushControls brushRadius={brushRadius} updateBrushRadius={updateBrushRadius} /> */}
-              <DraftManager
-                downloadCanvas={downloadCanvas}
-                uploadFileChange={uploadFileChange}
-                uploadCanvas={uploadCanvas}
-                canvasFile={canvasFile}
-                drawingCanvas={drawingCanvas}
-                uploadRef={uploadRef}
+        <div className={`${portrait ? "mt-2.5 w-[80%]" : "w-[35%]"}`}>
+          <div className="border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl">
+            <div className="flex flex-col items-center my-4 gap-4">
+              <AlphaPicker onChangeComplete={updateColor} color={color} />
+              <Slider
+                min={1}
+                max={100}
+                onChange={updateBrushRadius}
+                value={typeof brushRadius === "number" ? brushRadius : 0}
+                className="w-full"
+                style={{ width: "316px" }}
               />
             </div>
+            <ColorPicker
+              color={color}
+              updateColor={updateColor}
+              colorArray={colorArray}
+              setColorArray={setColorArray}
+              setPicker={setPicker}
+              picker={picker}
+              colorOptions={colorOptions}
+            />
+            <DraftManager
+              downloadCanvas={downloadCanvas}
+              uploadFileChange={uploadFileChange}
+              uploadCanvas={uploadCanvas}
+              canvasFile={canvasFile}
+              drawingCanvas={drawingCanvas}
+              uploadRef={uploadRef}
+            />
           </div>
         </div>
       </div>
