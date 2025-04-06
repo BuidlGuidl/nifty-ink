@@ -5,12 +5,11 @@ import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { notification } from "~~/utils/scaffold-eth";
 
 interface DraftManagerProps {
-  uploadCanvas: (uploadedDrawing: any) => void;
   drawingCanvas: React.RefObject<CanvasDrawLines>;
+  saveDrawing: (canvas: CanvasDrawLines, isUpload: boolean) => void;
 }
 
-export const DraftManager: React.FC<DraftManagerProps> = ({ uploadCanvas, drawingCanvas }) => {
-  const [canvasFile, setCanvasFile] = useState<any>(null);
+export const DraftManager: React.FC<DraftManagerProps> = ({ drawingCanvas, saveDrawing }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [isFileUploaded, setIsFileUploaded] = useState(false);
 
@@ -28,21 +27,31 @@ export const DraftManager: React.FC<DraftManagerProps> = ({ uploadCanvas, drawin
     document.body.removeChild(link);
   }, [drawingCanvas]);
 
+  const uploadCanvas = useCallback(
+    (file: any) => {
+      try {
+        const fileReader = new FileReader();
+        fileReader.readAsText(file.originFileObj as Blob, "UTF-8");
+        fileReader.onload = e => {
+          const result = JSON.parse(e.target?.result as string);
+          if (result && drawingCanvas.current) {
+            drawingCanvas.current.loadSaveData(result);
+            saveDrawing(drawingCanvas.current, true);
+          }
+        };
+      } catch (error) {
+        notification.error("file upload failed");
+      }
+    },
+    [drawingCanvas, saveDrawing],
+  );
+
   const uploadProps: UploadProps = {
     onChange({ file }) {
       if (file.status === "uploading") {
         setFileList([file]);
       } else if (file.status === "done") {
-        try {
-          setIsFileUploaded(true);
-          const fileReader = new FileReader();
-          fileReader.readAsText(file.originFileObj as Blob, "UTF-8");
-          fileReader.onload = e => {
-            setCanvasFile(JSON.parse(e.target!.result as string));
-          };
-        } catch (error) {
-          notification.error("file upload failed");
-        }
+        setIsFileUploaded(true);
       } else if (file.status === "error") {
         notification.error("file upload failed");
       }
@@ -65,13 +74,11 @@ export const DraftManager: React.FC<DraftManagerProps> = ({ uploadCanvas, drawin
       <Popconfirm
         title="This will replace your current drawing"
         onConfirm={async () => {
-          await uploadCanvas(canvasFile);
-          setCanvasFile(null);
+          await uploadCanvas(fileList[0]);
           setFileList([]);
           setIsFileUploaded(false);
         }}
         onCancel={() => {
-          setCanvasFile(null);
           setFileList([]);
           setIsFileUploaded(false);
         }}

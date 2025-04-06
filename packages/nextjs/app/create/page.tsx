@@ -194,11 +194,7 @@ const CreateInk = () => {
     saveDrawing(drawingCanvas.current, false);
   };
 
-  const { undo, uploadCanvas, fillBackground, drawFrame } = useCanvasActions(
-    drawingCanvas,
-    triggerOnChange,
-    saveDrawing,
-  );
+  const { undo, fillBackground, drawFrame } = useCanvasActions(drawingCanvas, triggerOnChange, saveDrawing);
 
   const saveCanvas = () => {
     if (canvasDisabled || isDrawing) {
@@ -309,7 +305,7 @@ const CreateInk = () => {
               picker={picker}
               colorOptions={colorOptions}
             />
-            <DraftManager uploadCanvas={uploadCanvas} drawingCanvas={drawingCanvas} />
+            <DraftManager saveDrawing={saveDrawing} drawingCanvas={drawingCanvas} />
           </div>
         </div>
       </div>

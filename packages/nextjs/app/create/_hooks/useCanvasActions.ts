@@ -16,14 +16,6 @@ export const useCanvasActions = (drawingCanvas: any, triggerOnChange: (lines: Li
     }
   }, [drawingCanvas, triggerOnChange]);
 
-  const uploadCanvas = useCallback(
-    (uploadedDrawing: React.ChangeEvent<HTMLInputElement>) => {
-      drawingCanvas?.current?.loadSaveData(uploadedDrawing);
-      saveDrawing(drawingCanvas.current, true);
-    },
-    [drawingCanvas],
-  );
-
   const fillBackground = useCallback(
     (color: string) => {
       if (!drawingCanvas.current) return;
@@ -95,5 +87,5 @@ export const useCanvasActions = (drawingCanvas: any, triggerOnChange: (lines: Li
     [drawingCanvas, triggerOnChange],
   );
 
-  return { undo, uploadCanvas, fillBackground, drawFrame };
+  return { undo, fillBackground, drawFrame };
 };
