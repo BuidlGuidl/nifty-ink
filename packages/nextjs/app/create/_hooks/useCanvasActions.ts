@@ -1,12 +1,7 @@
 import { useCallback } from "react";
 import { Lines } from "~~/types/canvasDrawing";
 
-export const useCanvasActions = (
-  drawingCanvas: any,
-  triggerOnChange: (lines: Lines[]) => void,
-  setCanvasFile: any,
-  saveDrawing: any,
-) => {
+export const useCanvasActions = (drawingCanvas: any, triggerOnChange: (lines: Lines[]) => void, saveDrawing: any) => {
   const undo = useCallback(() => {
     if (!drawingCanvas?.current?.lines?.length) return;
 
@@ -21,27 +16,12 @@ export const useCanvasActions = (
     }
   }, [drawingCanvas, triggerOnChange]);
 
-  const downloadCanvas = useCallback(async () => {
-    const myData = drawingCanvas?.current?.getSaveData();
-    const fileName = `nifty_ink_canvas_${Date.now()}`;
-    const json = JSON.stringify(myData);
-    const blob = new Blob([json], { type: "application/json" });
-    const href = await URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = href;
-    link.download = fileName + ".json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [drawingCanvas]);
-
   const uploadCanvas = useCallback(
     (uploadedDrawing: React.ChangeEvent<HTMLInputElement>) => {
       drawingCanvas?.current?.loadSaveData(uploadedDrawing);
       saveDrawing(drawingCanvas.current, true);
-      setCanvasFile(undefined);
     },
-    [drawingCanvas, setCanvasFile],
+    [drawingCanvas],
   );
 
   const fillBackground = useCallback(
@@ -115,5 +95,5 @@ export const useCanvasActions = (
     [drawingCanvas, triggerOnChange],
   );
 
-  return { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame };
+  return { undo, uploadCanvas, fillBackground, drawFrame };
 };

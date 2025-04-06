@@ -47,7 +47,6 @@ const CreateInk = () => {
   const [colorArray, setColorArray] = useLocalStorage<keyof ColorOptionsType>("colorArray", "twitter", {
     initializeWithValue: false,
   });
-  const [canvasFile, setCanvasFile] = useState<any>(null);
   const [drawing, setDrawing] = useLocalStorage<string>("drawing", "");
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -195,22 +194,11 @@ const CreateInk = () => {
     saveDrawing(drawingCanvas.current, false);
   };
 
-  const { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame } = useCanvasActions(
+  const { undo, uploadCanvas, fillBackground, drawFrame } = useCanvasActions(
     drawingCanvas,
     triggerOnChange,
-    setCanvasFile,
     saveDrawing,
   );
-
-  const uploadFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileReader = new FileReader();
-    fileReader.readAsText(e.target.files![0], "UTF-8");
-    fileReader.onload = e => {
-      setCanvasFile(JSON.parse(e.target!.result as string));
-    };
-  };
-
-  const uploadRef = useRef<HTMLInputElement | null>(null);
 
   const saveCanvas = () => {
     if (canvasDisabled || isDrawing) {
@@ -321,14 +309,7 @@ const CreateInk = () => {
               picker={picker}
               colorOptions={colorOptions}
             />
-            <DraftManager
-              downloadCanvas={downloadCanvas}
-              uploadFileChange={uploadFileChange}
-              uploadCanvas={uploadCanvas}
-              canvasFile={canvasFile}
-              drawingCanvas={drawingCanvas}
-              uploadRef={uploadRef}
-            />
+            <DraftManager uploadCanvas={uploadCanvas} drawingCanvas={drawingCanvas} />
           </div>
         </div>
       </div>
