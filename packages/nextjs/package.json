@@ -21,7 +21,7 @@
     "@heroicons/react": "^2.0.11",
     "@rainbow-me/rainbowkit": "^2.0.2",
     "@tanstack/react-query": "^5.28.6",
-    "@types/react-color": "^3.0.12",
+    "@types/react-color": "^3.0.13",
     "@uniswap/sdk-core": "^4.0.1",
     "@uniswap/v2-sdk": "^3.0.1",
     "@zoralabs/coins-sdk": "^0.0.2-sdkalpha.3",

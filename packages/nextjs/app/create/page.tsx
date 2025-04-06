@@ -7,14 +7,17 @@ import { CanvasActions } from "./_components/CanvasActions";
 import { CanvasControls } from "./_components/CanvasControls";
 import { ColorPicker } from "./_components/ColorPicker";
 import { DraftManager } from "./_components/DraftManager";
-import { PublishContent } from "./_components/publish/PublishContent";
+import { PublishModal } from "./_components/publish/PublishModal";
 import { useCanvasActions } from "./_hooks/useCanvasActions";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import "./styles.css";
-import { Tabs, TabsProps } from "antd";
+import { Slider, Tabs, TabsProps } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
+import { AlphaPicker } from "react-color";
+import Github from "react-color/lib/components/github/Github";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
+import { Address } from "viem";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
 import { useSearchParamsHandler } from "~~/hooks/useSearchParamsHandler";
@@ -41,13 +44,8 @@ const CreateInk = () => {
   const { address: connectedAddress, chain } = useAccount();
   const { paramValue: activity, updateSearchParam: setActivity } = useSearchParamsHandler("activity", "draw");
 
-  const handleActivityChange = (key: string) => {
-    console.log(key);
-    setActivity(key);
-  };
-
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
-  const calculatedCanvaSize = Math.round(0.85 * Math.min(width, height));
+  const calculatedCanvaSize = Math.round(0.8 * Math.min(width, height));
   const [picker, setPicker] = useLocalStorage("picker", 0);
   const [color, setColor] = useLocalStorage("color", "rgba(102,102,102,1)");
   const [brushRadius, setBrushRadius] = useState(8);
@@ -241,72 +239,83 @@ const CreateInk = () => {
 
   useHotkeyBindings(brushRadius, updateBrushRadius, updateOpacity, undo);
 
-  const items: TabsProps["items"] = [
-    {
-      key: "draw",
-      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🎨 Draw</p>,
-    },
-    {
-      key: "publish",
-      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🚀 Publish</p>,
-    },
-  ];
-
   return (
-    <div className="create-ink-container mt-5">
-      <div className="canvas">
-        {width > 0 && height > 0 && isClient ? (
-          <div
-            style={{
-              backgroundColor: "#666666",
-              width: size[0],
-              margin: "auto",
-              border: "1px solid #999999",
-              boxShadow: "2px 2px 8px #AAAAAA",
-              cursor: "pointer",
-            }}
-            onMouseUp={saveCanvas}
-            onTouchEnd={saveCanvas}
-          >
-            <CanvasDraw
-              ref={drawingCanvas}
-              canvasWidth={size[0]}
-              canvasHeight={size[1]}
-              brushColor={color}
-              lazyRadius={1}
-              brushRadius={brushRadius}
-              disabled={canvasDisabled}
-              onChange={handleCanvasChange}
-              saveData={initialDrawing}
-              immediateLoading={true} //drawingSize >= 10000}
-              loadTimeOffset={3}
+    <div className="flex flex-col items-center mt-2">
+      <label htmlFor="publish-modal" className="btn btn-primary">
+        Ink!
+      </label>
+      <PublishModal
+        chain={chain}
+        connectedAddress={connectedAddress as Address}
+        modalId="publish-modal"
+        drawingCanvas={drawingCanvas}
+      />
+
+      <div className="flex justify-center text-center flex-wrap mt-2">
+        <div className="">
+          <CanvasControls
+            canvasDisabled={canvasDisabled}
+            isSaving={isSaving}
+            drawingCanvas={drawingCanvas}
+            saveDrawing={saveDrawing}
+            undo={undo}
+            handleChangeDrawing={handleChangeDrawing}
+            setCanvasDisabled={setCanvasDisabled}
+          />
+          <div className="flex gap-2 ml-[50px]">
+            {width > 0 && height > 0 && isClient ? (
+              <div
+                style={{
+                  width: size[0],
+                  height: size[1],
+                  // margin: "auto",
+                  // display: "flex",
+                  // border: "1px solid #999999",
+                  // boxShadow: "2px 2px 8px #AAAAAA",
+                  // cursor: "pointer",
+                }}
+                className="mx-auto flex shadow-lg cursor-pointer"
+                onMouseUp={saveCanvas}
+                onTouchEnd={saveCanvas}
+              >
+                <CanvasDraw
+                  ref={drawingCanvas}
+                  canvasWidth={size[0]}
+                  canvasHeight={size[1]}
+                  brushColor={color}
+                  lazyRadius={1}
+                  brushRadius={brushRadius}
+                  disabled={canvasDisabled}
+                  onChange={handleCanvasChange}
+                  saveData={initialDrawing}
+                  immediateLoading={true} //drawingSize >= 10000}
+                  loadTimeOffset={3}
+                />
+              </div>
+            ) : (
+              <Loader />
+            )}
+            <Github
+              colors={colorOptions[colorArray as keyof ColorOptionsType]}
+              onChangeComplete={updateColor}
+              triangle="hide"
+              width="36px"
             />
           </div>
-        ) : (
-          <Loader />
-        )}
-      </div>
-      <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
-        <div className={portrait ? "" : "edit-tools-side max-w-xl flex flex-col items-center"}>
-          <Tabs
-            defaultActiveKey={activity}
-            type="card"
-            centered
-            onChange={handleActivityChange}
-            items={items}
-            tabBarStyle={{ marginBottom: 0 }}
-          />
-          {activity === "draw" ? (
-            <div className={`bg-base-100 border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
-              <CanvasControls
-                canvasDisabled={canvasDisabled}
-                isSaving={isSaving}
-                drawingCanvas={drawingCanvas}
-                saveDrawing={saveDrawing}
-                undo={undo}
-                handleChangeDrawing={handleChangeDrawing}
-                setCanvasDisabled={setCanvasDisabled}
-              />
+        </div>
+        <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
+          <div className={portrait ? "" : "edit-tools-side max-w-xl flex flex-col items-center"}>
+            <div className={`border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
+              <div className="flex flex-col items-center my-4 gap-4">
+                <AlphaPicker onChangeComplete={updateColor} color={color} />
+                <Slider
+                  min={1}
+                  max={100}
+                  onChange={updateBrushRadius}
+                  value={typeof brushRadius === "number" ? brushRadius : 0}
+                  className="w-full"
+                />
+              </div>
               <ColorPicker
                 color={color}
                 updateColor={updateColor}
@@ -316,7 +325,7 @@ const CreateInk = () => {
                 picker={picker}
                 colorOptions={colorOptions}
               />
-              <BrushControls brushRadius={brushRadius} updateBrushRadius={updateBrushRadius} />
+              {/* <BrushControls brushRadius={brushRadius} updateBrushRadius={updateBrushRadius} /> */}
               <CanvasActions
                 fillBackground={fillBackground}
                 drawFrame={drawFrame}
@@ -333,15 +342,7 @@ const CreateInk = () => {
                 uploadRef={uploadRef}
               />
             </div>
-          ) : (
-            <div className={`bg-base-100 border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
-              {chain && connectedAddress ? (
-                <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
-              ) : (
-                <p>Please connect your wallet to proceed</p>
-              )}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

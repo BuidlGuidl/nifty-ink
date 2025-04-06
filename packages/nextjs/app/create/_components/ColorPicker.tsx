@@ -62,7 +62,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           presetColors={colorOptions[colorArray as keyof ColorOptionsType]}
         />
       </Row>
-      <Row
+      {/* <Row
         style={{
           margin: "0 auto",
           marginTop: "4vh",
@@ -71,7 +71,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         }}
       >
         <AlphaPicker onChangeComplete={updateColor} color={color} />
-      </Row>
+      </Row> */}
     </>
   );
 };

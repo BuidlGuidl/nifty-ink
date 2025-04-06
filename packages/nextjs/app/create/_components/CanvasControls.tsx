@@ -23,7 +23,18 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   setCanvasDisabled,
 }) => {
   return (
-    <div className="my-5">
+    <div className="mt-2">
+      <Button
+        disabled={canvasDisabled || !drawingCanvas.current?.lines?.length}
+        onClick={() => {
+          if (canvasDisabled || !drawingCanvas.current?.lines?.length) return;
+          drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(), false);
+          setCanvasDisabled(true);
+        }}
+        icon={<PlaySquareOutlined />}
+      >
+        PLAY
+      </Button>
       <Tooltip title="save to local storage">
         <Button
           disabled={canvasDisabled || isSaving}
@@ -36,16 +47,6 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
           {isSaving ? "SAVING..." : "SAVE"}
         </Button>
       </Tooltip>
-      <Button
-        disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
-        onClick={() => {
-          if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
-          undo();
-        }}
-        icon={<UndoOutlined />}
-      >
-        UNDO
-      </Button>
       <Popconfirm
         title="Are you sure?"
         onConfirm={() => {
@@ -64,15 +65,14 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         </Button>
       </Popconfirm>
       <Button
-        disabled={canvasDisabled || !drawingCanvas.current?.lines?.length}
+        disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
         onClick={() => {
-          if (canvasDisabled || !drawingCanvas.current?.lines?.length) return;
-          drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(), false);
-          setCanvasDisabled(true);
+          if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
+          undo();
         }}
-        icon={<PlaySquareOutlined />}
+        icon={<UndoOutlined />}
       >
-        PLAY
+        UNDO
       </Button>
     </div>
   );
