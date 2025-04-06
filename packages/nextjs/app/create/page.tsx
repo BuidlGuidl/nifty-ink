@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { BrushControls } from "./_components/BrushControls";
 import { CanvasActions } from "./_components/CanvasActions";
 import { CanvasControls } from "./_components/CanvasControls";
@@ -11,7 +10,7 @@ import { PublishModal } from "./_components/publish/PublishModal";
 import { useCanvasActions } from "./_hooks/useCanvasActions";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import "./styles.css";
-import { Slider, Tabs, TabsProps } from "antd";
+import { Slider } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { AlphaPicker } from "react-color";
@@ -20,9 +19,8 @@ import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
-import { useSearchParamsHandler } from "~~/hooks/useSearchParamsHandler";
 import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
-import { TEXT_PRIMARY_COLOR, getColorOptions } from "~~/utils/constants";
+import { getColorOptions } from "~~/utils/constants";
 
 let compressionWorker: Worker | null = null;
 
@@ -39,10 +37,8 @@ const createRGBA = (r: number, g: number, b: number, a: number): string => {
 };
 
 const CreateInk = () => {
-  const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const { address: connectedAddress, chain } = useAccount();
-  const { paramValue: activity, updateSearchParam: setActivity } = useSearchParamsHandler("activity", "draw");
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
   const calculatedCanvaSize = Math.round(0.8 * Math.min(width, height));
@@ -53,7 +49,6 @@ const CreateInk = () => {
   const [colorArray, setColorArray] = useLocalStorage<keyof ColorOptionsType>("colorArray", "twitter", {
     initializeWithValue: false,
   });
-  const [_, setDrafts] = useLocalStorage<Draft[]>("drafts", []);
   const [canvasFile, setCanvasFile] = useState<any>(null);
   const [drawing, setDrawing] = useLocalStorage<string>("drawing", "");
   const [isDrawing, setIsDrawing] = useState(false);
@@ -202,10 +197,9 @@ const CreateInk = () => {
     saveDrawing(drawingCanvas.current, false);
   };
 
-  const { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame, saveDraft } = useCanvasActions(
+  const { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame } = useCanvasActions(
     drawingCanvas,
     triggerOnChange,
-    setDrafts,
     setCanvasFile,
     saveDrawing,
   );
@@ -333,7 +327,6 @@ const CreateInk = () => {
                 brushRadius={brushRadius}
               />
               <DraftManager
-                saveDraft={saveDraft}
                 downloadCanvas={downloadCanvas}
                 uploadFileChange={uploadFileChange}
                 uploadCanvas={uploadCanvas}

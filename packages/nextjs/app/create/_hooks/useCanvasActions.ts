@@ -1,11 +1,9 @@
 import { useCallback } from "react";
-import LZ from "lz-string";
 import { Lines } from "~~/types/canvasDrawing";
 
 export const useCanvasActions = (
   drawingCanvas: any,
   triggerOnChange: (lines: Lines[]) => void,
-  setDrafts: any,
   setCanvasFile: any,
   saveDrawing: any,
 ) => {
@@ -117,16 +115,5 @@ export const useCanvasActions = (
     [drawingCanvas, triggerOnChange],
   );
 
-  const saveDraft = useCallback(() => {
-    if (!drawingCanvas.current) return;
-
-    const imageData = drawingCanvas?.current?.canvas?.drawing.toDataURL("image/png");
-    const savedData = LZ.compress(drawingCanvas.current.getSaveData());
-
-    setDrafts((drafts: any) => {
-      return [...drafts, { imageData, savedData }];
-    });
-  }, [drawingCanvas, setDrafts]);
-
-  return { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame, saveDraft };
+  return { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame };
 };
