@@ -1,7 +1,16 @@
 import React from "react";
-import { ClearOutlined, PlaySquareOutlined, SaveOutlined, UndoOutlined } from "@ant-design/icons";
-import { Button, Popconfirm, Tooltip } from "antd";
+import {
+  BgColorsOutlined,
+  BorderOutlined,
+  ClearOutlined,
+  InfoCircleOutlined,
+  PlaySquareOutlined,
+  SaveOutlined,
+  UndoOutlined,
+} from "@ant-design/icons";
+import { Button, Popconfirm, Popover, Table, Tooltip } from "antd";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
 
 interface CanvasControlsProps {
   canvasDisabled: boolean;
@@ -11,6 +20,10 @@ interface CanvasControlsProps {
   undo: () => void;
   handleChangeDrawing: (newDrawing: string) => void;
   setCanvasDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+  drawFrame: (color: string, brushRadius: number) => void;
+  color: string;
+  brushRadius: number;
+  fillBackground: (color: string) => void;
 }
 
 export const CanvasControls: React.FC<CanvasControlsProps> = ({
@@ -21,6 +34,10 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   undo,
   handleChangeDrawing,
   setCanvasDisabled,
+  drawFrame,
+  color,
+  brushRadius,
+  fillBackground,
 }) => {
   return (
     <div className="mt-2">
@@ -74,6 +91,15 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
       >
         UNDO
       </Button>
+      <Button onClick={() => fillBackground(color)} icon={<BgColorsOutlined />} />
+      <Button onClick={() => drawFrame(color, brushRadius)} icon={<BorderOutlined />} />
+      <Popover
+        content={<Table columns={shortCutsInfoCols} dataSource={shortCutsInfo} size="small" pagination={false} />}
+        title="Keyboard shortcuts"
+        trigger="click"
+      >
+        <Button icon={<InfoCircleOutlined />} />
+      </Popover>
     </div>
   );
 };

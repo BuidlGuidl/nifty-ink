@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BrushControls } from "./_components/BrushControls";
-import { CanvasActions } from "./_components/CanvasActions";
 import { CanvasControls } from "./_components/CanvasControls";
 import { ColorPicker } from "./_components/ColorPicker";
 import { DraftManager } from "./_components/DraftManager";
@@ -255,6 +254,10 @@ const CreateInk = () => {
             undo={undo}
             handleChangeDrawing={handleChangeDrawing}
             setCanvasDisabled={setCanvasDisabled}
+            drawFrame={drawFrame}
+            color={color}
+            brushRadius={brushRadius}
+            fillBackground={fillBackground}
           />
           <div className="flex gap-2 ml-[50px]">
             {width > 0 && height > 0 && isClient ? (
@@ -298,7 +301,7 @@ const CreateInk = () => {
           </div>
         </div>
         <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
-          <div className={portrait ? "" : "edit-tools-side max-w-xl flex flex-col items-center"}>
+          <div className={portrait ? "" : "max-w-xl flex flex-col items-center"}>
             <div className={`border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
               <div className="flex flex-col items-center my-4 gap-4">
                 <AlphaPicker onChangeComplete={updateColor} color={color} />
@@ -320,12 +323,6 @@ const CreateInk = () => {
                 colorOptions={colorOptions}
               />
               {/* <BrushControls brushRadius={brushRadius} updateBrushRadius={updateBrushRadius} /> */}
-              <CanvasActions
-                fillBackground={fillBackground}
-                drawFrame={drawFrame}
-                color={color}
-                brushRadius={brushRadius}
-              />
               <DraftManager
                 downloadCanvas={downloadCanvas}
                 uploadFileChange={uploadFileChange}
