@@ -39,7 +39,8 @@ const CreateInk = () => {
   const { address: connectedAddress, chain } = useAccount();
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
-  const calculatedCanvaSize = Math.round(0.8 * Math.min(width, height));
+  // TODO: Check the sizes
+  const calculatedCanvaSize = Math.round(0.75 * Math.min(width, height));
   const [picker, setPicker] = useLocalStorage("picker", 0);
   const [color, setColor] = useLocalStorage("color", "rgba(102,102,102,1)");
   const [brushRadius, setBrushRadius] = useState(8);
@@ -104,7 +105,6 @@ const CreateInk = () => {
 
   const updateColor = (value: any) => {
     setColor(`rgba(${value.rgb.r},${value.rgb.g},${value.rgb.b},${value.rgb.a})`);
-    console.log(`rgba(${value.rgb.r},${value.rgb.g},${value.rgb.b},${value.rgb.a})`);
   };
 
   const updateOpacity = useCallback((value: number) => {
@@ -285,17 +285,12 @@ const CreateInk = () => {
         </div>
         <div className={`${portrait ? "mt-2.5 w-[80%]" : "w-[35%]"}`}>
           <div className="border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl">
-            <div className="flex flex-col items-center my-4 gap-4">
-              <AlphaPicker onChangeComplete={updateColor} color={color} />
-              <Slider
-                min={1}
-                max={100}
-                onChange={updateBrushRadius}
-                value={typeof brushRadius === "number" ? brushRadius : 0}
-                className="w-full"
-                style={{ width: "316px" }}
-              />
-            </div>
+            <BrushControls
+              color={color}
+              brushRadius={brushRadius}
+              updateColor={updateColor}
+              updateBrushRadius={updateBrushRadius}
+            />
             <ColorPicker
               color={color}
               updateColor={updateColor}
