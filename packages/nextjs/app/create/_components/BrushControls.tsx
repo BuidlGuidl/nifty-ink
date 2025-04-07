@@ -19,21 +19,21 @@ export const BrushControls = ({ color, brushRadius, updateColor, updateBrushRadi
   const currentOpacity = Math.round(parseFloat(color.split(",")[3]?.replace(")", "")) * 100);
 
   return (
-    <div className="flex flex-col items-center my-4 gap-4">
-      <div className="flex items-center gap-2 tooltip tooltip-primary" data-tip={`${currentOpacity}%`}>
+    <div className="flex flex-col items-center gap-4 max-w-lg">
+      <div className="flex items-center gap-2 w-full tooltip tooltip-primary" data-tip={`${currentOpacity}%`}>
         <Button
           icon={<MinusOutlined />}
           onClick={() => handleOpacityChange(Math.max(0, currentOpacity - 1))}
           size="small"
         />
-        <AlphaPicker onChangeComplete={updateColor} color={color} width="316px" />
+        <AlphaPicker onChangeComplete={updateColor} color={color} />
         <Button
           icon={<PlusOutlined />}
           onClick={() => handleOpacityChange(Math.min(100, currentOpacity + 1))}
           size="small"
         />
       </div>
-      <div className="flex items-center gap-2 tooltip tooltip-primary" data-tip={brushRadius}>
+      <div className="flex items-center gap-2 w-full tooltip tooltip-primary" data-tip={brushRadius}>
         <Button icon={<MinusOutlined />} onClick={() => updateBrushRadius(Math.max(1, brushRadius - 1))} size="small" />
         <Slider
           min={1}
@@ -41,7 +41,7 @@ export const BrushControls = ({ color, brushRadius, updateColor, updateBrushRadi
           onChange={updateBrushRadius}
           value={typeof brushRadius === "number" ? brushRadius : 0}
           className="w-full"
-          style={{ width: "306px" }}
+          style={{ margin: "0" }}
           tooltip={{ open: false }}
         />
         <Button

@@ -1,7 +1,7 @@
 import React from "react";
 import { HighlightOutlined } from "@ant-design/icons";
-import { Button, Col, Row, Select } from "antd";
-import { AlphaPicker, CirclePicker, SketchPicker } from "react-color";
+import { Button, Select } from "antd";
+import { CirclePicker, SketchPicker } from "react-color";
 
 const { Option } = Select;
 interface ColorPickerProps {
@@ -29,7 +29,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
 
   return (
     <>
-      <Row style={{ justifyContent: "center", marginBottom: 10 }}>
+      <div className="mt-2">
         <Select defaultValue={colorArray} style={{ width: 200 }} onChange={value => setColorArray(value)}>
           <Option value="recent">Recent</Option>
           <Option value="sketch">Sketch Palette</Option>
@@ -47,31 +47,15 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           <Option value={"niftyeight"}>Palette #8</Option>
         </Select>
         <Button onClick={() => setPicker(picker + 1)} icon={<HighlightOutlined />} />
-      </Row>
-      <Row
-        style={{
-          justifyContent: "center",
-          alignItems: "middle",
-          padding: 4,
-        }}
-      >
+      </div>
+      <div>
         <PickerDisplay
           color={color}
           onChangeComplete={updateColor}
           colors={colorOptions[colorArray as keyof ColorOptionsType]}
           presetColors={colorOptions[colorArray as keyof ColorOptionsType]}
         />
-      </Row>
-      {/* <Row
-        style={{
-          margin: "0 auto",
-          marginTop: "4vh",
-          justifyContent: "center",
-          alignItems: "middle",
-        }}
-      >
-        <AlphaPicker onChangeComplete={updateColor} color={color} />
-      </Row> */}
+      </div>
     </>
   );
 };

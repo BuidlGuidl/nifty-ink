@@ -8,10 +8,8 @@ import { DraftManager } from "./_components/DraftManager";
 import { PublishModal } from "./_components/publish/PublishModal";
 import { useCanvasActions } from "./_hooks/useCanvasActions";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
-import { Slider } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
-import { AlphaPicker } from "react-color";
 import Github from "react-color/lib/components/github/Github";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { Address } from "viem";
@@ -216,8 +214,8 @@ const CreateInk = () => {
   useHotkeyBindings(brushRadius, updateBrushRadius, updateOpacity, undo);
 
   return (
-    <div className="flex flex-col items-center mt-2">
-      <label htmlFor="publish-modal" className="btn btn-primary">
+    <div className="flex flex-col items-center">
+      <label htmlFor="publish-modal" className="btn btn-primary mt-4">
         Ink!
       </label>
       <PublishModal
@@ -227,7 +225,7 @@ const CreateInk = () => {
         drawingCanvas={drawingCanvas}
       />
 
-      <div className="flex justify-center text-center flex-wrap mt-2">
+      <div className="flex justify-center text-center flex-wrap mt-2 gap-2">
         <div>
           <CanvasControls
             canvasDisabled={canvasDisabled}
@@ -242,66 +240,70 @@ const CreateInk = () => {
             brushRadius={brushRadius}
             fillBackground={fillBackground}
           />
-          <div className="flex gap-2 ml-[50px]">
+          <div className="flex">
             {width > 0 && height > 0 && isClient ? (
-              <div
-                style={{
-                  width: size[0],
-                  height: size[1],
-                  // margin: "auto",
-                  // display: "flex",
-                  // border: "1px solid #999999",
-                  // boxShadow: "2px 2px 8px #AAAAAA",
-                  // cursor: "pointer",
-                }}
-                className="mx-auto flex shadow-lg cursor-pointer"
-                onMouseUp={saveCanvas}
-                onTouchEnd={saveCanvas}
-              >
-                <CanvasDraw
-                  ref={drawingCanvas}
-                  canvasWidth={size[0]}
-                  canvasHeight={size[1]}
-                  brushColor={color}
-                  lazyRadius={1}
-                  brushRadius={brushRadius}
-                  disabled={canvasDisabled}
-                  onChange={handleCanvasChange}
-                  saveData={initialDrawing}
-                  immediateLoading={true} //drawingSize >= 10000}
-                  loadTimeOffset={3}
-                />
+              <div className="flex mx-auto">
+                <div
+                  style={{
+                    width: size[0],
+                    height: size[1],
+                    // margin: "auto",
+                    // display: "flex",
+                    // border: "1px solid #999999",
+                    // boxShadow: "2px 2px 8px #AAAAAA",
+                    // cursor: "pointer",
+                  }}
+                  className="shadow-lg cursor-pointer"
+                  onMouseUp={saveCanvas}
+                  onTouchEnd={saveCanvas}
+                >
+                  <CanvasDraw
+                    ref={drawingCanvas}
+                    canvasWidth={size[0]}
+                    canvasHeight={size[1]}
+                    brushColor={color}
+                    lazyRadius={1}
+                    brushRadius={brushRadius}
+                    disabled={canvasDisabled}
+                    onChange={handleCanvasChange}
+                    saveData={initialDrawing}
+                    immediateLoading={true} //drawingSize >= 10000}
+                    loadTimeOffset={3}
+                  />
+                </div>
+                {portrait && (
+                  <div>
+                    <Github
+                      colors={colorOptions[colorArray as keyof ColorOptionsType]}
+                      onChangeComplete={updateColor}
+                      triangle="hide"
+                      width="62px"
+                    />
+                  </div>
+                )}
               </div>
             ) : (
               <Loader />
             )}
-            <Github
-              colors={colorOptions[colorArray as keyof ColorOptionsType]}
-              onChangeComplete={updateColor}
-              triangle="hide"
-              width="36px"
-            />
           </div>
         </div>
-        <div className={`${portrait ? "mt-2.5 w-[80%]" : "w-[35%]"}`}>
-          <div className="border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl">
-            <BrushControls
-              color={color}
-              brushRadius={brushRadius}
-              updateColor={updateColor}
-              updateBrushRadius={updateBrushRadius}
-            />
-            <ColorPicker
-              color={color}
-              updateColor={updateColor}
-              colorArray={colorArray}
-              setColorArray={setColorArray}
-              setPicker={setPicker}
-              picker={picker}
-              colorOptions={colorOptions}
-            />
-            <DraftManager saveDrawing={saveDrawing} drawingCanvas={drawingCanvas} />
-          </div>
+        <div className={`flex flex-col items-center ${portrait ? "mt-1" : "mt-10"}`}>
+          <BrushControls
+            color={color}
+            brushRadius={brushRadius}
+            updateColor={updateColor}
+            updateBrushRadius={updateBrushRadius}
+          />
+          <ColorPicker
+            color={color}
+            updateColor={updateColor}
+            colorArray={colorArray}
+            setColorArray={setColorArray}
+            setPicker={setPicker}
+            picker={picker}
+            colorOptions={colorOptions}
+          />
+          <DraftManager saveDrawing={saveDrawing} drawingCanvas={drawingCanvas} />
         </div>
       </div>
     </div>
