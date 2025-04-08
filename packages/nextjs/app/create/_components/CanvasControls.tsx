@@ -9,8 +9,11 @@ import {
   UndoOutlined,
 } from "@ant-design/icons";
 import { Button, Popconfirm, Popover, Table, Tooltip } from "antd";
+import { Grid } from "antd";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
+
+const { useBreakpoint } = Grid;
 
 interface CanvasControlsProps {
   canvasDisabled: boolean;
@@ -39,6 +42,8 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   brushRadius,
   fillBackground,
 }) => {
+  const screens = useBreakpoint();
+  const isSmall = !screens.sm;
   return (
     <div className="mt-2">
       <Button
@@ -49,8 +54,9 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
           setCanvasDisabled(true);
         }}
         icon={<PlaySquareOutlined />}
+        size={"middle"}
       >
-        PLAY
+        {!isSmall && "PLAY"}
       </Button>
       <Tooltip title="save to local storage">
         <Button
@@ -60,8 +66,9 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
             saveDrawing(drawingCanvas.current, true);
           }}
           icon={<SaveOutlined />}
+          size={"middle"}
         >
-          {isSaving ? "SAVING..." : "SAVE"}
+          {!isSmall && (isSaving ? "SAVING..." : "SAVE")}
         </Button>
       </Tooltip>
       <Popconfirm
@@ -77,8 +84,9 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         <Button
           disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
           icon={<ClearOutlined />}
+          size={"middle"}
         >
-          CLEAR
+          {!isSmall && "CLEAR"}
         </Button>
       </Popconfirm>
       <Button
@@ -88,17 +96,18 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
           undo();
         }}
         icon={<UndoOutlined />}
+        size={"middle"}
       >
-        UNDO
+        {!isSmall && "UNDO"}
       </Button>
-      <Button onClick={() => fillBackground(color)} icon={<BgColorsOutlined />} />
-      <Button onClick={() => drawFrame(color, brushRadius)} icon={<BorderOutlined />} />
+      <Button onClick={() => fillBackground(color)} icon={<BgColorsOutlined />} size={"middle"} />
+      <Button onClick={() => drawFrame(color, brushRadius)} icon={<BorderOutlined />} size={"middle"} />
       <Popover
         content={<Table columns={shortCutsInfoCols} dataSource={shortCutsInfo} size="small" pagination={false} />}
         title="Keyboard shortcuts"
         trigger="click"
       >
-        <Button icon={<InfoCircleOutlined />} />
+        <Button icon={<InfoCircleOutlined />} size={"middle"} />
       </Popover>
     </div>
   );

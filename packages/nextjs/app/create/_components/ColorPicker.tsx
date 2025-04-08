@@ -48,7 +48,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         </Select>
         <Button onClick={() => setPicker(picker + 1)} icon={<HighlightOutlined />} />
       </div>
-      <div>
+      <div className="mt-2">
         <PickerDisplay
           color={color}
           onChangeComplete={updateColor}
