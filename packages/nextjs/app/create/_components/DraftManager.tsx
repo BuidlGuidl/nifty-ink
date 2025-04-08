@@ -59,18 +59,18 @@ export const DraftManager: React.FC<DraftManagerProps> = ({ drawingCanvas, saveD
   };
   return (
     <div className="flex flex-col items-center mt-4 gap-2">
-      <Tooltip title="Download current drawing">
-        <Button
-          disabled={!drawingCanvas.current || (drawingCanvas.current && !drawingCanvas.current.lines.length)}
-          onClick={async () => {
-            if (drawingCanvas.current && !drawingCanvas.current.lines) return;
-            await downloadCanvas();
-          }}
-          icon={<DownloadOutlined />}
-        >
-          Download
-        </Button>
-      </Tooltip>
+      <Button
+        disabled={!drawingCanvas.current || (drawingCanvas.current && !drawingCanvas.current.lines.length)}
+        onClick={async () => {
+          if (drawingCanvas.current && !drawingCanvas.current.lines) return;
+          await downloadCanvas();
+        }}
+        icon={<DownloadOutlined />}
+        className="tooltip tooltip-primary"
+        data-tip="Download current drawing"
+      >
+        Download
+      </Button>
       <Popconfirm
         title="This will replace your current drawing"
         onConfirm={async () => {
@@ -85,7 +85,13 @@ export const DraftManager: React.FC<DraftManagerProps> = ({ drawingCanvas, saveD
         open={isFileUploaded}
       >
         <Upload {...uploadProps} fileList={fileList} maxCount={1}>
-          <Button icon={<UploadOutlined />}>Upload</Button>
+          <Button
+            icon={<UploadOutlined />}
+            className="tooltip tooltip-primary"
+            data-tip="Upload previously downloaded drawing"
+          >
+            Upload
+          </Button>
         </Upload>
       </Popconfirm>
     </div>

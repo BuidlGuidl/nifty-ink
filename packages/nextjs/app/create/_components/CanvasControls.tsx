@@ -63,22 +63,24 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         }}
         icon={<PlaySquareOutlined />}
         size={"middle"}
+        className="tooltip tooltip-primary"
+        data-tip="Play the drawing process"
       >
         {!isSmall && "PLAY"}
       </Button>
-      <Tooltip title="save to local storage">
-        <Button
-          disabled={canvasDisabled || isSaving}
-          onClick={() => {
-            if (canvasDisabled || !drawingCanvas.current || !drawingCanvas.current.lines) return;
-            saveDrawing(drawingCanvas.current, true);
-          }}
-          icon={<SaveOutlined />}
-          size={"middle"}
-        >
-          {!isSmall && (isSaving ? "SAVING..." : "SAVE")}
-        </Button>
-      </Tooltip>
+      <Button
+        disabled={canvasDisabled || isSaving}
+        onClick={() => {
+          if (canvasDisabled || !drawingCanvas.current || !drawingCanvas.current.lines) return;
+          saveDrawing(drawingCanvas.current, true);
+        }}
+        icon={<SaveOutlined />}
+        size={"middle"}
+        className="tooltip tooltip-primary"
+        data-tip="Save to local storage"
+      >
+        {!isSmall && (isSaving ? "SAVING..." : "SAVE")}
+      </Button>
       <Popconfirm
         title="Are you sure?"
         onConfirm={() => {
@@ -93,6 +95,8 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
           disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
           icon={<ClearOutlined />}
           size={"middle"}
+          className="tooltip tooltip-primary"
+          data-tip="Clear the canvas"
         >
           {!isSmall && "CLEAR"}
         </Button>
@@ -105,23 +109,44 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         }}
         icon={<UndoOutlined />}
         size={"middle"}
+        className="tooltip tooltip-primary"
+        data-tip="Undo the last action"
       >
         {!isSmall && "UNDO"}
       </Button>
-      <Button onClick={() => fillBackground(color)} icon={<BgColorsOutlined />} size={"middle"} />
-      <Button onClick={() => drawFrame(color, brushRadius)} icon={<BorderOutlined />} size={"middle"} />
+      <Button
+        onClick={() => fillBackground(color)}
+        icon={<BgColorsOutlined />}
+        size={"middle"}
+        className="tooltip tooltip-primary"
+        data-tip="Fill the canvas with the current color"
+      />
+      <Button
+        onClick={() => drawFrame(color, brushRadius)}
+        icon={<BorderOutlined />}
+        size={"middle"}
+        className="tooltip tooltip-primary"
+        data-tip="Draw a frame around the canvas"
+      />
       <Popover
         content={<Table columns={shortCutsInfoCols} dataSource={shortCutsInfo} size="small" pagination={false} />}
         title="Keyboard shortcuts"
         trigger="click"
       >
-        <Button icon={<InfoCircleOutlined />} size={"middle"} />
+        <Button
+          icon={<InfoCircleOutlined />}
+          size={"middle"}
+          className="tooltip tooltip-primary"
+          data-tip="Keyboard shortcuts"
+        />
       </Popover>
       {portrait && (
         <Button
           onClick={handlePalettePosition}
           icon={isPaletteRight ? <ArrowLeftOutlined /> : <ArrowRightOutlined />}
           size={"middle"}
+          className="tooltip tooltip-primary"
+          data-tip="Change the palette position"
         />
       )}
     </div>
