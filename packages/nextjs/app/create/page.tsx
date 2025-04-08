@@ -37,8 +37,7 @@ const CreateInk = () => {
   const { address: connectedAddress, chain } = useAccount();
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
-  // TODO: Check the sizes
-  const calculatedCanvaSize = Math.round(0.75 * Math.min(width, height));
+  const calculatedCanvaSize = Math.min(Math.round(0.75 * Math.min(width, height)), 800);
   const [picker, setPicker] = useLocalStorage("picker", 0);
   const [color, setColor] = useLocalStorage("color", "rgba(102,102,102,1)");
   const [brushRadius, setBrushRadius] = useState(8);
@@ -46,6 +45,7 @@ const CreateInk = () => {
   const [colorArray, setColorArray] = useLocalStorage<keyof ColorOptionsType>("colorArray", "twitter", {
     initializeWithValue: false,
   });
+  const [isPaletteRight, setIsPaletteRight] = useState<boolean>(false);
   const [drawing, setDrawing] = useLocalStorage<string>("drawing", "");
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -70,6 +70,10 @@ const CreateInk = () => {
 
   const handleChangeDrawing = (newDrawing: string) => {
     setDrawing(newDrawing);
+  };
+
+  const handlePalettePosition = () => {
+    setIsPaletteRight(!isPaletteRight);
   };
 
   useEffect(() => {
@@ -239,10 +243,13 @@ const CreateInk = () => {
             color={color}
             brushRadius={brushRadius}
             fillBackground={fillBackground}
+            isPaletteRight={isPaletteRight}
+            handlePalettePosition={handlePalettePosition}
+            portrait={portrait}
           />
           <div className="flex">
             {width > 0 && height > 0 && isClient ? (
-              <div className="flex mx-auto">
+              <div className={`flex mx-auto ${isPaletteRight ? "flex-row" : "flex-row-reverse"}`}>
                 <div
                   style={{
                     width: size[0],

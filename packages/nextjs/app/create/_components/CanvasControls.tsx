@@ -1,5 +1,7 @@
 import React from "react";
 import {
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
   BgColorsOutlined,
   BorderOutlined,
   ClearOutlined,
@@ -27,6 +29,9 @@ interface CanvasControlsProps {
   color: string;
   brushRadius: number;
   fillBackground: (color: string) => void;
+  isPaletteRight: boolean;
+  handlePalettePosition: () => void;
+  portrait: boolean;
 }
 
 export const CanvasControls: React.FC<CanvasControlsProps> = ({
@@ -41,6 +46,9 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   color,
   brushRadius,
   fillBackground,
+  isPaletteRight,
+  handlePalettePosition,
+  portrait,
 }) => {
   const screens = useBreakpoint();
   const isSmall = !screens.sm;
@@ -109,6 +117,13 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
       >
         <Button icon={<InfoCircleOutlined />} size={"middle"} />
       </Popover>
+      {portrait && (
+        <Button
+          onClick={handlePalettePosition}
+          icon={isPaletteRight ? <ArrowLeftOutlined /> : <ArrowRightOutlined />}
+          size={"middle"}
+        />
+      )}
     </div>
   );
 };
