@@ -53,6 +53,11 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   const screens = useBreakpoint();
   const isSmall = !screens.sm;
 
+  const openModal = () => {
+    const modalToggle = document.getElementById("publish-modal") as HTMLInputElement;
+    if (modalToggle) modalToggle.checked = true;
+  };
+
   const triggerOnChange = (lines: Lines[]) => {
     if (!lines) return;
     if (!drawingCanvas?.current && !drawingCanvas?.current?.lines) return;
@@ -70,6 +75,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   const { undo, fillBackground, drawFrame } = useCanvasActions(drawingCanvas, triggerOnChange, saveDrawing);
 
   useHotkeys("ctrl+z", () => undo());
+  const isCanvasDisabledOrEmpty = canvasDisabled || !drawingCanvas.current?.lines?.length;
 
   return (
     <div className="mt-2">
@@ -79,13 +85,19 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         modalId="publish-modal"
         drawingCanvas={drawingCanvas}
       />
-      <Button className="bg-primary tooltip tooltip-primary" data-tip="Publish your drawing" size="middle">
-        <label htmlFor="publish-modal">Ink!</label>
+      <Button
+        onClick={openModal}
+        disabled={isCanvasDisabledOrEmpty}
+        className="bg-primary tooltip tooltip-primary"
+        data-tip="Publish your drawing"
+        size="middle"
+      >
+        Ink!
       </Button>
       <Button
-        disabled={canvasDisabled || !drawingCanvas.current?.lines?.length}
+        disabled={isCanvasDisabledOrEmpty}
         onClick={() => {
-          if (canvasDisabled || !drawingCanvas.current?.lines?.length) return;
+          if (isCanvasDisabledOrEmpty) return;
           drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(), false);
           setCanvasDisabled(true);
         }}
@@ -97,7 +109,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         {!isSmall && "PLAY"}
       </Button>
       <Button
-        disabled={canvasDisabled || isSaving}
+        disabled={isCanvasDisabledOrEmpty || isSaving}
         onClick={() => {
           if (canvasDisabled || !drawingCanvas.current || !drawingCanvas.current.lines) return;
           saveDrawing(drawingCanvas.current, true);
@@ -112,7 +124,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
       <Popconfirm
         title="Are you sure?"
         onConfirm={() => {
-          if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
+          if (isCanvasDisabledOrEmpty) return;
           drawingCanvas?.current?.clear();
           handleChangeDrawing("");
         }}
@@ -120,7 +132,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         cancelText="No"
       >
         <Button
-          disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
+          disabled={isCanvasDisabledOrEmpty}
           icon={<ClearOutlined />}
           size={"middle"}
           className="tooltip tooltip-primary"
@@ -130,9 +142,9 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         </Button>
       </Popconfirm>
       <Button
-        disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
+        disabled={isCanvasDisabledOrEmpty}
         onClick={() => {
-          if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
+          if (isCanvasDisabledOrEmpty) return;
           undo();
         }}
         icon={<UndoOutlined />}

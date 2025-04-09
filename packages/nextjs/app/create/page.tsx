@@ -49,8 +49,6 @@ const CreateInk = () => {
 
   const drawingCanvas = useRef<CanvasDrawLines>(null);
 
-  const [size, setSize] = useState([calculatedCanvaSize, calculatedCanvaSize]); //["70vmin", "70vmin"]) //["50vmin", "50vmin"][750, 500]
-
   const [initialDrawing, setInitialDrawing] = useState<string>("");
   const currentLines = useRef<Lines[]>([]);
   const [canvasDisabled, setCanvasDisabled] = useState(false);
@@ -58,7 +56,7 @@ const CreateInk = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const portraitRatio = 1.7;
-  const portraitCalc = width / size[0] < portraitRatio;
+  const portraitCalc = width / calculatedCanvaSize < portraitRatio;
 
   const [portrait, setPortrait] = useState(false);
 
@@ -213,13 +211,8 @@ const CreateInk = () => {
               <div className={`flex mx-auto ${isPaletteRight ? "flex-row" : "flex-row-reverse"}`}>
                 <div
                   style={{
-                    width: size[0],
-                    height: size[1],
-                    // margin: "auto",
-                    // display: "flex",
-                    // border: "1px solid #999999",
-                    // boxShadow: "2px 2px 8px #AAAAAA",
-                    // cursor: "pointer",
+                    width: calculatedCanvaSize,
+                    height: calculatedCanvaSize,
                   }}
                   className="shadow-lg cursor-pointer"
                   onMouseUp={saveCanvas}
@@ -227,8 +220,8 @@ const CreateInk = () => {
                 >
                   <CanvasDraw
                     ref={drawingCanvas}
-                    canvasWidth={size[0]}
-                    canvasHeight={size[1]}
+                    canvasWidth={calculatedCanvaSize}
+                    canvasHeight={calculatedCanvaSize}
                     brushColor={color}
                     lazyRadius={1}
                     brushRadius={brushRadius}
