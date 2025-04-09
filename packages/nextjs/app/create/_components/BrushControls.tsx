@@ -26,7 +26,7 @@ export const BrushControls = ({ color, brushRadius, updateColor, updateBrushRadi
           onClick={() => handleOpacityChange(Math.max(0, currentOpacity - 1))}
           size="small"
         />
-        <AlphaPicker onChangeComplete={updateColor} color={color} />
+        <AlphaPicker onChange={updateColor} color={color} />
         <Button
           icon={<PlusOutlined />}
           onClick={() => handleOpacityChange(Math.min(100, currentOpacity + 1))}

@@ -5,14 +5,11 @@ import { BrushControls } from "./_components/BrushControls";
 import { CanvasControls } from "./_components/CanvasControls";
 import { ColorPicker } from "./_components/ColorPicker";
 import { DraftManager } from "./_components/DraftManager";
-import { PublishModal } from "./_components/publish/PublishModal";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import Github from "react-color/lib/components/github/Github";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
-import { Address } from "viem";
-import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
 import { getColorOptions } from "~~/utils/constants";
@@ -33,7 +30,6 @@ const createRGBA = (r: number, g: number, b: number, a: number): string => {
 
 const CreateInk = () => {
   const [isClient, setIsClient] = useState(false);
-  const { address: connectedAddress, chain } = useAccount();
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
   const calculatedCanvaSize = Math.min(Math.round(0.75 * Math.min(width, height)), 800);
@@ -198,17 +194,7 @@ const CreateInk = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <label htmlFor="publish-modal" className="btn btn-primary mt-4">
-        Ink!
-      </label>
-      <PublishModal
-        chain={chain}
-        connectedAddress={connectedAddress as Address}
-        modalId="publish-modal"
-        drawingCanvas={drawingCanvas}
-      />
-
-      <div className="flex justify-center text-center flex-wrap mt-2 gap-2">
+      <div className="flex justify-center text-center flex-wrap mt-8 gap-2">
         <div>
           <CanvasControls
             canvasDisabled={canvasDisabled}

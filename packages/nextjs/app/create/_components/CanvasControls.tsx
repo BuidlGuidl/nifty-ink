@@ -1,5 +1,6 @@
 import React from "react";
 import { useCanvasActions } from "../_hooks/useCanvasActions";
+import { PublishModal } from "./publish/PublishModal";
 import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
@@ -11,9 +12,11 @@ import {
   SaveOutlined,
   UndoOutlined,
 } from "@ant-design/icons";
-import { Button, Popconfirm, Popover, Table, Tooltip } from "antd";
+import { Button, Popconfirm, Popover, Table } from "antd";
 import { Grid } from "antd";
 import { useHotkeys } from "react-hotkeys-hook";
+import { Address } from "viem";
+import { useAccount } from "wagmi";
 import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
 import { shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
 
@@ -46,6 +49,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   handlePalettePosition,
   portrait,
 }) => {
+  const { address: connectedAddress, chain } = useAccount();
   const screens = useBreakpoint();
   const isSmall = !screens.sm;
 
@@ -69,6 +73,15 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
 
   return (
     <div className="mt-2">
+      <PublishModal
+        chain={chain}
+        connectedAddress={connectedAddress as Address}
+        modalId="publish-modal"
+        drawingCanvas={drawingCanvas}
+      />
+      <Button className="bg-primary tooltip tooltip-primary" data-tip="Publish your drawing" size="middle">
+        <label htmlFor="publish-modal">Ink!</label>
+      </Button>
       <Button
         disabled={canvasDisabled || !drawingCanvas.current?.lines?.length}
         onClick={() => {

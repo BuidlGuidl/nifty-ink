@@ -58,7 +58,7 @@ export const DraftManager: React.FC<DraftManagerProps> = ({ drawingCanvas, saveD
     },
   };
   return (
-    <div className="flex flex-col items-center mt-4 gap-2">
+    <div className="flex items-center mt-4 gap-2">
       <Button
         disabled={!drawingCanvas.current || (drawingCanvas.current && !drawingCanvas.current.lines.length)}
         onClick={async () => {
