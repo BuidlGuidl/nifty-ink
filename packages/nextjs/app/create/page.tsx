@@ -6,7 +6,6 @@ import { CanvasControls } from "./_components/CanvasControls";
 import { ColorPicker } from "./_components/ColorPicker";
 import { DraftManager } from "./_components/DraftManager";
 import { PublishModal } from "./_components/publish/PublishModal";
-import { useCanvasActions } from "./_hooks/useCanvasActions";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
@@ -143,13 +142,11 @@ const CreateInk = () => {
 
     if (isToSave && compressionWorker) {
       // Send data to the worker
-      console.log("sending to worker");
       compressionWorker.postMessage(newDrawing.getSaveData());
       // Listen for the worker's response
       compressionWorker.onmessage = function (event) {
         const savedData = event.data;
         setDrawing(savedData);
-        console.log("saved");
       };
     }
     setIsSaving(false);
@@ -163,9 +160,7 @@ const CreateInk = () => {
         try {
           const decompressed = LZ.decompress(drawing);
           currentLines.current = JSON.parse(decompressed)["lines"];
-          console.log(currentLines.current);
           let points = 0;
-          console.log(points);
           for (const line of currentLines.current) {
             points += line?.points?.length;
           }
@@ -181,22 +176,6 @@ const CreateInk = () => {
 
     loadPage();
   }, []);
-
-  const triggerOnChange = (lines: Lines[]) => {
-    if (!lines) return;
-    if (!drawingCanvas?.current && !drawingCanvas?.current?.lines) return;
-    const saved = JSON.stringify({
-      lines: lines,
-      width: drawingCanvas?.current?.props?.canvasWidth,
-      height: drawingCanvas?.current?.props?.canvasHeight,
-    });
-
-    drawingCanvas?.current?.loadSaveData(saved, true);
-    drawingCanvas.current.lines = lines;
-    saveDrawing(drawingCanvas.current, false);
-  };
-
-  const { undo, fillBackground, drawFrame } = useCanvasActions(drawingCanvas, triggerOnChange, saveDrawing);
 
   const saveCanvas = () => {
     if (canvasDisabled || isDrawing) {
@@ -215,7 +194,7 @@ const CreateInk = () => {
     }
   };
 
-  useHotkeyBindings(brushRadius, updateBrushRadius, updateOpacity, undo);
+  useHotkeyBindings(brushRadius, updateBrushRadius, updateOpacity);
 
   return (
     <div className="flex flex-col items-center">
@@ -236,13 +215,10 @@ const CreateInk = () => {
             isSaving={isSaving}
             drawingCanvas={drawingCanvas}
             saveDrawing={saveDrawing}
-            undo={undo}
             handleChangeDrawing={handleChangeDrawing}
             setCanvasDisabled={setCanvasDisabled}
-            drawFrame={drawFrame}
             color={color}
             brushRadius={brushRadius}
-            fillBackground={fillBackground}
             isPaletteRight={isPaletteRight}
             handlePalettePosition={handlePalettePosition}
             portrait={portrait}

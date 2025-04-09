@@ -1,4 +1,5 @@
 import React from "react";
+import { useCanvasActions } from "../_hooks/useCanvasActions";
 import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
@@ -12,7 +13,8 @@ import {
 } from "@ant-design/icons";
 import { Button, Popconfirm, Popover, Table, Tooltip } from "antd";
 import { Grid } from "antd";
-import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { useHotkeys } from "react-hotkeys-hook";
+import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
 import { shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
 
 const { useBreakpoint } = Grid;
@@ -22,13 +24,10 @@ interface CanvasControlsProps {
   isSaving: boolean;
   drawingCanvas: React.RefObject<CanvasDrawLines>;
   saveDrawing: (canvas: CanvasDrawLines, showNotification: boolean) => void;
-  undo: () => void;
   handleChangeDrawing: (newDrawing: string) => void;
   setCanvasDisabled: React.Dispatch<React.SetStateAction<boolean>>;
-  drawFrame: (color: string, brushRadius: number) => void;
   color: string;
   brushRadius: number;
-  fillBackground: (color: string) => void;
   isPaletteRight: boolean;
   handlePalettePosition: () => void;
   portrait: boolean;
@@ -39,19 +38,35 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   isSaving,
   drawingCanvas,
   saveDrawing,
-  undo,
   handleChangeDrawing,
   setCanvasDisabled,
-  drawFrame,
   color,
   brushRadius,
-  fillBackground,
   isPaletteRight,
   handlePalettePosition,
   portrait,
 }) => {
   const screens = useBreakpoint();
   const isSmall = !screens.sm;
+
+  const triggerOnChange = (lines: Lines[]) => {
+    if (!lines) return;
+    if (!drawingCanvas?.current && !drawingCanvas?.current?.lines) return;
+    const saved = JSON.stringify({
+      lines: lines,
+      width: drawingCanvas?.current?.props?.canvasWidth,
+      height: drawingCanvas?.current?.props?.canvasHeight,
+    });
+
+    drawingCanvas?.current?.loadSaveData(saved, true);
+    drawingCanvas.current.lines = lines;
+    saveDrawing(drawingCanvas.current, false);
+  };
+
+  const { undo, fillBackground, drawFrame } = useCanvasActions(drawingCanvas, triggerOnChange, saveDrawing);
+
+  useHotkeys("ctrl+z", () => undo());
+
   return (
     <div className="mt-2">
       <Button
