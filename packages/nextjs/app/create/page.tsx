@@ -33,7 +33,6 @@ const CreateInk = () => {
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
   const calculatedCanvaSize = Math.min(Math.round(0.75 * Math.min(width, height)), 800);
-  const [picker, setPicker] = useLocalStorage("picker", 0);
   const [color, setColor] = useLocalStorage("color", "rgba(102,102,102,1)");
   const [brushRadius, setBrushRadius] = useState(8);
   const [recentColors, setRecentColors] = useLocalStorage("recentColors", ["rgba(102,102,102,1)"]);
@@ -268,8 +267,6 @@ const CreateInk = () => {
             updateColor={updateColor}
             colorArray={colorArray}
             setColorArray={setColorArray}
-            setPicker={setPicker}
-            picker={picker}
             colorOptions={colorOptions}
           />
           <DraftManager saveDrawing={saveDrawing} drawingCanvas={drawingCanvas} />

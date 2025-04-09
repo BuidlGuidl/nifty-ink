@@ -2,6 +2,7 @@ import React from "react";
 import { HighlightOutlined } from "@ant-design/icons";
 import { Button, Select } from "antd";
 import { CirclePicker, SketchPicker } from "react-color";
+import { useLocalStorage } from "usehooks-ts";
 
 const { Option } = Select;
 interface ColorPickerProps {
@@ -9,8 +10,6 @@ interface ColorPickerProps {
   updateColor: (color: { hex: string }) => void;
   colorArray: string;
   setColorArray: any;
-  setPicker: any;
-  picker: number;
   colorOptions: ColorOptionsType;
 }
 
@@ -19,13 +18,9 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   updateColor,
   colorArray,
   setColorArray,
-  setPicker,
-  picker,
   colorOptions,
 }) => {
-  const pickers = [SketchPicker, CirclePicker];
-  const pickerIndex = typeof picker === "number" ? picker % pickers.length : 0;
-  const PickerDisplay: React.ComponentType<any> = pickers[pickerIndex];
+  const [isSketch, setIsSketch] = useLocalStorage("isSketch", true);
 
   return (
     <>
@@ -46,15 +41,22 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           <Option value={"niftyseven"}>Palette #7</Option>
           <Option value={"niftyeight"}>Palette #8</Option>
         </Select>
-        <Button onClick={() => setPicker(picker + 1)} icon={<HighlightOutlined />} />
+        <Button onClick={() => setIsSketch(!isSketch)} icon={<HighlightOutlined />} />
       </div>
       <div className="mt-2">
-        <PickerDisplay
-          color={color}
-          onChangeComplete={updateColor}
-          colors={colorOptions[colorArray as keyof ColorOptionsType]}
-          presetColors={colorOptions[colorArray as keyof ColorOptionsType]}
-        />
+        {isSketch ? (
+          <SketchPicker
+            color={color}
+            onChangeComplete={updateColor}
+            presetColors={colorOptions[colorArray as keyof ColorOptionsType]}
+          />
+        ) : (
+          <CirclePicker
+            color={color}
+            onChangeComplete={updateColor}
+            colors={colorOptions[colorArray as keyof ColorOptionsType]}
+          />
+        )}
       </div>
     </>
   );
