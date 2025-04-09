@@ -32,14 +32,6 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           <Option value={"github"}>Github Palette</Option>
           <Option value={"twitter"}>Twitter Palette</Option>
           <Option value={"compact"}>Compact Palette</Option>
-          <Option value={"niftyone"}>Palette #1</Option>
-          <Option value={"niftytwo"}>Palette #2</Option>
-          <Option value={"niftythree"}>Palette #3</Option>
-          <Option value={"niftyfour"}>Palette #4</Option>
-          <Option value={"niftyfive"}>Palette #5</Option>
-          <Option value={"niftysix"}>Palette #6</Option>
-          <Option value={"niftyseven"}>Palette #7</Option>
-          <Option value={"niftyeight"}>Palette #8</Option>
         </Select>
         <Button onClick={() => setIsSketch(!isSketch)} icon={<HighlightOutlined />} />
       </div>

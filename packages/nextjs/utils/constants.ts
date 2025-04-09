@@ -108,14 +108,6 @@ export const getColorOptions = (recentColors: string[], recentColorCount: number
       "#9B9B9B",
       "#FFFFFF",
     ],
-    niftyone: ["#00171F", "#003459", "#00A7EA", "#FFFFFF", "#007EA7"],
-    niftytwo: ["#306B34", "#1C5253", "#F3FFC6", "#C3EB78", "#B6174B"],
-    niftythree: ["#020202", "#0D324D", "#7F5A83", "#A188A6", "#9DA2AB"],
-    niftyfour: ["#1F2041", "#FFC857", "#19647E", "#119DA4", "#4B3F72"],
-    niftyfive: ["#141414", "#426C8F", "#B8DBD9", "#F4F4F9", "#04724D"],
-    niftysix: ["#2274A5", "#E7EB90", "#FADF63", "#E6AF2E", "#632B30"],
-    niftyseven: ["#C05746", "#ADC698", "#D0E3C4", "#FFFFFF", "#503047"],
-    niftyeight: ["#0E7C7B", "#17BEBB", "#D62246", "#D4F4DD", "#4B1D3F"],
     recent: recentColors.slice(-recentColorCount),
   };
 };

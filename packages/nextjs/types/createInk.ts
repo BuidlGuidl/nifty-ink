@@ -5,14 +5,6 @@ type ColorOptionsType = {
   twitter: string[];
   compact: string[];
   sketch: string[];
-  niftyone: string[];
-  niftytwo: string[];
-  niftythree: string[];
-  niftyfour: string[];
-  niftyfive: string[];
-  niftysix: string[];
-  niftyseven: string[];
-  niftyeight: string[];
   recent: string[];
 };
 

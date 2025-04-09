@@ -235,7 +235,7 @@ const CreateInk = () => {
                 {portrait && (
                   <div>
                     <Github
-                      colors={colorOptions[colorArray as keyof ColorOptionsType]}
+                      colors={colorOptions[colorArray as keyof ColorOptionsType].slice(0, 24)}
                       onChangeComplete={updateColor}
                       triangle="hide"
                       width="62px"
