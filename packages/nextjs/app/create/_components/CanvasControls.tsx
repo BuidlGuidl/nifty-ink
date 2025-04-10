@@ -78,15 +78,6 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         drawingCanvas={drawingCanvas}
       />
       <Button
-        onClick={openModal}
-        disabled={isCanvasDisabledOrEmpty}
-        className={`bg-primary tooltip tooltip-primary tooltip-bottom`}
-        data-tip="Publish your drawing"
-        size="middle"
-      >
-        Ink!
-      </Button>
-      <Button
         disabled={isCanvasDisabledOrEmpty}
         onClick={() => {
           if (isCanvasDisabledOrEmpty) return;
@@ -99,19 +90,6 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         data-tip="Play the drawing process"
       >
         {!isSmall && "PLAY"}
-      </Button>
-      <Button
-        disabled={isCanvasDisabledOrEmpty || isSaving}
-        onClick={() => {
-          if (canvasDisabled || !drawingCanvas.current || !drawingCanvas.current.lines) return;
-          saveDrawing(drawingCanvas.current, true);
-        }}
-        icon={<SaveOutlined />}
-        size={"middle"}
-        className="tooltip tooltip-primary tooltip-bottom"
-        data-tip="Save to local storage"
-      >
-        {!isSmall && (isSaving ? "SAVING..." : "SAVE")}
       </Button>
       <Popconfirm
         title="Are you sure you want to clear the canvas?"
@@ -173,6 +151,15 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
           data-tip="Shortcuts"
         />
       </Popover>
+      <Button
+        onClick={openModal}
+        disabled={isCanvasDisabledOrEmpty}
+        className={`bg-primary tooltip tooltip-primary tooltip-bottom ml-2 font-bold`}
+        data-tip="Publish your drawing"
+        size="middle"
+      >
+        Ink!
+      </Button>
     </div>
   );
 };

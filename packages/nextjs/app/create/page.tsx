@@ -31,7 +31,7 @@ const CreateInk = () => {
   const [isClient, setIsClient] = useState(false);
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
-  const calculatedCanvaSize = Math.min(Math.round(0.75 * Math.min(width, height)), 800);
+  const calculatedCanvaSize = Math.min(Math.round(Math.min(width * 0.95, height * 0.75)), 800);
   const [color, setColor] = useLocalStorage("color", "rgba(102,102,102,1)");
   const [brushRadius, setBrushRadius] = useState(8);
   const [recentColors, setRecentColors] = useLocalStorage("recentColors", ["rgba(102,102,102,1)"]);
@@ -181,7 +181,7 @@ const CreateInk = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex justify-center text-center flex-wrap mt-8 gap-2">
+      <div className="flex justify-center text-center flex-wrap mt-2 gap-2">
         <div>
           <CanvasControls
             canvasDisabled={canvasDisabled}
