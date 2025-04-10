@@ -84,7 +84,7 @@ export const DraftManager: React.FC<DraftManagerProps> = ({ drawingCanvas, saveD
         }}
         open={isFileUploaded}
       >
-        <Upload {...uploadProps} fileList={fileList} maxCount={1}>
+        <Upload {...uploadProps} fileList={fileList} showUploadList={false} maxCount={1}>
           <Button
             icon={<UploadOutlined />}
             className="tooltip tooltip-primary"

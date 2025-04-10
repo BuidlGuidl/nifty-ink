@@ -19,7 +19,7 @@ export const BrushControls = ({ color, brushRadius, updateColor, updateBrushRadi
   const currentOpacity = Math.round(parseFloat(color.split(",")[3]?.replace(")", "")) * 100);
 
   return (
-    <div className="flex flex-col items-center gap-4 max-w-lg">
+    <div className="flex flex-col items-center gap-2 max-w-md w-10/12">
       <div className="flex items-center gap-2 w-full tooltip tooltip-primary" data-tip={`${currentOpacity}%`}>
         <Button
           icon={<MinusOutlined />}
