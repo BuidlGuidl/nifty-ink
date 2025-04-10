@@ -153,14 +153,14 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         icon={<BgColorsOutlined />}
         size={"middle"}
         className="tooltip tooltip-primary tooltip-bottom"
-        data-tip="Fill the canvas with the current color"
+        data-tip="Fill the canvas"
       />
       <Button
         onClick={() => drawFrame(color, brushRadius)}
         icon={<BorderOutlined />}
         size={"middle"}
         className="tooltip tooltip-primary tooltip-bottom"
-        data-tip="Draw a frame around the canvas"
+        data-tip="Apply canvas frame"
       />
       <Popover
         content={<Table columns={shortCutsInfoCols} dataSource={shortCutsInfo} size="small" pagination={false} />}
@@ -170,8 +170,8 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         <Button
           icon={<InfoCircleOutlined />}
           size={"middle"}
-          className={`tooltip tooltip-primary tooltip-bottom ${isSmall ? "tooltip-left" : ""}`}
-          data-tip="Keyboard shortcuts"
+          className={`tooltip tooltip-primary tooltip-bottom`}
+          data-tip="Shortcuts"
         />
       </Popover>
     </div>
