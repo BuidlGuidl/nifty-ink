@@ -31,9 +31,6 @@ interface CanvasControlsProps {
   setCanvasDisabled: React.Dispatch<React.SetStateAction<boolean>>;
   color: string;
   brushRadius: number;
-  isPaletteRight: boolean;
-  handlePalettePosition: () => void;
-  portrait: boolean;
 }
 
 export const CanvasControls: React.FC<CanvasControlsProps> = ({
@@ -45,9 +42,6 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   setCanvasDisabled,
   color,
   brushRadius,
-  isPaletteRight,
-  handlePalettePosition,
-  portrait,
 }) => {
   const { address: connectedAddress, chain } = useAccount();
   const screens = useBreakpoint();
@@ -78,7 +72,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   const isCanvasDisabledOrEmpty = canvasDisabled || !drawingCanvas.current?.lines?.length;
 
   return (
-    <div className="mt-2">
+    <div className="mt-2 mb-1">
       <PublishModal
         chain={chain}
         connectedAddress={connectedAddress as Address}
@@ -88,7 +82,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
       <Button
         onClick={openModal}
         disabled={isCanvasDisabledOrEmpty}
-        className={`bg-primary tooltip tooltip-primary ${isSmall ? "tooltip-right" : ""}`}
+        className={`bg-primary tooltip tooltip-primary tooltip-bottom`}
         data-tip="Publish your drawing"
         size="middle"
       >
@@ -103,7 +97,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         }}
         icon={<PlaySquareOutlined />}
         size={"middle"}
-        className="tooltip tooltip-primary"
+        className="tooltip tooltip-primary tooltip-bottom"
         data-tip="Play the drawing process"
       >
         {!isSmall && "PLAY"}
@@ -116,13 +110,13 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         }}
         icon={<SaveOutlined />}
         size={"middle"}
-        className="tooltip tooltip-primary"
+        className="tooltip tooltip-primary tooltip-bottom"
         data-tip="Save to local storage"
       >
         {!isSmall && (isSaving ? "SAVING..." : "SAVE")}
       </Button>
       <Popconfirm
-        title="Are you sure?"
+        title="Are you sure you want to clear the canvas?"
         onConfirm={() => {
           if (isCanvasDisabledOrEmpty) return;
           drawingCanvas?.current?.clear();
@@ -135,7 +129,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
           disabled={isCanvasDisabledOrEmpty}
           icon={<ClearOutlined />}
           size={"middle"}
-          className="tooltip tooltip-primary"
+          className="tooltip tooltip-primary tooltip-bottom"
           data-tip="Clear the canvas"
         >
           {!isSmall && "CLEAR"}
@@ -149,7 +143,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         }}
         icon={<UndoOutlined />}
         size={"middle"}
-        className="tooltip tooltip-primary"
+        className="tooltip tooltip-primary tooltip-bottom"
         data-tip="Undo the last action"
       >
         {!isSmall && "UNDO"}
@@ -158,14 +152,14 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         onClick={() => fillBackground(color)}
         icon={<BgColorsOutlined />}
         size={"middle"}
-        className="tooltip tooltip-primary"
+        className="tooltip tooltip-primary tooltip-bottom"
         data-tip="Fill the canvas with the current color"
       />
       <Button
         onClick={() => drawFrame(color, brushRadius)}
         icon={<BorderOutlined />}
         size={"middle"}
-        className="tooltip tooltip-primary"
+        className="tooltip tooltip-primary tooltip-bottom"
         data-tip="Draw a frame around the canvas"
       />
       <Popover
@@ -176,19 +170,10 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         <Button
           icon={<InfoCircleOutlined />}
           size={"middle"}
-          className={`tooltip tooltip-primary ${isSmall ? "tooltip-left" : ""}`}
+          className={`tooltip tooltip-primary tooltip-bottom ${isSmall ? "tooltip-left" : ""}`}
           data-tip="Keyboard shortcuts"
         />
       </Popover>
-      {portrait && (
-        <Button
-          onClick={handlePalettePosition}
-          icon={isPaletteRight ? <ArrowLeftOutlined /> : <ArrowRightOutlined />}
-          size={"middle"}
-          className="tooltip tooltip-primary tooltip-left"
-          data-tip="Change the palette position"
-        />
-      )}
     </div>
   );
 };

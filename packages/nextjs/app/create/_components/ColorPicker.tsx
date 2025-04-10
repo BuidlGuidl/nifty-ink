@@ -2,6 +2,7 @@ import React from "react";
 import { HighlightOutlined } from "@ant-design/icons";
 import { Button, Select } from "antd";
 import { CirclePicker, SketchPicker } from "react-color";
+import Github from "react-color/lib/components/github/Github";
 import { useLocalStorage } from "usehooks-ts";
 
 const { Option } = Select;
@@ -11,6 +12,7 @@ interface ColorPickerProps {
   colorArray: string;
   setColorArray: any;
   colorOptions: ColorOptionsType;
+  portrait: boolean;
 }
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({
@@ -19,12 +21,29 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   colorArray,
   setColorArray,
   colorOptions,
+  portrait,
 }) => {
-  const [isSketch, setIsSketch] = useLocalStorage("isSketch", true);
-
   return (
     <>
       <div className="mt-2">
+        <div className={"mb-2"}>
+          {portrait ? (
+            <Github
+              colors={colorOptions[colorArray as keyof ColorOptionsType]}
+              onChangeComplete={updateColor}
+              triangle="hide"
+              width={"238px"}
+            />
+          ) : (
+            <CirclePicker
+              color={color}
+              onChangeComplete={updateColor}
+              circleSize={24}
+              circleSpacing={4}
+              colors={colorOptions[colorArray as keyof ColorOptionsType]}
+            />
+          )}
+        </div>
         <Select defaultValue={colorArray} style={{ width: 200 }} onChange={value => setColorArray(value)}>
           <Option value="recent">Recent</Option>
           <Option value="sketch">Sketch Palette</Option>
@@ -33,22 +52,13 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           <Option value={"twitter"}>Twitter Palette</Option>
           <Option value={"compact"}>Compact Palette</Option>
         </Select>
-        <Button onClick={() => setIsSketch(!isSketch)} icon={<HighlightOutlined />} />
       </div>
       <div className="mt-2">
-        {isSketch ? (
-          <SketchPicker
-            color={color}
-            onChangeComplete={updateColor}
-            presetColors={colorOptions[colorArray as keyof ColorOptionsType]}
-          />
-        ) : (
-          <CirclePicker
-            color={color}
-            onChangeComplete={updateColor}
-            colors={colorOptions[colorArray as keyof ColorOptionsType]}
-          />
-        )}
+        <SketchPicker
+          color={color}
+          onChangeComplete={updateColor}
+          presetColors={colorOptions[colorArray as keyof ColorOptionsType]}
+        />
       </div>
     </>
   );

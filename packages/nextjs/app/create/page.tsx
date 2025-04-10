@@ -8,7 +8,6 @@ import { DraftManager } from "./_components/DraftManager";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
-import Github from "react-color/lib/components/github/Github";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
@@ -39,7 +38,6 @@ const CreateInk = () => {
   const [colorArray, setColorArray] = useLocalStorage<keyof ColorOptionsType>("colorArray", "twitter", {
     initializeWithValue: false,
   });
-  const [isPaletteRight, setIsPaletteRight] = useState<boolean>(false);
   const [drawing, setDrawing] = useLocalStorage<string>("drawing", "");
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -62,10 +60,6 @@ const CreateInk = () => {
 
   const handleChangeDrawing = (newDrawing: string) => {
     setDrawing(newDrawing);
-  };
-
-  const handlePalettePosition = () => {
-    setIsPaletteRight(!isPaletteRight);
   };
 
   useEffect(() => {
@@ -202,51 +196,34 @@ const CreateInk = () => {
             setCanvasDisabled={setCanvasDisabled}
             color={color}
             brushRadius={brushRadius}
-            isPaletteRight={isPaletteRight}
-            handlePalettePosition={handlePalettePosition}
-            portrait={portrait}
           />
-          <div className="flex">
-            {width > 0 && height > 0 && isClient ? (
-              <div className={`flex mx-auto ${isPaletteRight ? "flex-row" : "flex-row-reverse"}`}>
-                <div
-                  style={{
-                    width: calculatedCanvaSize,
-                    height: calculatedCanvaSize,
-                  }}
-                  className="shadow-lg cursor-pointer"
-                  onMouseUp={saveCanvas}
-                  onTouchEnd={saveCanvas}
-                >
-                  <CanvasDraw
-                    ref={drawingCanvas}
-                    canvasWidth={calculatedCanvaSize}
-                    canvasHeight={calculatedCanvaSize}
-                    brushColor={color}
-                    lazyRadius={1}
-                    brushRadius={brushRadius}
-                    disabled={canvasDisabled}
-                    onChange={handleCanvasChange}
-                    saveData={initialDrawing}
-                    immediateLoading={true} //drawingSize >= 10000}
-                    loadTimeOffset={3}
-                  />
-                </div>
-                {portrait && (
-                  <div>
-                    <Github
-                      colors={colorOptions[colorArray as keyof ColorOptionsType].slice(0, 24)}
-                      onChangeComplete={updateColor}
-                      triangle="hide"
-                      width="62px"
-                    />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Loader />
-            )}
-          </div>
+          {width > 0 && height > 0 && isClient ? (
+            <div
+              style={{
+                width: calculatedCanvaSize,
+                height: calculatedCanvaSize,
+              }}
+              className="shadow-lg cursor-pointer"
+              onMouseUp={saveCanvas}
+              onTouchEnd={saveCanvas}
+            >
+              <CanvasDraw
+                ref={drawingCanvas}
+                canvasWidth={calculatedCanvaSize}
+                canvasHeight={calculatedCanvaSize}
+                brushColor={color}
+                lazyRadius={1}
+                brushRadius={brushRadius}
+                disabled={canvasDisabled}
+                onChange={handleCanvasChange}
+                saveData={initialDrawing}
+                immediateLoading={true} //drawingSize >= 10000}
+                loadTimeOffset={3}
+              />
+            </div>
+          ) : (
+            <Loader />
+          )}
         </div>
         <div className={`flex flex-col items-center ${portrait ? "mt-1" : "mt-10"}`}>
           <BrushControls
@@ -261,6 +238,7 @@ const CreateInk = () => {
             colorArray={colorArray}
             setColorArray={setColorArray}
             colorOptions={colorOptions}
+            portrait={portrait}
           />
           <DraftManager saveDrawing={saveDrawing} drawingCanvas={drawingCanvas} />
         </div>
