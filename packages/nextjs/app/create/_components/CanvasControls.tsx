@@ -2,8 +2,6 @@ import React from "react";
 import { useCanvasActions } from "../_hooks/useCanvasActions";
 import { PublishModal } from "./publish/PublishModal";
 import {
-  ArrowLeftOutlined,
-  ArrowRightOutlined,
   BgColorsOutlined,
   BorderOutlined,
   ClearOutlined,
@@ -166,6 +164,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         content={<Table columns={shortCutsInfoCols} dataSource={shortCutsInfo} size="small" pagination={false} />}
         title="Keyboard shortcuts"
         trigger="click"
+        placement="bottomRight"
       >
         <Button
           icon={<InfoCircleOutlined />}

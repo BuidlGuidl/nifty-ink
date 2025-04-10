@@ -115,7 +115,6 @@ const CreateInk = () => {
       const opaqueColor = createRGBA(r, g, b, 1);
 
       if (!recentColors.slice(-recentColorCount).includes(opaqueColor)) {
-        console.log(opaqueColor, "adding to recent");
         setRecentColors(prevItems => [...prevItems.slice(-recentColorCount + 1), opaqueColor]);
       }
     }
@@ -141,9 +140,7 @@ const CreateInk = () => {
 
   useEffect(() => {
     const loadPage = async () => {
-      console.log("loadpage");
       if (drawing && drawing !== "") {
-        console.log("Loading ink");
         try {
           const decompressed = LZ.decompress(drawing);
           currentLines.current = JSON.parse(decompressed)["lines"];
@@ -152,7 +149,6 @@ const CreateInk = () => {
             points += line?.points?.length;
           }
 
-          console.log("Drawing points", currentLines.current.length, points);
           setInitialDrawing(decompressed);
         } catch (e) {
           console.log(e);

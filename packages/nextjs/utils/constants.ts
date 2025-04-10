@@ -134,22 +134,22 @@ export const shortCutsInfo = [
   {
     key: "6",
     shortcut: "p",
-    action: "Increase current color opacity by 1%",
+    action: "Increase opacity by 1%",
   },
   {
     key: "7",
     shortcut: "Ctrl+p",
-    action: "Increase current color opacity by 10%",
+    action: "Increase opacity by 10%",
   },
   {
     key: "8",
     shortcut: "o",
-    action: "Decrease current color opacity by 1%",
+    action: "Decrease opacity by 1%",
   },
   {
     key: "9",
     shortcut: "Ctrl+o",
-    action: "Decrease current color opacity by 10%",
+    action: "Decrease opacity by 10%",
   },
 ];
 
