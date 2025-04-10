@@ -13,13 +13,13 @@ const SelectPlatform: React.FC<SelectPlatformProps> = ({ selectedPlatform, onSel
         <div className="label">
           <span className="label-text">Pick the platform</span>
         </div>
-        <select className="select select-bordered select-sm" onChange={e => onSelect(e.target.value as Platform)}>
-          <option selected={selectedPlatform === "niftyink"} value="niftyink">
-            nifty.ink
-          </option>
-          <option selected={selectedPlatform === "zora"} value="zora">
-            Zora
-          </option>
+        <select
+          defaultValue={selectedPlatform}
+          className="select select-bordered select-sm"
+          onChange={e => onSelect(e.target.value as Platform)}
+        >
+          <option value="niftyink">nifty.ink</option>
+          <option value="zora">Zora</option>
         </select>
       </label>
     </div>

@@ -3776,7 +3776,7 @@ __metadata:
     "@types/nprogress": ^0
     "@types/react": ^18.0.9
     "@types/react-canvas-draw": ^1.2.3
-    "@types/react-color": ^3.0.12
+    "@types/react-color": ^3.0.13
     "@types/react-copy-to-clipboard": ^5.0.4
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@uniswap/sdk-core": ^4.0.1
@@ -5210,13 +5210,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-color@npm:^3.0.12":
-  version: 3.0.12
-  resolution: "@types/react-color@npm:3.0.12"
+"@types/react-color@npm:^3.0.13":
+  version: 3.0.13
+  resolution: "@types/react-color@npm:3.0.13"
   dependencies:
-    "@types/react": "*"
     "@types/reactcss": "*"
-  checksum: 2b3baffa6d293ee98a66ccb8c47d47700a7139c42589f8acc7713c7b5ae1dd61e7b4ceeebdb4f2d1b3c54466a1d3f351c3126929ebb9c6e1fe460b7400a857c2
+  peerDependencies:
+    "@types/react": "*"
+  checksum: 6fe263209748860cc0282a0ff003aa1e88840e9c3d0e47649a0cf10b97554fe259fc4303f3230a23c427934a3d33ea0d16bf6e71153f061eafa2291d8809eee2
   languageName: node
   linkType: hard
 

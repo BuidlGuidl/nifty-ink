@@ -1,14 +1,7 @@
 import { useCallback } from "react";
-import LZ from "lz-string";
 import { Lines } from "~~/types/canvasDrawing";
 
-export const useCanvasActions = (
-  drawingCanvas: any,
-  triggerOnChange: (lines: Lines[]) => void,
-  setDrafts: any,
-  setCanvasFile: any,
-  saveDrawing: any,
-) => {
+export const useCanvasActions = (drawingCanvas: any, triggerOnChange: (lines: Lines[]) => void, saveDrawing: any) => {
   const undo = useCallback(() => {
     if (!drawingCanvas?.current?.lines?.length) return;
 
@@ -22,29 +15,6 @@ export const useCanvasActions = (
       triggerOnChange(lines);
     }
   }, [drawingCanvas, triggerOnChange]);
-
-  const downloadCanvas = useCallback(async () => {
-    const myData = drawingCanvas?.current?.getSaveData();
-    const fileName = `nifty_ink_canvas_${Date.now()}`;
-    const json = JSON.stringify(myData);
-    const blob = new Blob([json], { type: "application/json" });
-    const href = await URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = href;
-    link.download = fileName + ".json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [drawingCanvas]);
-
-  const uploadCanvas = useCallback(
-    (uploadedDrawing: React.ChangeEvent<HTMLInputElement>) => {
-      drawingCanvas?.current?.loadSaveData(uploadedDrawing);
-      saveDrawing(drawingCanvas.current, true);
-      setCanvasFile(undefined);
-    },
-    [drawingCanvas, setCanvasFile],
-  );
 
   const fillBackground = useCallback(
     (color: string) => {
@@ -117,16 +87,5 @@ export const useCanvasActions = (
     [drawingCanvas, triggerOnChange],
   );
 
-  const saveDraft = useCallback(() => {
-    if (!drawingCanvas.current) return;
-
-    const imageData = drawingCanvas?.current?.canvas?.drawing.toDataURL("image/png");
-    const savedData = LZ.compress(drawingCanvas.current.getSaveData());
-
-    setDrafts((drafts: any) => {
-      return [...drafts, { imageData, savedData }];
-    });
-  }, [drawingCanvas, setDrafts]);
-
-  return { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame, saveDraft };
+  return { undo, fillBackground, drawFrame };
 };

@@ -1,25 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { BrushControls } from "./_components/BrushControls";
-import { CanvasActions } from "./_components/CanvasActions";
 import { CanvasControls } from "./_components/CanvasControls";
 import { ColorPicker } from "./_components/ColorPicker";
 import { DraftManager } from "./_components/DraftManager";
-import { PublishContent } from "./_components/publish/PublishContent";
-import { useCanvasActions } from "./_hooks/useCanvasActions";
 import { useHotkeyBindings } from "./_hooks/useHotkeyBindings";
-import "./styles.css";
-import { Tabs, TabsProps } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
-import { useAccount } from "wagmi";
 import Loader from "~~/components/Loader";
-import { useSearchParamsHandler } from "~~/hooks/useSearchParamsHandler";
 import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
-import { TEXT_PRIMARY_COLOR, getColorOptions } from "~~/utils/constants";
+import { getColorOptions } from "~~/utils/constants";
 
 let compressionWorker: Worker | null = null;
 
@@ -36,27 +28,16 @@ const createRGBA = (r: number, g: number, b: number, a: number): string => {
 };
 
 const CreateInk = () => {
-  const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const { address: connectedAddress, chain } = useAccount();
-  const { paramValue: activity, updateSearchParam: setActivity } = useSearchParamsHandler("activity", "draw");
-
-  const handleActivityChange = (key: string) => {
-    console.log(key);
-    setActivity(key);
-  };
 
   const { width = 0, height = 0 } = useWindowSize({ debounceDelay: 500 });
-  const calculatedCanvaSize = Math.round(0.85 * Math.min(width, height));
-  const [picker, setPicker] = useLocalStorage("picker", 0);
+  const calculatedCanvaSize = Math.min(Math.round(0.75 * Math.min(width, height)), 800);
   const [color, setColor] = useLocalStorage("color", "rgba(102,102,102,1)");
   const [brushRadius, setBrushRadius] = useState(8);
   const [recentColors, setRecentColors] = useLocalStorage("recentColors", ["rgba(102,102,102,1)"]);
   const [colorArray, setColorArray] = useLocalStorage<keyof ColorOptionsType>("colorArray", "twitter", {
     initializeWithValue: false,
   });
-  const [_, setDrafts] = useLocalStorage<Draft[]>("drafts", []);
-  const [canvasFile, setCanvasFile] = useState<any>(null);
   const [drawing, setDrawing] = useLocalStorage<string>("drawing", "");
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -66,8 +47,6 @@ const CreateInk = () => {
 
   const drawingCanvas = useRef<CanvasDrawLines>(null);
 
-  const [size, setSize] = useState([calculatedCanvaSize, calculatedCanvaSize]); //["70vmin", "70vmin"]) //["50vmin", "50vmin"][750, 500]
-
   const [initialDrawing, setInitialDrawing] = useState<string>("");
   const currentLines = useRef<Lines[]>([]);
   const [canvasDisabled, setCanvasDisabled] = useState(false);
@@ -75,7 +54,7 @@ const CreateInk = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const portraitRatio = 1.7;
-  const portraitCalc = width / size[0] < portraitRatio;
+  const portraitCalc = width / calculatedCanvaSize < portraitRatio;
 
   const [portrait, setPortrait] = useState(false);
 
@@ -114,7 +93,6 @@ const CreateInk = () => {
 
   const updateColor = (value: any) => {
     setColor(`rgba(${value.rgb.r},${value.rgb.g},${value.rgb.b},${value.rgb.a})`);
-    console.log(`rgba(${value.rgb.r},${value.rgb.g},${value.rgb.b},${value.rgb.a})`);
   };
 
   const updateOpacity = useCallback((value: number) => {
@@ -137,7 +115,6 @@ const CreateInk = () => {
       const opaqueColor = createRGBA(r, g, b, 1);
 
       if (!recentColors.slice(-recentColorCount).includes(opaqueColor)) {
-        console.log(opaqueColor, "adding to recent");
         setRecentColors(prevItems => [...prevItems.slice(-recentColorCount + 1), opaqueColor]);
       }
     }
@@ -151,13 +128,11 @@ const CreateInk = () => {
 
     if (isToSave && compressionWorker) {
       // Send data to the worker
-      console.log("sending to worker");
       compressionWorker.postMessage(newDrawing.getSaveData());
       // Listen for the worker's response
       compressionWorker.onmessage = function (event) {
         const savedData = event.data;
         setDrawing(savedData);
-        console.log("saved");
       };
     }
     setIsSaving(false);
@@ -165,20 +140,15 @@ const CreateInk = () => {
 
   useEffect(() => {
     const loadPage = async () => {
-      console.log("loadpage");
       if (drawing && drawing !== "") {
-        console.log("Loading ink");
         try {
           const decompressed = LZ.decompress(drawing);
           currentLines.current = JSON.parse(decompressed)["lines"];
-          console.log(currentLines.current);
           let points = 0;
-          console.log(points);
           for (const line of currentLines.current) {
             points += line?.points?.length;
           }
 
-          console.log("Drawing points", currentLines.current.length, points);
           setInitialDrawing(decompressed);
         } catch (e) {
           console.log(e);
@@ -189,38 +159,6 @@ const CreateInk = () => {
 
     loadPage();
   }, []);
-
-  const triggerOnChange = (lines: Lines[]) => {
-    if (!lines) return;
-    if (!drawingCanvas?.current && !drawingCanvas?.current?.lines) return;
-    const saved = JSON.stringify({
-      lines: lines,
-      width: drawingCanvas?.current?.props?.canvasWidth,
-      height: drawingCanvas?.current?.props?.canvasHeight,
-    });
-
-    drawingCanvas?.current?.loadSaveData(saved, true);
-    drawingCanvas.current.lines = lines;
-    saveDrawing(drawingCanvas.current, false);
-  };
-
-  const { undo, downloadCanvas, uploadCanvas, fillBackground, drawFrame, saveDraft } = useCanvasActions(
-    drawingCanvas,
-    triggerOnChange,
-    setDrafts,
-    setCanvasFile,
-    saveDrawing,
-  );
-
-  const uploadFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileReader = new FileReader();
-    fileReader.readAsText(e.target.files![0], "UTF-8");
-    fileReader.onload = e => {
-      setCanvasFile(JSON.parse(e.target!.result as string));
-    };
-  };
-
-  const uploadRef = useRef<HTMLInputElement | null>(null);
 
   const saveCanvas = () => {
     if (canvasDisabled || isDrawing) {
@@ -239,109 +177,66 @@ const CreateInk = () => {
     }
   };
 
-  useHotkeyBindings(brushRadius, updateBrushRadius, updateOpacity, undo);
-
-  const items: TabsProps["items"] = [
-    {
-      key: "draw",
-      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🎨 Draw</p>,
-    },
-    {
-      key: "publish",
-      label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🚀 Publish</p>,
-    },
-  ];
+  useHotkeyBindings(brushRadius, updateBrushRadius, updateOpacity);
 
   return (
-    <div className="create-ink-container mt-5">
-      <div className="canvas">
-        {width > 0 && height > 0 && isClient ? (
-          <div
-            style={{
-              backgroundColor: "#666666",
-              width: size[0],
-              margin: "auto",
-              border: "1px solid #999999",
-              boxShadow: "2px 2px 8px #AAAAAA",
-              cursor: "pointer",
-            }}
-            onMouseUp={saveCanvas}
-            onTouchEnd={saveCanvas}
-          >
-            <CanvasDraw
-              ref={drawingCanvas}
-              canvasWidth={size[0]}
-              canvasHeight={size[1]}
-              brushColor={color}
-              lazyRadius={1}
-              brushRadius={brushRadius}
-              disabled={canvasDisabled}
-              onChange={handleCanvasChange}
-              saveData={initialDrawing}
-              immediateLoading={true} //drawingSize >= 10000}
-              loadTimeOffset={3}
-            />
-          </div>
-        ) : (
-          <Loader />
-        )}
-      </div>
-      <div className={portrait ? "edit-tools-bottom" : "edit-tools"}>
-        <div className={portrait ? "" : "edit-tools-side max-w-xl flex flex-col items-center"}>
-          <Tabs
-            defaultActiveKey={activity}
-            type="card"
-            centered
-            onChange={handleActivityChange}
-            items={items}
-            tabBarStyle={{ marginBottom: 0 }}
+    <div className="flex flex-col items-center">
+      <div className="flex justify-center text-center flex-wrap mt-8 gap-2">
+        <div>
+          <CanvasControls
+            canvasDisabled={canvasDisabled}
+            isSaving={isSaving}
+            drawingCanvas={drawingCanvas}
+            saveDrawing={saveDrawing}
+            handleChangeDrawing={handleChangeDrawing}
+            setCanvasDisabled={setCanvasDisabled}
+            color={color}
+            brushRadius={brushRadius}
           />
-          {activity === "draw" ? (
-            <div className={`bg-base-100 border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
-              <CanvasControls
-                canvasDisabled={canvasDisabled}
-                isSaving={isSaving}
-                drawingCanvas={drawingCanvas}
-                saveDrawing={saveDrawing}
-                undo={undo}
-                handleChangeDrawing={handleChangeDrawing}
-                setCanvasDisabled={setCanvasDisabled}
-              />
-              <ColorPicker
-                color={color}
-                updateColor={updateColor}
-                colorArray={colorArray}
-                setColorArray={setColorArray}
-                setPicker={setPicker}
-                picker={picker}
-                colorOptions={colorOptions}
-              />
-              <BrushControls brushRadius={brushRadius} updateBrushRadius={updateBrushRadius} />
-              <CanvasActions
-                fillBackground={fillBackground}
-                drawFrame={drawFrame}
-                color={color}
+          {width > 0 && height > 0 && isClient ? (
+            <div
+              style={{
+                width: calculatedCanvaSize,
+                height: calculatedCanvaSize,
+              }}
+              className="shadow-lg cursor-pointer"
+              onMouseUp={saveCanvas}
+              onTouchEnd={saveCanvas}
+            >
+              <CanvasDraw
+                ref={drawingCanvas}
+                canvasWidth={calculatedCanvaSize}
+                canvasHeight={calculatedCanvaSize}
+                brushColor={color}
+                lazyRadius={1}
                 brushRadius={brushRadius}
-              />
-              <DraftManager
-                saveDraft={saveDraft}
-                downloadCanvas={downloadCanvas}
-                uploadFileChange={uploadFileChange}
-                uploadCanvas={uploadCanvas}
-                canvasFile={canvasFile}
-                drawingCanvas={drawingCanvas}
-                uploadRef={uploadRef}
+                disabled={canvasDisabled}
+                onChange={handleCanvasChange}
+                saveData={initialDrawing}
+                immediateLoading={true} //drawingSize >= 10000}
+                loadTimeOffset={3}
               />
             </div>
           ) : (
-            <div className={`bg-base-100 border-base-300 rounded-box p-6 mx-auto w-full max-w-3xl`}>
-              {chain && connectedAddress ? (
-                <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
-              ) : (
-                <p>Please connect your wallet to proceed</p>
-              )}
-            </div>
+            <Loader />
           )}
+        </div>
+        <div className={`flex flex-col items-center ${portrait ? "mt-1" : "mt-10"}`}>
+          <BrushControls
+            color={color}
+            brushRadius={brushRadius}
+            updateColor={updateColor}
+            updateBrushRadius={updateBrushRadius}
+          />
+          <ColorPicker
+            color={color}
+            updateColor={updateColor}
+            colorArray={colorArray}
+            setColorArray={setColorArray}
+            colorOptions={colorOptions}
+            portrait={portrait}
+          />
+          <DraftManager saveDrawing={saveDrawing} drawingCanvas={drawingCanvas} />
         </div>
       </div>
     </div>

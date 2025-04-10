@@ -1,7 +1,9 @@
 import React from "react";
 import { HighlightOutlined } from "@ant-design/icons";
-import { Button, Col, Row, Select } from "antd";
-import { AlphaPicker, CirclePicker, SketchPicker } from "react-color";
+import { Button, Select } from "antd";
+import { CirclePicker, SketchPicker } from "react-color";
+import Github from "react-color/lib/components/github/Github";
+import { useLocalStorage } from "usehooks-ts";
 
 const { Option } = Select;
 interface ColorPickerProps {
@@ -9,9 +11,8 @@ interface ColorPickerProps {
   updateColor: (color: { hex: string }) => void;
   colorArray: string;
   setColorArray: any;
-  setPicker: any;
-  picker: number;
   colorOptions: ColorOptionsType;
+  portrait: boolean;
 }
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({
@@ -19,17 +20,30 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   updateColor,
   colorArray,
   setColorArray,
-  setPicker,
-  picker,
   colorOptions,
+  portrait,
 }) => {
-  const pickers = [SketchPicker, CirclePicker];
-  const pickerIndex = typeof picker === "number" ? picker % pickers.length : 0;
-  const PickerDisplay: React.ComponentType<any> = pickers[pickerIndex];
-
   return (
     <>
-      <Row style={{ justifyContent: "center", marginBottom: 10 }}>
+      <div className="mt-2">
+        <div className={"mb-2"}>
+          {portrait ? (
+            <Github
+              colors={colorOptions[colorArray as keyof ColorOptionsType]}
+              onChangeComplete={updateColor}
+              triangle="hide"
+              width={"238px"}
+            />
+          ) : (
+            <CirclePicker
+              color={color}
+              onChangeComplete={updateColor}
+              circleSize={24}
+              circleSpacing={4}
+              colors={colorOptions[colorArray as keyof ColorOptionsType]}
+            />
+          )}
+        </div>
         <Select defaultValue={colorArray} style={{ width: 200 }} onChange={value => setColorArray(value)}>
           <Option value="recent">Recent</Option>
           <Option value="sketch">Sketch Palette</Option>
@@ -37,41 +51,15 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           <Option value={"github"}>Github Palette</Option>
           <Option value={"twitter"}>Twitter Palette</Option>
           <Option value={"compact"}>Compact Palette</Option>
-          <Option value={"niftyone"}>Palette #1</Option>
-          <Option value={"niftytwo"}>Palette #2</Option>
-          <Option value={"niftythree"}>Palette #3</Option>
-          <Option value={"niftyfour"}>Palette #4</Option>
-          <Option value={"niftyfive"}>Palette #5</Option>
-          <Option value={"niftysix"}>Palette #6</Option>
-          <Option value={"niftyseven"}>Palette #7</Option>
-          <Option value={"niftyeight"}>Palette #8</Option>
         </Select>
-        <Button onClick={() => setPicker(picker + 1)} icon={<HighlightOutlined />} />
-      </Row>
-      <Row
-        style={{
-          justifyContent: "center",
-          alignItems: "middle",
-          padding: 4,
-        }}
-      >
-        <PickerDisplay
+      </div>
+      <div className="mt-2">
+        <SketchPicker
           color={color}
           onChangeComplete={updateColor}
-          colors={colorOptions[colorArray as keyof ColorOptionsType]}
           presetColors={colorOptions[colorArray as keyof ColorOptionsType]}
         />
-      </Row>
-      <Row
-        style={{
-          margin: "0 auto",
-          marginTop: "4vh",
-          justifyContent: "center",
-          alignItems: "middle",
-        }}
-      >
-        <AlphaPicker onChangeComplete={updateColor} color={color} />
-      </Row>
+      </div>
     </>
   );
 };
