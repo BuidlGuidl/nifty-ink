@@ -88,7 +88,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
       <Button
         onClick={openModal}
         disabled={isCanvasDisabledOrEmpty}
-        className="bg-primary tooltip tooltip-primary"
+        className={`bg-primary tooltip tooltip-primary ${isSmall ? "tooltip-right" : ""}`}
         data-tip="Publish your drawing"
         size="middle"
       >
@@ -176,7 +176,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         <Button
           icon={<InfoCircleOutlined />}
           size={"middle"}
-          className="tooltip tooltip-primary"
+          className={`tooltip tooltip-primary ${isSmall ? "tooltip-left" : ""}`}
           data-tip="Keyboard shortcuts"
         />
       </Popover>
@@ -185,7 +185,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
           onClick={handlePalettePosition}
           icon={isPaletteRight ? <ArrowLeftOutlined /> : <ArrowRightOutlined />}
           size={"middle"}
-          className="tooltip tooltip-primary"
+          className="tooltip tooltip-primary tooltip-left"
           data-tip="Change the palette position"
         />
       )}
