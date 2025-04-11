@@ -8,7 +8,7 @@ import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 
-const FAUCET_AMOUNT = "0.00005";
+const FAUCET_AMOUNT = process.env.FAUCET_AMOUNT || "0.00003";
 
 const walletClient = createWalletClient({
   chain: base,
