@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import ZoraPostsContainer from "../_components/ZoraPostsContainer";
@@ -20,7 +20,7 @@ import { getMetadataWithTimeout } from "~~/utils/helpers";
 
 const ITEMS_PER_PAGE = 15;
 
-const Artist = ({ params }: { params: { address: string } }) => {
+const ArtistContent = ({ params }: { params: { address: string } }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const platform = searchParams.get("platform");
@@ -173,6 +173,14 @@ const Artist = ({ params }: { params: { address: string } }) => {
         />
       </div>
     </div>
+  );
+};
+
+const Artist = ({ params }: { params: { address: string } }) => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ArtistContent params={params} />
+    </Suspense>
   );
 };
 

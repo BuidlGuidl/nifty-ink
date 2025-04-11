@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { Suspense, useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { InkingFreeButton } from "./scaffold-eth/RainbowKitCustomConnectButton/InkingFreeButton";
@@ -53,7 +53,7 @@ export const menuLinks: HeaderMenuLink[] = [
   },
 ];
 
-export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPlacement }) => {
+const HeaderMenuLinksContent = ({ placement = "bottom" }: { placement: TooltipPlacement }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { address: connectedAddress } = useAccount();
@@ -136,6 +136,14 @@ export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPl
         );
       })}
     </>
+  );
+};
+
+export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPlacement }) => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HeaderMenuLinksContent placement={placement} />
+    </Suspense>
   );
 };
 
