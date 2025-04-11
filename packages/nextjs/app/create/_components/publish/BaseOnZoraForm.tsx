@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { getWalletClient } from "@wagmi/core";
 import { createCoin } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
-import { useAccount, usePublicClient } from "wagmi";
+import { usePublicClient, useWalletClient } from "wagmi";
 import { CheckCircleIcon, ExclamationCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { FormInput } from "~~/components/shared/FormInput";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { uploadToIPFS } from "~~/utils/ipfs";
+import { fundIfRequired } from "~~/utils/offchainFaucet";
 import { notification } from "~~/utils/scaffold-eth";
 
 // Constants
@@ -39,6 +38,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
   const [formData, setFormData] = useState<FormData>({ title: "", caption: "" });
   const [coinAddress, setCoinAddress] = useState<string>("");
   const publicClient = usePublicClient()!;
+  const { data: walletClient } = useWalletClient();
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     const maxLength = field === "title" ? CONSTANTS.MAX_TITLE_LENGTH : CONSTANTS.MAX_CAPTION_LENGTH;
@@ -102,10 +102,9 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
         platformReferrer: CONSTANTS.PLATFORM_REFERRER,
       };
 
-      const client = await getWalletClient(wagmiConfig);
-      if (!client) throw new Error("Failed to get wallet client");
+      if (!walletClient) throw new Error("Failed to get wallet client");
 
-      const result = await createCoin(createCoinParams, client, publicClient);
+      const result = await createCoin(createCoinParams, walletClient, publicClient);
       setCoinAddress(result.address || "");
       return result;
     } catch (error) {
@@ -118,8 +117,13 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
     event.preventDefault();
     try {
       setFormState("loading");
-      const inkMetadata = await uploadInkMetadata();
+      const [inkMetadata, fundingResult] = await Promise.all([uploadInkMetadata(), fundIfRequired(connectedAddress)]);
+
       if (!inkMetadata?.success) throw new Error("Failed to upload ink metadata");
+      if (fundingResult.error) {
+        console.log("Funding check result:", fundingResult.error);
+      }
+
       const res = await createZoraInk(inkMetadata.cid);
       if (!res || res.address === undefined) throw new Error("Failed to create Zora ink");
       setFormState("success");
@@ -172,19 +176,10 @@ const ErrorMessage = ({ onReset }: { onReset: () => void }) => (
 );
 
 export const BaseOnZoraForm = ({ connectedAddress, drawingCanvas }: BaseOnZoraFormProps) => {
-  const { connector } = useAccount();
   const { formState, formData, coinAddress, handleInputChange, handleSubmit, resetForm } = useZoraForm(
     connectedAddress,
     drawingCanvas,
   );
-
-  if (connector?.name === "Burner Wallet") {
-    return (
-      <div className="flex justify-center">
-        <p>Burner Wallet is not supported for this network</p>
-      </div>
-    );
-  }
 
   if (formState === "success") {
     return <SuccessMessage coinAddress={coinAddress} onReset={resetForm} />;

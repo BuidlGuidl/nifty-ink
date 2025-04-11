@@ -32,6 +32,7 @@ export const wagmiConnectors = connectorsForWallets(
   [
     {
       groupName: "Supported Wallets",
+      // @ts-ignore
       wallets,
     },
   ],
