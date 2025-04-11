@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import ZoraPostsContainer from "../_components/ZoraPostsContainer";
 import { RecentActivity } from "./RecentActivity";
 import { useQuery } from "@apollo/client";
@@ -20,6 +21,9 @@ import { getMetadataWithTimeout } from "~~/utils/helpers";
 const ITEMS_PER_PAGE = 15;
 
 const Artist = ({ params }: { params: { address: string } }) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const platform = searchParams.get("platform");
   const address = params?.address;
   const [inks, setInks] = useState<Ink[]>([]);
   const { data, fetchMore } = useQuery(ARTISTS_QUERY, {
@@ -145,12 +149,28 @@ const Artist = ({ params }: { params: { address: string } }) => {
     },
   ];
 
+  const handleTabChange = (key: string) => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    if (key === "2") {
+      newSearchParams.set("platform", "zora");
+    } else {
+      newSearchParams.delete("platform");
+    }
+    router.push(`/artist/${address}?${newSearchParams.toString()}`);
+  };
+
   return (
     <div className="flex justify-center">
       <div className="min-w-xl">
         <Profile address={address} />
 
-        <Tabs defaultActiveKey="1" type="line" centered items={items} />
+        <Tabs
+          defaultActiveKey={platform === "zora" ? "2" : "1"}
+          type="line"
+          centered
+          items={items}
+          onChange={handleTabChange}
+        />
       </div>
     </div>
   );

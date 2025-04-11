@@ -2,7 +2,7 @@
 
 import React, { useCallback, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { InkingFreeButton } from "./scaffold-eth/RainbowKitCustomConnectButton/InkingFreeButton";
 import { Popover } from "antd";
 import { TooltipPlacement } from "antd/es/tooltip";
@@ -55,6 +55,7 @@ export const menuLinks: HeaderMenuLink[] = [
 
 export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPlacement }) => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { address: connectedAddress } = useAccount();
 
   return (
@@ -94,7 +95,9 @@ export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPl
         return (
           <li key={href} className="relative group mb-2">
             <Link
-              href={["/artist", "/holdings"].find(item => href === item) ? `${href}/${connectedAddress}` : href}
+              href={`${
+                ["/artist", "/holdings"].find(item => href === item) ? `${href}/${connectedAddress}` : href
+              }?${searchParams.toString()}`}
               passHref
               className={`${
                 isActive ? "bg-secondary shadow-md" : ""
@@ -109,7 +112,7 @@ export const HeaderMenuLinks = ({ placement = "bottom" }: { placement: TooltipPl
                         {sublinks.map((sublink, index) => (
                           <li key={index}>
                             <Link
-                              href={`${href}/${sublink}`}
+                              href={`${href}/${sublink}?${searchParams.toString()}`}
                               passHref
                               className="block text-sm text-gray-700 hover:bg-gray-100 m-2"
                             >

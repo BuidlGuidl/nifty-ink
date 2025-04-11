@@ -1,7 +1,8 @@
 import { useState } from "react";
+import Link from "next/link";
 import { createCoin } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
-import { usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CheckCircleIcon, ExclamationCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { FormInput } from "~~/components/shared/FormInput";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
@@ -144,21 +145,30 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
   };
 };
 
-const SuccessMessage = ({ coinAddress, onReset }: { coinAddress: string; onReset: () => void }) => (
-  <div className="success-message">
-    <CheckCircleIcon className="h-24 w-24 mx-auto text-green-500" />
-    <p className="mb-0">
-      🎉 Ink was created on{" "}
-      <a className="link" href={`https://zora.co/coin/base:${coinAddress}`} target="_blank" rel="noopener noreferrer">
-        Zora
-      </a>
-    </p>
-    <p className="mt-0">Make sure that you are logged in.</p>
-    <button className="btn btn-primary mt-5" onClick={onReset}>
-      Create a new ink
-    </button>
-  </div>
-);
+const SuccessMessage = ({ coinAddress, onReset }: { coinAddress: string; onReset: () => void }) => {
+  const account = useAccount();
+  return (
+    <div className="success-message">
+      <CheckCircleIcon className="h-24 w-24 mx-auto text-green-500" />
+      <p className="mb-0">
+        🎉 Ink was created on{" "}
+        <a className="link" href={`https://zora.co/coin/base:${coinAddress}`} target="_blank" rel="noopener noreferrer">
+          Zora
+        </a>
+      </p>
+      <p>
+        {account.address && (
+          <Link href={`/artist/${account.address}?platform=zora`} className="btn mt-5">
+            View your Zora inks
+          </Link>
+        )}
+      </p>
+      <button className="btn btn-primary mt-5" onClick={onReset}>
+        Create a new ink
+      </button>
+    </div>
+  );
+};
 
 const ErrorMessage = ({ onReset }: { onReset: () => void }) => (
   <div className="error-message text-center">
