@@ -1,0 +1,64 @@
+"use server";
+
+import { db } from "../db/drizzle";
+import { funding } from "../db/schema";
+import { eq } from "drizzle-orm";
+import { formatEther, parseEther } from "viem";
+import { createPublicClient, createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { base } from "viem/chains";
+
+const FAUCET_AMOUNT = process.env.FAUCET_AMOUNT || "0.00003";
+
+const walletClient = createWalletClient({
+  chain: base,
+  account: privateKeyToAccount(process.env.FAUCET_ACCOUNT_PRIVATE_KEY! as `0x${string}`),
+  transport: http(),
+});
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+});
+
+export async function fundIfRequired(sendToAddress: string) {
+  if (process.env.FAUCET_ACCOUNT_ADDRESS !== walletClient.account.address) {
+    return { error: "Faucet account address mismatch" };
+  }
+
+  const balance = Number(formatEther(await publicClient.getBalance({ address: sendToAddress })));
+
+  if (balance && sendToAddress && balance >= Number(FAUCET_AMOUNT)) {
+    console.log(`Address has enough funding: ${sendToAddress}`);
+    return { success: "true" };
+  }
+
+  // Check if address has already received funding
+  const existingFunding = await db.select().from(funding).where(eq(funding.address, sendToAddress));
+  if (existingFunding.length > 0) {
+    console.log(`Address has already received funding: ${sendToAddress}`);
+    return { success: "true" };
+  }
+
+  try {
+    console.log(`Sending funding from ${process.env.FAUCET_ACCOUNT_ADDRESS} to ${sendToAddress}`);
+    const hash = await walletClient.sendTransaction({
+      to: sendToAddress,
+      value: parseEther(FAUCET_AMOUNT),
+    });
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    console.log(`Transaction confirmed in block ${receipt.blockNumber}. Transaction Hash: ${receipt.transactionHash}`);
+
+    // Record the funding in the database
+    await db.insert(funding).values({
+      address: sendToAddress,
+      amount: FAUCET_AMOUNT,
+      transactionHash: receipt.transactionHash,
+    });
+
+    return { success: "true" };
+  } catch (e) {
+    console.log(e);
+    return { error: "Failed to send funding" };
+  }
+}

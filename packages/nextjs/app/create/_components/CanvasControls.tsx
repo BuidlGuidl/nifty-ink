@@ -1,16 +1,34 @@
 import React from "react";
-import { ClearOutlined, PlaySquareOutlined, SaveOutlined, UndoOutlined } from "@ant-design/icons";
-import { Button, Popconfirm, Tooltip } from "antd";
-import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { useCanvasActions } from "../_hooks/useCanvasActions";
+import { PublishModal } from "./publish/PublishModal";
+import {
+  BgColorsOutlined,
+  BorderOutlined,
+  ClearOutlined,
+  InfoCircleOutlined,
+  PlaySquareOutlined,
+  SaveOutlined,
+  UndoOutlined,
+} from "@ant-design/icons";
+import { Button, Popconfirm, Popover, Table } from "antd";
+import { Grid } from "antd";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Address } from "viem";
+import { useAccount } from "wagmi";
+import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
+import { shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
+
+const { useBreakpoint } = Grid;
 
 interface CanvasControlsProps {
   canvasDisabled: boolean;
   isSaving: boolean;
   drawingCanvas: React.RefObject<CanvasDrawLines>;
   saveDrawing: (canvas: CanvasDrawLines, showNotification: boolean) => void;
-  undo: () => void;
   handleChangeDrawing: (newDrawing: string) => void;
   setCanvasDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+  color: string;
+  brushRadius: number;
 }
 
 export const CanvasControls: React.FC<CanvasControlsProps> = ({
@@ -18,38 +36,65 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   isSaving,
   drawingCanvas,
   saveDrawing,
-  undo,
   handleChangeDrawing,
   setCanvasDisabled,
+  color,
+  brushRadius,
 }) => {
+  const { address: connectedAddress, chain } = useAccount();
+  const screens = useBreakpoint();
+  const isSmall = !screens.sm;
+
+  const openModal = () => {
+    const modalToggle = document.getElementById("publish-modal") as HTMLInputElement;
+    if (modalToggle) modalToggle.checked = true;
+  };
+
+  const triggerOnChange = (lines: Lines[]) => {
+    if (!lines) return;
+    if (!drawingCanvas?.current && !drawingCanvas?.current?.lines) return;
+    const saved = JSON.stringify({
+      lines: lines,
+      width: drawingCanvas?.current?.props?.canvasWidth,
+      height: drawingCanvas?.current?.props?.canvasHeight,
+    });
+
+    drawingCanvas?.current?.loadSaveData(saved, true);
+    drawingCanvas.current.lines = lines;
+    saveDrawing(drawingCanvas.current, false);
+  };
+
+  const { undo, fillBackground, drawFrame } = useCanvasActions(drawingCanvas, triggerOnChange, saveDrawing);
+
+  useHotkeys("ctrl+z", () => undo());
+  const isCanvasDisabledOrEmpty = canvasDisabled || !drawingCanvas.current?.lines?.length;
+
   return (
-    <div className="my-5">
-      <Tooltip title="save to local storage">
-        <Button
-          disabled={canvasDisabled || isSaving}
-          onClick={() => {
-            if (canvasDisabled || !drawingCanvas.current || !drawingCanvas.current.lines) return;
-            saveDrawing(drawingCanvas.current, true);
-          }}
-          icon={<SaveOutlined />}
-        >
-          {isSaving ? "SAVING..." : "SAVE"}
-        </Button>
-      </Tooltip>
+    <div className="mt-2 mb-1">
+      <PublishModal
+        chain={chain}
+        connectedAddress={connectedAddress as Address}
+        modalId="publish-modal"
+        drawingCanvas={drawingCanvas}
+      />
       <Button
-        disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
+        disabled={isCanvasDisabledOrEmpty}
         onClick={() => {
-          if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
-          undo();
+          if (isCanvasDisabledOrEmpty) return;
+          drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(), false);
+          setCanvasDisabled(true);
         }}
-        icon={<UndoOutlined />}
+        icon={<PlaySquareOutlined />}
+        size={"middle"}
+        className="tooltip tooltip-primary tooltip-bottom"
+        data-tip="Play the drawing process"
       >
-        UNDO
+        {!isSmall && "PLAY"}
       </Button>
       <Popconfirm
-        title="Are you sure?"
+        title="Are you sure you want to clear the canvas?"
         onConfirm={() => {
-          if (canvasDisabled || (drawingCanvas.current && !drawingCanvas.current.lines)) return;
+          if (isCanvasDisabledOrEmpty) return;
           drawingCanvas?.current?.clear();
           handleChangeDrawing("");
         }}
@@ -57,22 +102,63 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         cancelText="No"
       >
         <Button
-          disabled={canvasDisabled || !drawingCanvas.current?.lines || drawingCanvas.current.lines.length === 0}
+          disabled={isCanvasDisabledOrEmpty}
           icon={<ClearOutlined />}
+          size={"middle"}
+          className="tooltip tooltip-primary tooltip-bottom"
+          data-tip="Clear the canvas"
         >
-          CLEAR
+          {!isSmall && "CLEAR"}
         </Button>
       </Popconfirm>
       <Button
-        disabled={canvasDisabled || !drawingCanvas.current?.lines?.length}
+        disabled={isCanvasDisabledOrEmpty}
         onClick={() => {
-          if (canvasDisabled || !drawingCanvas.current?.lines?.length) return;
-          drawingCanvas.current.loadSaveData(drawingCanvas.current.getSaveData(), false);
-          setCanvasDisabled(true);
+          if (isCanvasDisabledOrEmpty) return;
+          undo();
         }}
-        icon={<PlaySquareOutlined />}
+        icon={<UndoOutlined />}
+        size={"middle"}
+        className="tooltip tooltip-primary tooltip-bottom"
+        data-tip="Undo the last action"
       >
-        PLAY
+        {!isSmall && "UNDO"}
+      </Button>
+      <Button
+        onClick={() => fillBackground(color)}
+        icon={<BgColorsOutlined />}
+        size={"middle"}
+        className="tooltip tooltip-primary tooltip-bottom"
+        data-tip="Fill the canvas"
+      />
+      <Button
+        onClick={() => drawFrame(color, brushRadius)}
+        icon={<BorderOutlined />}
+        size={"middle"}
+        className="tooltip tooltip-primary tooltip-bottom"
+        data-tip="Apply canvas frame"
+      />
+      <Popover
+        content={<Table columns={shortCutsInfoCols} dataSource={shortCutsInfo} size="small" pagination={false} />}
+        title="Keyboard shortcuts"
+        trigger="click"
+        placement="bottomRight"
+      >
+        <Button
+          icon={<InfoCircleOutlined />}
+          size={"middle"}
+          className={`tooltip tooltip-primary tooltip-bottom`}
+          data-tip="Shortcuts"
+        />
+      </Popover>
+      <Button
+        onClick={openModal}
+        disabled={isCanvasDisabledOrEmpty}
+        className={`bg-primary tooltip tooltip-primary tooltip-bottom ml-2 font-bold`}
+        data-tip="Publish your drawing"
+        size="middle"
+      >
+        Ink!
       </Button>
     </div>
   );

@@ -4,9 +4,7 @@ export const useHotkeyBindings = (
   brushRadius: number,
   updateBrushRadius: (value: number) => void,
   updateOpacity: (value: number) => void,
-  undo: () => void,
 ) => {
-  useHotkeys("ctrl+z", () => undo());
   useHotkeys("]", () => updateBrushRadius(brushRadius + 1));
   useHotkeys("ctrl+]", () => updateBrushRadius(brushRadius + 10));
   useHotkeys("[", () => updateBrushRadius(brushRadius - 1));

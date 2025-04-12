@@ -24,7 +24,7 @@ const Home: NextPage = () => {
   const [artists, setArtists] = useState<Artist[]>([]);
   // const [orderBy, setOrderBy] = useState<string>(searchParams.get("orderBy") || "earnings");
   // const [period, setPeriod] = useState<string>(searchParams.get("period") || "lastmonth");
-  const [orderBy, setOrderBy] = useState<string>("earnings");
+  const [orderBy, setOrderBy] = useState<string>("inkCount");
   const [period, setPeriod] = useState<string>("lastmonth");
   const [createdAt, setCreatedAt] = useState<number>(1596240000);
   const [lastFilterAt, setLastFilterAt] = useState<{ [key: string]: number }>({ lastSaleAt_gt: 1596240000 });
