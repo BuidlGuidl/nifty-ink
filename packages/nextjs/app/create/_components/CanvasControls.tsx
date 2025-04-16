@@ -70,7 +70,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   const isCanvasDisabledOrEmpty = canvasDisabled || !drawingCanvas.current?.lines?.length;
 
   return (
-    <div className="mt-2 mb-1">
+    <div className={`flex items-center justify-center mt-2 mb-1 ${isSmall ? "gap-1" : ""}`}>
       <PublishModal
         chain={chain}
         connectedAddress={connectedAddress as Address}
