@@ -58,9 +58,8 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
       if (!imageData) throw new Error("Failed to get image data from canvas");
 
+      // Prepare image and drawing data in parallel
       const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
-      const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
-      if (!uploadedImage?.success) throw new Error("Failed to upload image to IPFS");
 
       const compressedArray = LZ.compressToUint8Array(saveData);
       const drawingBuffer = Buffer.from(compressedArray);
@@ -69,7 +68,13 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
         type: "application/octet-stream",
       });
 
-      const uploadedDrawing = await uploadToIPFS(drawingFile, "file");
+      // Upload image and drawing in parallel
+      const [uploadedImage, uploadedDrawing] = await Promise.all([
+        uploadToIPFS(imageBuffer, "buffer"),
+        uploadToIPFS(drawingFile, "file"),
+      ]);
+
+      if (!uploadedImage?.success) throw new Error("Failed to upload image to IPFS");
       if (!uploadedDrawing.success) throw new Error("Failed to upload drawing to IPFS");
 
       const inkMetadataJson = {
