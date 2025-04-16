@@ -24,14 +24,9 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
     try {
       setIsCreating(true);
 
+      // Prepare data for uploads
       const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
       const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
-      const uploadedImage = await uploadToIPFS(imageBuffer, "buffer");
-      const imageCID = uploadedImage.cid.toString();
-      console.log("imageResult", uploadedImage);
-      if (!uploadedImage.success) {
-        throw new Error("Failed to upload image to IPFS");
-      }
 
       const saveData = drawingCanvas?.current?.getSaveData();
       if (!saveData) {
@@ -39,12 +34,23 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
       }
       const compressedArray = LZ.compressToUint8Array(saveData);
       const drawingBuffer = Buffer.from(compressedArray);
-      const uploadedDrawing = await uploadToIPFS(drawingBuffer, "buffer");
-      const drawingCID = uploadedDrawing.cid.toString();
-      console.log("drawingResult", uploadedDrawing);
+
+      // Parallelize image and drawing uploads
+      const [uploadedImage, uploadedDrawing] = await Promise.all([
+        uploadToIPFS(imageBuffer, "buffer"),
+        uploadToIPFS(drawingBuffer, "buffer"),
+      ]);
+
+      if (!uploadedImage.success) {
+        throw new Error("Failed to upload image to IPFS");
+      }
+
       if (!uploadedDrawing.success) {
         throw new Error("Failed to upload drawing to IPFS");
       }
+
+      const imageCID = uploadedImage.cid.toString();
+      const drawingCID = uploadedDrawing.cid.toString();
 
       const timeInMs = new Date();
       const currentInk = {
@@ -63,14 +69,18 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
 
       const inkStr = JSON.stringify(currentInk);
       const inkBuffer = Buffer.from(inkStr);
-      const uploadedInk = await uploadToIPFS(inkBuffer, "buffer");
-      const jsonCID = uploadedInk.cid.toString();
-      console.log("inkResult", uploadedInk);
+
+      // Run address check in parallel with ink upload
+      const [uploadedInk, _] = await Promise.all([
+        uploadToIPFS(inkBuffer, "buffer"),
+        checkAddressAndFund(connectedAddress),
+      ]);
+
       if (!uploadedInk.success) {
         throw new Error("Failed to upload ink to IPFS");
       }
 
-      await checkAddressAndFund(connectedAddress);
+      const jsonCID = uploadedInk.cid.toString();
 
       await writeYourContractAsync(
         {
