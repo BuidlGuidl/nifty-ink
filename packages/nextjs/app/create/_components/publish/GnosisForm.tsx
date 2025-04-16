@@ -95,7 +95,7 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
       );
     } catch (e) {
       console.error(e);
-      notification.error(`📛 Ink creation failed. Please wait a moment and try again: ${(e as Error).message}`);
+      notification.error(`📛 Ink creation failed. Please wait a moment and try again`);
     } finally {
       setIsCreating(false);
     }

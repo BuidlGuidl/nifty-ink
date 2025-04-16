@@ -68,6 +68,8 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
         type: "application/octet-stream",
       });
 
+      notification.info("Uploading ink to IPFS...");
+
       // Upload image and drawing in parallel
       const [uploadedImage, uploadedDrawing] = await Promise.all([
         uploadToIPFS(imageBuffer, "buffer"),
@@ -91,15 +93,19 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       const uploadedInkMetadata = await uploadToIPFS(inkMetadataJson, "json");
       if (!uploadedInkMetadata.success) throw new Error("Failed to upload ink metadata to IPFS");
 
+      notification.success("Successfully uploaded ink metadata to IPFS");
       return uploadedInkMetadata;
     } catch (error) {
-      notification.error(`Error uploading metadata: ${error instanceof Error ? error.message : "Unknown error"}`);
+      console.log(error);
+      notification.error("Error uploading ink metadata");
       throw error;
     }
   };
 
-  const createZoraInk = async (inkMetadataCID: string) => {
+  const createZoraCoins = async (inkMetadataCID: string) => {
     try {
+      notification.info("Creating Zora post...");
+
       const createCoinParams = {
         name: formData.title,
         symbol: formData.title,
@@ -112,9 +118,12 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
 
       const result = await createCoin(createCoinParams, walletClient, publicClient);
       setCoinAddress(result.address || "");
+
+      notification.success("Successfully created Zora post!");
       return result;
     } catch (error) {
-      notification.error(`Error creating Zora ink: ${error instanceof Error ? error.message : "Unknown error"}`);
+      console.log(error);
+      notification.error(`Error creating Zora post`);
       throw error;
     }
   };
@@ -130,13 +139,13 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
         console.log("Funding check result:", fundingResult.error);
       }
 
-      const res = await createZoraInk(inkMetadata.cid);
+      const res = await createZoraCoins(inkMetadata.cid);
       if (!res || res.address === undefined) throw new Error("Failed to create Zora ink");
       setFormState("success");
       setFormData({ title: "", caption: "" });
     } catch (error) {
       setFormState("error");
-      notification.error(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
+      console.log(error);
     }
   };
 
