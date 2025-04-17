@@ -2,6 +2,7 @@
 
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
+import { CreateCoinArgs, createCoin } from "@zoralabs/coins-sdk";
 import { eq } from "drizzle-orm";
 import { formatEther, parseEther } from "viem";
 import { createPublicClient, createWalletClient, http } from "viem";
@@ -60,5 +61,35 @@ export async function fundIfRequired(sendToAddress: string) {
   } catch (e) {
     console.log(e);
     return { error: "Failed to send funding" };
+  }
+}
+
+export async function signTransaction(
+  createCoinParams: CreateCoinArgs,
+  burnerWalletAddress: string,
+  burnerWalletPK: string,
+) {
+  const burnerWalletClient = createWalletClient({
+    chain: base,
+    account: privateKeyToAccount(burnerWalletPK as `0x${string}`),
+    transport: http(),
+  });
+
+  if (burnerWalletClient.account.address !== burnerWalletAddress) {
+    return { error: "Burner wallet address mismatch" };
+  }
+
+  const fundingResult = await fundIfRequired(burnerWalletAddress);
+  if (fundingResult.error) {
+    console.log("Funding check result:", fundingResult.error);
+    return { error: fundingResult.error };
+  }
+
+  try {
+    const result = await createCoin(createCoinParams, burnerWalletClient, publicClient);
+    return { success: "true", result };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to create coin";
+    return { error: errorMessage };
   }
 }
