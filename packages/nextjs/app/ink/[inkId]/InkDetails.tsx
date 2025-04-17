@@ -15,6 +15,9 @@ import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 
 const mainClient = new ApolloClient({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT_MAINNET,
+  headers: {
+    Authorization: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT_AUTH || "",
+  },
   cache: new InMemoryCache(),
 });
 
