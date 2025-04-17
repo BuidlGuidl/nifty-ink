@@ -4345,7 +4345,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@uniswap/sdk-core": ^4.0.1
     "@uniswap/v2-sdk": ^3.0.1
-    "@zoralabs/coins-sdk": ^0.0.7
+    "@zoralabs/coins-sdk": ^0.0.8
     abitype: ^1.0.2
     antd: ^5.24.7
     autoprefixer: ^10.4.12
@@ -7453,26 +7453,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zoralabs/coins-sdk@npm:^0.0.7":
-  version: 0.0.7
-  resolution: "@zoralabs/coins-sdk@npm:0.0.7"
+"@zoralabs/coins-sdk@npm:^0.0.8":
+  version: 0.0.8
+  resolution: "@zoralabs/coins-sdk@npm:0.0.8"
   dependencies:
     "@hey-api/client-fetch": ^0.8.3
-    "@zoralabs/coins": ^0.7.0
+    "@zoralabs/coins": ^0.7.1
   peerDependencies:
     abitype: ^1.0.8
     viem: ^2.21.55
-  checksum: 30f86fb420ce6cad1641095f4095f0a7cbb981abeabe38d2fc246d053a8a80b4d6fff458fb0549325c7f4284c887cc33268eccc399b6b7fe57d949c2782ad29e
+  checksum: 7ed1b4a43e7bf176450a96add475b8817a23b876236e1775ba209b8343b817631fe9d5022a9acea1fdf956a2409c2b25411d9846204a459f161160af18734d79
   languageName: node
   linkType: hard
 
-"@zoralabs/coins@npm:^0.7.0":
-  version: 0.7.0
-  resolution: "@zoralabs/coins@npm:0.7.0"
+"@zoralabs/coins@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "@zoralabs/coins@npm:0.7.1"
   dependencies:
     "@openzeppelin/contracts": ^5.0.2
     "@openzeppelin/contracts-upgradeable": ^5.0.2
-  checksum: 66d3ffb30a42df91723c9f7548361fb5a0cdea4c3589707c48c1c33f878d0f3a3390e18a1af42a4770e24c8eec616582c2c5d9d6360d2724e8990abfd1951606
+  checksum: 2fd860a7f1a43d4e266c983fa7a8d58976ade857091d08f5f08b9427d0ba50d03b225796248c3a4b67715c73c2be7a24ff8c3da7634bfd02049d59cd7be59185
   languageName: node
   linkType: hard
 

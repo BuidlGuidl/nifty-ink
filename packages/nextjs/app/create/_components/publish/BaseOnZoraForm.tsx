@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createCoin } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
@@ -8,7 +8,7 @@ import { FormInput } from "~~/components/shared/FormInput";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { uploadToIPFS } from "~~/utils/ipfs";
-import { fundIfRequired } from "~~/utils/offchainFaucet";
+import { fundIfRequired, signTransaction } from "~~/utils/offchainFaucet";
 import { notification } from "~~/utils/scaffold-eth";
 
 // Constants
@@ -38,8 +38,16 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
   const [formState, setFormState] = useState<FormState>("fill");
   const [formData, setFormData] = useState<FormData>({ title: "", caption: "" });
   const [coinAddress, setCoinAddress] = useState<string>("");
+  const { connector } = useAccount();
   const publicClient = usePublicClient()!;
   const { data: walletClient } = useWalletClient();
+  const isBurnerWalletConnected = connector?.name === "Burner Wallet";
+  const [pk, setPk] = useState<string | null>(null);
+
+  useEffect(() => {
+    const value = localStorage.getItem("burnerWallet.pk");
+    setPk(value);
+  }, []);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     const maxLength = field === "title" ? CONSTANTS.MAX_TITLE_LENGTH : CONSTANTS.MAX_CAPTION_LENGTH;
@@ -114,16 +122,30 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
         platformReferrer: CONSTANTS.PLATFORM_REFERRER,
       };
 
-      if (!walletClient) throw new Error("Failed to get wallet client");
+      if (isBurnerWalletConnected) {
+        if (!pk) throw new Error("No private key provided");
+        notification.info("Signing transaction... It may take some time.");
+        const signResult = await signTransaction(createCoinParams, connectedAddress, pk);
+        if (signResult.error) {
+          console.log("signResult", signResult);
+          const errorMessage = signResult.error || "Failed to create with burner wallet";
+          throw new Error(errorMessage);
+        }
+        setCoinAddress(signResult.result?.address || "");
+        notification.success("Successfully created Zora post!");
+        return signResult.result;
+      } else {
+        if (!walletClient) throw new Error("Failed to get wallet client");
+        const result = await createCoin(createCoinParams, walletClient, publicClient);
+        setCoinAddress(result.address || "");
 
-      const result = await createCoin(createCoinParams, walletClient, publicClient);
-      setCoinAddress(result.address || "");
-
-      notification.success("Successfully created Zora post!");
-      return result;
+        notification.success("Successfully created Zora post!");
+        return result;
+      }
     } catch (error) {
       console.log(error);
-      notification.error(`Error creating Zora post`);
+      const errorMessage = error instanceof Error ? error.message : "Error creating Zora post";
+      notification.error(errorMessage);
       throw error;
     }
   };
@@ -132,12 +154,9 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
     event.preventDefault();
     try {
       setFormState("loading");
-      const [inkMetadata, fundingResult] = await Promise.all([uploadInkMetadata(), fundIfRequired(connectedAddress)]);
+      const inkMetadata = await uploadInkMetadata();
 
       if (!inkMetadata?.success) throw new Error("Failed to upload ink metadata");
-      if (fundingResult.error) {
-        console.log("Funding check result:", fundingResult.error);
-      }
 
       const res = await createZoraCoins(inkMetadata.cid);
       if (!res || res.address === undefined) throw new Error("Failed to create Zora ink");
