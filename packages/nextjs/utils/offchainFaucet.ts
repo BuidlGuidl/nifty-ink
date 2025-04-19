@@ -2,7 +2,7 @@
 
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
-import { CreateCoinArgs, createCoin } from "@zoralabs/coins-sdk";
+import { CreateCoinArgs, createCoinCall, getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
 import { eq } from "drizzle-orm";
 import { formatEther, parseEther } from "viem";
 import { createPublicClient, createWalletClient, http } from "viem";
@@ -79,6 +79,12 @@ export async function signTransaction(
     return { error: "Burner wallet address mismatch" };
   }
 
+  const createCoinRequest = await createCoinCall(createCoinParams);
+  const { request } = await publicClient.simulateContract({
+    ...(createCoinRequest as any),
+    account: burnerWalletClient.account,
+  });
+
   const fundingResult = await fundIfRequired(burnerWalletAddress);
   if (fundingResult.error) {
     console.log("Funding check result:", fundingResult.error);
@@ -86,9 +92,21 @@ export async function signTransaction(
   }
 
   try {
-    const result = await createCoin(createCoinParams, burnerWalletClient, publicClient, {
-      gasMultiplier: 150,
-    });
+    // Add a 2/5th buffer on gas.
+    const GAS_MULTIPLIER = 150;
+    if (request.gas) {
+      // Gas limit multiplier is a percentage argument.
+      request.gas = (request.gas * BigInt(GAS_MULTIPLIER)) / 100n;
+    }
+    const hash = await walletClient.writeContract(request);
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    const deployment = getCoinCreateFromLogs(receipt);
+    const result = {
+      hash,
+      receipt,
+      address: deployment?.coin,
+      deployment,
+    };
     return { success: "true", result };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Failed to create coin";
