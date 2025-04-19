@@ -8,7 +8,7 @@ import { FormInput } from "~~/components/shared/FormInput";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { uploadToIPFS } from "~~/utils/ipfs";
-import { fundIfRequired, signTransaction } from "~~/utils/offchainFaucet";
+import { signTransaction } from "~~/utils/offchainFaucet";
 import { notification } from "~~/utils/scaffold-eth";
 
 // Constants

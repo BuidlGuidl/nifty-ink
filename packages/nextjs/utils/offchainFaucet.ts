@@ -86,10 +86,13 @@ export async function signTransaction(
   }
 
   try {
-    const result = await createCoin(createCoinParams, burnerWalletClient, publicClient);
+    const result = await createCoin(createCoinParams, burnerWalletClient, publicClient, {
+      gasMultiplier: 150,
+    });
     return { success: "true", result };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Failed to create coin";
-    return { error: errorMessage };
+
+    return { error: errorMessage.length > 150 ? "Failed to create coin" : errorMessage };
   }
 }
