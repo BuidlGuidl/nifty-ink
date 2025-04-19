@@ -79,7 +79,17 @@ export async function signTransaction(
     return { error: "Burner wallet address mismatch" };
   }
 
-  const createCoinRequest = await createCoinCall(createCoinParams);
+  let createCoinRequest;
+  try {
+    createCoinRequest = await createCoinCall(createCoinParams);
+  } catch (error) {
+    // If first attempt fails, try one more time
+    try {
+      createCoinRequest = await createCoinCall(createCoinParams);
+    } catch (retryError) {
+      return { error: "Failed to create coin request. Please try again." };
+    }
+  }
   const { request } = await publicClient.simulateContract({
     ...(createCoinRequest as any),
     account: burnerWalletClient.account,
