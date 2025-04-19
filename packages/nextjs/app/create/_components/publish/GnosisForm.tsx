@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import LZ from "lz-string";
+import { useAccount } from "wagmi";
 import { FormInput } from "~~/components/shared/FormInput";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
-import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
+import { fundAndSignTransaction } from "~~/utils/gnosisFaucet";
 import { uploadToIPFS } from "~~/utils/ipfs";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -15,73 +16,96 @@ type GnosisFormProps = {
 
 export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps) => {
   const router = useRouter();
+  const { connector } = useAccount();
+
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [inkName, setInkName] = useState<string>("");
   const [inkNumber, setInkNumber] = useState<number | undefined>(undefined);
   const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("NiftyInk");
+  const isBurnerWalletConnected = connector?.name === "Burner Wallet";
 
-  const createInkGnosis = async () => {
-    try {
-      setIsCreating(true);
+  const [pk, setPk] = useState<string | null>(null);
 
-      // Prepare data for uploads
-      const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
-      const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
+  useEffect(() => {
+    const value = localStorage.getItem("burnerWallet.pk");
+    setPk(value);
+  }, []);
 
-      const saveData = drawingCanvas?.current?.getSaveData();
-      if (!saveData) {
-        throw new Error("Failed to get save data from canvas");
+  const uploadImageAndDrawing = async () => {
+    // Prepare data for uploads
+    const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
+    const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
+
+    const saveData = drawingCanvas?.current?.getSaveData();
+    if (!saveData) {
+      throw new Error("Failed to get save data from canvas");
+    }
+    const compressedArray = LZ.compressToUint8Array(saveData);
+    const drawingBuffer = Buffer.from(compressedArray);
+
+    // Parallelize image and drawing uploads
+    const [uploadedImage, uploadedDrawing] = await Promise.all([
+      uploadToIPFS(imageBuffer, "buffer"),
+      uploadToIPFS(drawingBuffer, "buffer"),
+    ]);
+
+    if (!uploadedImage.success) {
+      throw new Error("Failed to upload image to IPFS");
+    }
+
+    if (!uploadedDrawing.success) {
+      throw new Error("Failed to upload drawing to IPFS");
+    }
+
+    return { uploadedImage, uploadedDrawing };
+  };
+
+  const uploadInkMetadata = async (imageCID: string, drawingCID: string) => {
+    const timeInMs = new Date();
+    const currentInk = {
+      attributes: [
+        {
+          trait_type: "Limit",
+          value: (inkNumber ?? 0).toString(),
+        },
+      ],
+      name: inkName,
+      description: `A Nifty Ink by ${connectedAddress} on ${timeInMs}`,
+      drawing: drawingCID,
+      image: `https://ipfs.io/ipfs/${imageCID}`,
+      external_url: `https://nifty.ink/${drawingCID}`,
+    };
+
+    const inkStr = JSON.stringify(currentInk);
+    const inkBuffer = Buffer.from(inkStr);
+
+    // Run address check in parallel with ink upload
+    const uploadedInk = await uploadToIPFS(inkBuffer, "buffer");
+
+    if (!uploadedInk.success) {
+      throw new Error("Failed to upload ink to IPFS");
+    }
+
+    return uploadedInk;
+  };
+
+  const createInkGnosis = async (drawingCID: string, jsonCID: string) => {
+    if (isBurnerWalletConnected) {
+      if (!pk) throw new Error("No private key provided");
+      notification.info("Signing transaction... It may take some time.");
+      const signResult = await fundAndSignTransaction(
+        [drawingCID, jsonCID, BigInt(inkNumber ?? 0)],
+        connectedAddress,
+        pk,
+      );
+      if (signResult.error) {
+        console.log("signResult", signResult);
+        const errorMessage = signResult.error || "Failed to create Ink with burner wallet";
+        throw new Error(errorMessage);
       }
-      const compressedArray = LZ.compressToUint8Array(saveData);
-      const drawingBuffer = Buffer.from(compressedArray);
-
-      // Parallelize image and drawing uploads
-      const [uploadedImage, uploadedDrawing] = await Promise.all([
-        uploadToIPFS(imageBuffer, "buffer"),
-        uploadToIPFS(drawingBuffer, "buffer"),
-      ]);
-
-      if (!uploadedImage.success) {
-        throw new Error("Failed to upload image to IPFS");
-      }
-
-      if (!uploadedDrawing.success) {
-        throw new Error("Failed to upload drawing to IPFS");
-      }
-
-      const imageCID = uploadedImage.cid.toString();
-      const drawingCID = uploadedDrawing.cid.toString();
-
-      const timeInMs = new Date();
-      const currentInk = {
-        attributes: [
-          {
-            trait_type: "Limit",
-            value: (inkNumber ?? 0).toString(),
-          },
-        ],
-        name: inkName,
-        description: `A Nifty Ink by ${connectedAddress} on ${timeInMs}`,
-        drawing: drawingCID,
-        image: `https://ipfs.io/ipfs/${imageCID}`,
-        external_url: `https://nifty.ink/${drawingCID}`,
-      };
-
-      const inkStr = JSON.stringify(currentInk);
-      const inkBuffer = Buffer.from(inkStr);
-
-      // Run address check in parallel with ink upload
-      const [uploadedInk, _] = await Promise.all([
-        uploadToIPFS(inkBuffer, "buffer"),
-        checkAddressAndFund(connectedAddress),
-      ]);
-
-      if (!uploadedInk.success) {
-        throw new Error("Failed to upload ink to IPFS");
-      }
-
-      const jsonCID = uploadedInk.cid.toString();
-
+      notification.success("Successfully created Ink!");
+      router.push(`/ink/${drawingCID}`);
+    } else {
       await writeYourContractAsync(
         {
           functionName: "createInk",
@@ -93,17 +117,25 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
           },
         },
       );
-    } catch (e) {
-      console.error(e);
-      notification.error(`📛 Ink creation failed. Please wait a moment and try again`);
-    } finally {
-      setIsCreating(false);
     }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    createInkGnosis();
+    setIsCreating(true);
+    // TODO: add notifications
+    try {
+      const { uploadedImage, uploadedDrawing } = await uploadImageAndDrawing();
+
+      const uploadedInk = await uploadInkMetadata(uploadedImage.cid.toString(), uploadedDrawing.cid.toString());
+
+      await createInkGnosis(uploadedDrawing.cid.toString(), uploadedInk.cid.toString());
+    } catch (error) {
+      console.log(error);
+      const errorMessage = error instanceof Error ? error.message : "Error with uploading ink";
+      notification.error(errorMessage);
+    }
+    setIsCreating(false);
   };
 
   return (
