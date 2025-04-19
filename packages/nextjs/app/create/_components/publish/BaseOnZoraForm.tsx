@@ -112,8 +112,6 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
 
   const createZoraCoins = async (inkMetadataCID: string) => {
     try {
-      notification.info("Creating Zora post...");
-
       const createCoinParams = {
         name: formData.title,
         symbol: formData.title,
@@ -126,12 +124,12 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
         if (!pk) throw new Error("No private key provided");
         notification.info("Signing transaction... It may take some time.");
         const signResult = await signTransaction(createCoinParams, connectedAddress, pk);
-        if (signResult.error) {
+        if (signResult.error || !signResult.result?.address) {
           console.log("signResult", signResult);
           const errorMessage = signResult.error || "Failed to create with burner wallet";
           throw new Error(errorMessage);
         }
-        setCoinAddress(signResult.result?.address || "");
+        setCoinAddress(signResult.result.address);
         notification.success("Successfully created Zora post!");
         return signResult.result;
       } else {

@@ -3,13 +3,13 @@
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
 import { CreateCoinArgs, createCoinCall, getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { formatEther, parseEther } from "viem";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 
-const FAUCET_AMOUNT = process.env.FAUCET_AMOUNT || "0.00003";
+const FAUCET_AMOUNT = process.env.BASE_FAUCET_AMOUNT || "0.00003";
 
 const walletClient = createWalletClient({
   chain: base,
@@ -34,11 +34,21 @@ export async function fundIfRequired(sendToAddress: string) {
     return { success: "true" };
   }
 
-  // Check if address has already received funding
-  const existingFunding = await db.select().from(funding).where(eq(funding.address, sendToAddress));
+  //   Check if address has already received funding
+  const existingFunding = await db
+    .select()
+    .from(funding)
+    .where(and(eq(funding.address, sendToAddress as `0x${string}`), eq(funding.chain, "base")))
+    .orderBy(desc(funding.createdAt))
+    .limit(1);
+
   if (existingFunding.length > 0) {
-    console.log(`Address has already received funding: ${sendToAddress}`);
-    return { success: "true" };
+    const lastFundingTime = new Date(existingFunding[0].createdAt).getTime();
+    const fifteenMinutesAgo = Date.now() - 15 * 60 * 1000;
+    if (lastFundingTime > fifteenMinutesAgo) {
+      console.log(`Address has already received funding recently: ${sendToAddress}`);
+      return { success: "true" };
+    }
   }
 
   try {
@@ -54,6 +64,7 @@ export async function fundIfRequired(sendToAddress: string) {
     await db.insert(funding).values({
       address: sendToAddress,
       amount: FAUCET_AMOUNT,
+      chain: "base",
       transactionHash: receipt.transactionHash,
     });
 

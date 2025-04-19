@@ -2,14 +2,14 @@
 
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { formatEther, parseEther } from "viem";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { gnosis } from "viem/chains";
 import deployedContracts from "~~/contracts/deployedContracts";
 
-const FAUCET_AMOUNT = "0.003";
+const GNOSIS_FAUCET_AMOUNT = process.env.GNOSIS_FAUCET_AMOUNT || "0.003";
 
 const walletClient = createWalletClient({
   chain: gnosis,
@@ -30,33 +30,44 @@ export async function fundIfRequired(sendToAddress: string) {
   const balance = Number(formatEther(await publicClient.getBalance({ address: sendToAddress })));
 
   console.log(`Balance: ${balance}`);
-  if (balance && sendToAddress && balance >= Number(FAUCET_AMOUNT)) {
+  if (balance && sendToAddress && balance >= Number(GNOSIS_FAUCET_AMOUNT)) {
     console.log(`Address has enough funding: ${sendToAddress} ${balance}`);
     return { success: "true" };
   }
 
-  // Check if address has already received funding
-  //   const existingFunding = await db.select().from(funding).where(eq(funding.address, sendToAddress));
-  //   if (existingFunding.length > 0) {
-  //     console.log(`Address has already received funding: ${sendToAddress}`);
-  //     return { success: "true" };
-  //   }
+  //   Check if address has already received funding
+  const existingFunding = await db
+    .select()
+    .from(funding)
+    .where(and(eq(funding.address, sendToAddress as `0x${string}`), eq(funding.chain, "gnosis")))
+    .orderBy(desc(funding.createdAt))
+    .limit(1);
+
+  if (existingFunding.length > 0) {
+    const lastFundingTime = new Date(existingFunding[0].createdAt).getTime();
+    const fifteenMinutesAgo = Date.now() - 15 * 60 * 1000;
+    if (lastFundingTime > fifteenMinutesAgo) {
+      console.log(`Address has already received funding recently: ${sendToAddress}`);
+      return { success: "true" };
+    }
+  }
 
   try {
     console.log(`Sending funding from ${process.env.FAUCET_ACCOUNT_ADDRESS} to ${sendToAddress}`);
     const hash = await walletClient.sendTransaction({
       to: sendToAddress,
-      value: parseEther(FAUCET_AMOUNT),
+      value: parseEther(GNOSIS_FAUCET_AMOUNT),
     });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     console.log(`Transaction confirmed in block ${receipt.blockNumber}. Transaction Hash: ${receipt.transactionHash}`);
 
     // Record the funding in the database
-    // await db.insert(funding).values({
-    //   address: sendToAddress,
-    //   amount: FAUCET_AMOUNT,
-    //   transactionHash: receipt.transactionHash,
-    // });
+    await db.insert(funding).values({
+      address: sendToAddress,
+      amount: GNOSIS_FAUCET_AMOUNT,
+      chain: "gnosis",
+      transactionHash: receipt.transactionHash,
+    });
 
     return { success: "true" };
   } catch (e) {
