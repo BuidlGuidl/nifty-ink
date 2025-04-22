@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import LZ from "lz-string";
-import { useAccount } from "wagmi";
+import { createWalletClient, encodeFunctionData, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { gnosis } from "viem/chains";
+import { useAccount, usePublicClient } from "wagmi";
 import { FormInput } from "~~/components/shared/FormInput";
+import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { fundAndSignTransaction } from "~~/utils/gnosisFaucet";
@@ -17,6 +21,8 @@ type GnosisFormProps = {
 export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps) => {
   const router = useRouter();
   const { connector } = useAccount();
+  // const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient()!;
 
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [inkName, setInkName] = useState<string>("");
@@ -92,12 +98,37 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
   const createInkGnosis = async (drawingCID: string, jsonCID: string) => {
     if (isBurnerWalletConnected) {
       if (!pk) throw new Error("No private key provided");
+
+      const walletClient = createWalletClient({
+        chain: gnosis,
+        transport: http(),
+        account: privateKeyToAccount(pk as `0x${string}`),
+      });
       notification.info("Signing transaction... It may take some time.");
-      const signResult = await fundAndSignTransaction(
-        [drawingCID, jsonCID, BigInt(inkNumber ?? 0)],
-        connectedAddress,
-        pk,
-      );
+
+      const data = encodeFunctionData({
+        abi: deployedContracts[100].NiftyInk.abi,
+        functionName: "createInk",
+        args: [drawingCID, jsonCID, BigInt(inkNumber ?? 0)],
+      });
+
+      const request = await walletClient.prepareTransactionRequest({
+        account: walletClient.account,
+        to: deployedContracts[100].NiftyInk.address,
+        data: data,
+        gas: 0n, // without this it will fail with "low balance"
+      });
+      const gas = await publicClient.estimateGas({
+        account: "0xa23956202395086DDb8EbE4d43c75E2aBEa8e97A",
+        to: deployedContracts[100].NiftyInk.address,
+        data: data,
+      });
+      const GAS_MULTIPLIER = 200;
+      request.gas = (gas * BigInt(GAS_MULTIPLIER)) / 100n;
+
+      const signature = await walletClient.signTransaction(request);
+
+      const signResult = await fundAndSignTransaction(signature, connectedAddress);
       if (signResult.error) {
         console.log("signResult", signResult);
         const errorMessage = signResult.error || "Failed to create Ink with burner wallet";
@@ -123,8 +154,8 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsCreating(true);
-    // TODO: add notifications
     try {
+      notification.info("Uploading your drawing...");
       const { uploadedImage, uploadedDrawing } = await uploadImageAndDrawing();
 
       const uploadedInk = await uploadInkMetadata(uploadedImage.cid.toString(), uploadedDrawing.cid.toString());

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createCoin, createCoinCall } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
-import { createWalletClient, encodeFunctionData, http, parseEther, parseGwei } from "viem";
+import { createWalletClient, encodeFunctionData, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";

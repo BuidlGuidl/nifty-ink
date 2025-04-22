@@ -3,11 +3,10 @@
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
 import { and, desc, eq } from "drizzle-orm";
-import { formatEther, parseEther } from "viem";
+import { TransactionSerializedLegacy, formatEther, parseEther } from "viem";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { gnosis } from "viem/chains";
-import deployedContracts from "~~/contracts/deployedContracts";
 
 const GNOSIS_FAUCET_AMOUNT = process.env.GNOSIS_FAUCET_AMOUNT || "0.003";
 
@@ -77,28 +76,9 @@ export async function fundIfRequired(sendToAddress: string) {
 }
 
 export async function fundAndSignTransaction(
-  functionArgs: [string, string, bigint],
+  signature: `0x02${string}` | `0x01${string}` | `0x03${string}` | `0x04${string}` | TransactionSerializedLegacy,
   burnerWalletAddress: string,
-  burnerWalletPK: string,
 ) {
-  const burnerWalletClient = createWalletClient({
-    chain: gnosis,
-    account: privateKeyToAccount(burnerWalletPK as `0x${string}`),
-    transport: http(),
-  });
-
-  if (burnerWalletClient.account.address !== burnerWalletAddress) {
-    return { error: "Burner wallet address mismatch" };
-  }
-
-  const { request } = await publicClient.simulateContract({
-    address: deployedContracts?.[100].NiftyInk.address,
-    abi: deployedContracts?.[100].NiftyInk.abi,
-    functionName: "createInk",
-    args: functionArgs,
-    account: burnerWalletClient.account,
-  });
-
   const fundingResult = await fundIfRequired(burnerWalletAddress);
   if (fundingResult.error) {
     console.log("Funding error:", fundingResult.error);
@@ -106,8 +86,7 @@ export async function fundAndSignTransaction(
   }
 
   try {
-    console.log("Signing transaction...");
-    const hash = await burnerWalletClient.writeContract(request);
+    const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     return { success: "true", receipt };
   } catch (error) {
