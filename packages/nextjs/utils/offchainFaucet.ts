@@ -99,6 +99,6 @@ export async function fundAndSignTransaction(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Failed to create coin";
 
-    return { error: errorMessage.length > 150 ? "Failed to create coin" : errorMessage };
+    return { error: errorMessage };
   }
 }

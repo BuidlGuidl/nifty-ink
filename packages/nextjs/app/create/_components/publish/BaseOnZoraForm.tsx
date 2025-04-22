@@ -61,134 +61,121 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
   };
 
   const uploadInkMetadata = async () => {
-    try {
-      const currentTime = new Date().toISOString().replace(/[:.]/g, "-");
-      const saveData = drawingCanvas?.current?.getSaveData();
-      if (!saveData) throw new Error("Failed to get save data from canvas");
+    const currentTime = new Date().toISOString().replace(/[:.]/g, "-");
+    const saveData = drawingCanvas?.current?.getSaveData();
+    if (!saveData) throw new Error("Failed to get save data from canvas");
 
-      const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
-      if (!imageData) throw new Error("Failed to get image data from canvas");
+    const imageData = drawingCanvas?.current?.canvas.drawing.toDataURL("image/png");
+    if (!imageData) throw new Error("Failed to get image data from canvas");
 
-      // Prepare image and drawing data in parallel
-      const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
+    // Prepare image and drawing data in parallel
+    const imageBuffer = Buffer.from(imageData.split(",")[1], "base64");
 
-      const compressedArray = LZ.compressToUint8Array(saveData);
-      const drawingBuffer = Buffer.from(compressedArray);
-      const drawingBlob = new Blob([drawingBuffer], { type: "application/octet-stream" });
-      const drawingFile = new File([drawingBlob], `${connectedAddress}_${currentTime}.lz`, {
-        type: "application/octet-stream",
-      });
+    const compressedArray = LZ.compressToUint8Array(saveData);
+    const drawingBuffer = Buffer.from(compressedArray);
+    const drawingBlob = new Blob([drawingBuffer], { type: "application/octet-stream" });
+    const drawingFile = new File([drawingBlob], `${connectedAddress}_${currentTime}.lz`, {
+      type: "application/octet-stream",
+    });
 
-      notification.info("Uploading ink to IPFS...");
+    notification.info("Uploading ink to IPFS...");
 
-      // Upload image and drawing in parallel
-      const [uploadedImage, uploadedDrawing] = await Promise.all([
-        uploadToIPFS(imageBuffer, "buffer"),
-        uploadToIPFS(drawingFile, "file"),
-      ]);
+    // Upload image and drawing in parallel
+    const [uploadedImage, uploadedDrawing] = await Promise.all([
+      uploadToIPFS(imageBuffer, "buffer"),
+      uploadToIPFS(drawingFile, "file"),
+    ]);
 
-      if (!uploadedImage?.success) throw new Error("Failed to upload image to IPFS");
-      if (!uploadedDrawing.success) throw new Error("Failed to upload drawing to IPFS");
+    if (!uploadedImage?.success) throw new Error("Failed to upload image to IPFS");
+    if (!uploadedDrawing.success) throw new Error("Failed to upload drawing to IPFS");
 
-      const inkMetadataJson = {
-        name: formData.title,
-        description: formData.caption,
-        content: {
-          mime: "text/html",
-          uri: `${CONSTANTS.VIEW_INK_URL}${uploadedDrawing.cid}`,
-        },
-        image: `${CONSTANTS.IPFS_BASE_URL}${uploadedImage.cid}`,
-        animation_url: `${CONSTANTS.VIEW_INK_URL}${uploadedDrawing.cid}`,
-      };
+    const inkMetadataJson = {
+      name: formData.title,
+      description: formData.caption,
+      content: {
+        mime: "text/html",
+        uri: `${CONSTANTS.VIEW_INK_URL}${uploadedDrawing.cid}`,
+      },
+      image: `${CONSTANTS.IPFS_BASE_URL}${uploadedImage.cid}`,
+      animation_url: `${CONSTANTS.VIEW_INK_URL}${uploadedDrawing.cid}`,
+    };
 
-      const uploadedInkMetadata = await uploadToIPFS(inkMetadataJson, "json");
-      if (!uploadedInkMetadata.success) throw new Error("Failed to upload ink metadata to IPFS");
+    const uploadedInkMetadata = await uploadToIPFS(inkMetadataJson, "json");
+    if (!uploadedInkMetadata.success) throw new Error("Failed to upload ink metadata to IPFS");
 
-      notification.success("Successfully uploaded ink metadata to IPFS");
-      return uploadedInkMetadata;
-    } catch (error) {
-      console.log(error);
-      notification.error("Error uploading ink metadata");
-      throw error;
-    }
+    notification.success("Successfully uploaded ink metadata to IPFS");
+    return uploadedInkMetadata;
   };
 
   const createZoraCoins = async (inkMetadataCID: string) => {
-    try {
-      const createCoinParams = {
-        name: formData.title,
-        symbol: formData.title,
-        uri: `ipfs://${inkMetadataCID}`,
-        payoutRecipient: connectedAddress,
-        platformReferrer: CONSTANTS.PLATFORM_REFERRER,
-      };
+    const createCoinParams = {
+      name: formData.title,
+      symbol: formData.title,
+      uri: `ipfs://${inkMetadataCID}`,
+      payoutRecipient: connectedAddress,
+      platformReferrer: CONSTANTS.PLATFORM_REFERRER,
+    };
 
-      if (isBurnerWalletConnected) {
-        if (!pk) throw new Error("No private key provided");
-        let createCoinRequest;
-        notification.info("Preparing transaction request...");
+    if (isBurnerWalletConnected) {
+      if (!pk) throw new Error("No private key provided");
+      let createCoinRequest;
+      notification.info("Preparing transaction. It may take some time...");
+      try {
+        createCoinRequest = await createCoinCall(createCoinParams);
+      } catch (error) {
+        // If first attempt fails, try one more time
         try {
           createCoinRequest = await createCoinCall(createCoinParams);
-        } catch (error) {
-          // If first attempt fails, try one more time
-          try {
-            createCoinRequest = await createCoinCall(createCoinParams);
-          } catch (retryError) {
-            return { error: "Failed to create coin request. Please try again." };
-          }
+        } catch (retryError) {
+          throw new Error("Failed to verify metadata. Please try again.");
         }
-
-        const walletClient = createWalletClient({
-          chain: base,
-          account: privateKeyToAccount(pk as `0x${string}`),
-          transport: http(),
-        });
-
-        const data = encodeFunctionData({
-          abi: createCoinRequest.abi,
-          functionName: createCoinRequest.functionName,
-          args: createCoinRequest.args as any,
-        });
-
-        const request = await walletClient.prepareTransactionRequest({
-          account: walletClient.account,
-          to: createCoinRequest.address,
-          data: data,
-          gas: 0n, // without this it will fail with "low balance"
-        });
-        const gas = await publicClient.estimateGas({
-          account: "0xa23956202395086DDb8EbE4d43c75E2aBEa8e97A",
-          to: createCoinRequest.address,
-          data: data,
-        });
-        const GAS_MULTIPLIER = 180;
-        request.gas = (gas * BigInt(GAS_MULTIPLIER)) / 100n;
-
-        const signature = await walletClient.signTransaction(request);
-        notification.info("Signing transaction... It may take some time.");
-        const signResult = await fundAndSignTransaction(signature, connectedAddress);
-        if (signResult.error || !signResult.result?.address) {
-          console.log("signResult", signResult);
-          const errorMessage = signResult.error || "Failed to create with burner wallet";
-          throw new Error(errorMessage);
-        }
-        setCoinAddress(signResult.result.address);
-        notification.success("Successfully created Zora post!");
-        return signResult.result;
-      } else {
-        if (!walletClient) throw new Error("Failed to get wallet client");
-        const result = await createCoin(createCoinParams, walletClient, publicClient);
-        if (!result.address) throw new Error("Failed to create Zora post");
-        setCoinAddress(result.address || "");
-
-        notification.success("Successfully created Zora post!");
-        return result;
       }
-    } catch (error) {
-      console.log(error);
-      const errorMessage = error instanceof Error ? error.message : "Error creating Zora post";
-      notification.error(errorMessage);
-      throw error;
+
+      const walletClient = createWalletClient({
+        chain: base,
+        account: privateKeyToAccount(pk as `0x${string}`),
+        transport: http(),
+      });
+
+      const data = encodeFunctionData({
+        abi: createCoinRequest.abi,
+        functionName: createCoinRequest.functionName,
+        args: createCoinRequest.args as any,
+      });
+
+      const request = await walletClient.prepareTransactionRequest({
+        account: walletClient.account,
+        to: createCoinRequest.address,
+        data: data,
+        gas: 0n, // without this it will fail with "low balance"
+      });
+      const gas = await publicClient.estimateGas({
+        account: "0xa23956202395086DDb8EbE4d43c75E2aBEa8e97A",
+        to: createCoinRequest.address,
+        data: data,
+      });
+      const GAS_MULTIPLIER = 180;
+      request.gas = (gas * BigInt(GAS_MULTIPLIER)) / 100n;
+
+      const signature = await walletClient.signTransaction(request);
+      notification.info("Signing transaction... It may take some time.");
+      const signResult = await fundAndSignTransaction(signature, connectedAddress);
+      if (signResult.error || !signResult.result?.address) {
+        console.log("signResult", signResult);
+        const errorMessage = signResult.error || "Failed to create with burner wallet";
+        throw new Error(errorMessage);
+      }
+      setCoinAddress(signResult.result.address);
+      notification.success("Successfully created Zora post!");
+      return signResult.result;
+    } else {
+      if (!walletClient) throw new Error("Failed to get wallet client");
+      const result = await createCoin(createCoinParams, walletClient, publicClient);
+      if (!result.address) throw new Error("Failed to create Zora post");
+      setCoinAddress(result.address || "");
+
+      notification.success("Successfully created Zora post!");
+      return result;
     }
   };
 
@@ -198,13 +185,15 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       setFormState("loading");
       const inkMetadata = await uploadInkMetadata();
 
-      if (!inkMetadata?.success) throw new Error("Failed to upload ink metadata");
       await createZoraCoins(inkMetadata.cid);
       setFormState("success");
       setFormData({ title: "", caption: "" });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to create coin";
+      console.log(errorMessage);
+      const message = errorMessage.length > 150 ? "Failed to create coin" : errorMessage;
+      notification.error(`Error uploading ink metadata: ${message}`);
       setFormState("error");
-      console.log(error);
     }
   };
 
