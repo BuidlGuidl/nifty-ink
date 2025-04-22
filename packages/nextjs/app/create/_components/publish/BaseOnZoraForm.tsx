@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createCoin } from "@zoralabs/coins-sdk";
+import { createCoin, createCoinCall } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
+import { createWalletClient, encodeFunctionData, http, parseEther, parseGwei } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { base } from "viem/chains";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CheckCircleIcon, ExclamationCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { FormInput } from "~~/components/shared/FormInput";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { uploadToIPFS } from "~~/utils/ipfs";
-import { signTransaction } from "~~/utils/offchainFaucet";
+import { fundAndSignTransaction } from "~~/utils/offchainFaucet";
 import { notification } from "~~/utils/scaffold-eth";
 
 // Constants
@@ -122,8 +125,48 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
 
       if (isBurnerWalletConnected) {
         if (!pk) throw new Error("No private key provided");
+        let createCoinRequest;
+        notification.info("Preparing transaction request...");
+        try {
+          createCoinRequest = await createCoinCall(createCoinParams);
+        } catch (error) {
+          // If first attempt fails, try one more time
+          try {
+            createCoinRequest = await createCoinCall(createCoinParams);
+          } catch (retryError) {
+            return { error: "Failed to create coin request. Please try again." };
+          }
+        }
+
+        const walletClient = createWalletClient({
+          chain: base,
+          account: privateKeyToAccount(pk as `0x${string}`),
+          transport: http(),
+        });
+
+        const data = encodeFunctionData({
+          abi: createCoinRequest.abi,
+          functionName: createCoinRequest.functionName,
+          args: createCoinRequest.args as any,
+        });
+
+        const request = await walletClient.prepareTransactionRequest({
+          account: walletClient.account,
+          to: createCoinRequest.address,
+          data: data,
+          gas: 0n, // without this it will fail with "low balance"
+        });
+        const gas = await publicClient.estimateGas({
+          account: "0xa23956202395086DDb8EbE4d43c75E2aBEa8e97A",
+          to: createCoinRequest.address,
+          data: data,
+        });
+        const GAS_MULTIPLIER = 180;
+        request.gas = (gas * BigInt(GAS_MULTIPLIER)) / 100n;
+
+        const signature = await walletClient.signTransaction(request);
         notification.info("Signing transaction... It may take some time.");
-        const signResult = await signTransaction(createCoinParams, connectedAddress, pk);
+        const signResult = await fundAndSignTransaction(signature, connectedAddress);
         if (signResult.error || !signResult.result?.address) {
           console.log("signResult", signResult);
           const errorMessage = signResult.error || "Failed to create with burner wallet";
@@ -135,6 +178,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       } else {
         if (!walletClient) throw new Error("Failed to get wallet client");
         const result = await createCoin(createCoinParams, walletClient, publicClient);
+        if (!result.address) throw new Error("Failed to create Zora post");
         setCoinAddress(result.address || "");
 
         notification.success("Successfully created Zora post!");
@@ -155,9 +199,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       const inkMetadata = await uploadInkMetadata();
 
       if (!inkMetadata?.success) throw new Error("Failed to upload ink metadata");
-
-      const res = await createZoraCoins(inkMetadata.cid);
-      if (!res || res.address === undefined) throw new Error("Failed to create Zora ink");
+      await createZoraCoins(inkMetadata.cid);
       setFormState("success");
       setFormData({ title: "", caption: "" });
     } catch (error) {

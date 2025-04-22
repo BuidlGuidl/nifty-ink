@@ -2,16 +2,16 @@
 
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
-import { CreateCoinArgs, createCoinCall, getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
+import { getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
 import { and, desc, eq } from "drizzle-orm";
-import { formatEther, parseEther } from "viem";
+import { TransactionSerializedLegacy, formatEther, parseEther } from "viem";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 
 const FAUCET_AMOUNT = process.env.BASE_FAUCET_AMOUNT || "0.00003";
 
-const walletClient = createWalletClient({
+const faucetWalletClient = createWalletClient({
   chain: base,
   account: privateKeyToAccount(process.env.FAUCET_ACCOUNT_PRIVATE_KEY! as `0x${string}`),
   transport: http(),
@@ -23,7 +23,7 @@ const publicClient = createPublicClient({
 });
 
 export async function fundIfRequired(sendToAddress: string) {
-  if (process.env.FAUCET_ACCOUNT_ADDRESS !== walletClient.account.address) {
+  if (process.env.FAUCET_ACCOUNT_ADDRESS !== faucetWalletClient.account.address) {
     return { error: "Faucet account address mismatch" };
   }
 
@@ -53,7 +53,7 @@ export async function fundIfRequired(sendToAddress: string) {
 
   try {
     console.log(`Sending funding from ${process.env.FAUCET_ACCOUNT_ADDRESS} to ${sendToAddress}`);
-    const hash = await walletClient.sendTransaction({
+    const hash = await faucetWalletClient.sendTransaction({
       to: sendToAddress,
       value: parseEther(FAUCET_AMOUNT),
     });
@@ -75,37 +75,10 @@ export async function fundIfRequired(sendToAddress: string) {
   }
 }
 
-export async function signTransaction(
-  createCoinParams: CreateCoinArgs,
+export async function fundAndSignTransaction(
+  signature: `0x02${string}` | `0x01${string}` | `0x03${string}` | TransactionSerializedLegacy,
   burnerWalletAddress: string,
-  burnerWalletPK: string,
 ) {
-  const burnerWalletClient = createWalletClient({
-    chain: base,
-    account: privateKeyToAccount(burnerWalletPK as `0x${string}`),
-    transport: http(),
-  });
-
-  if (burnerWalletClient.account.address !== burnerWalletAddress) {
-    return { error: "Burner wallet address mismatch" };
-  }
-
-  let createCoinRequest;
-  try {
-    createCoinRequest = await createCoinCall(createCoinParams);
-  } catch (error) {
-    // If first attempt fails, try one more time
-    try {
-      createCoinRequest = await createCoinCall(createCoinParams);
-    } catch (retryError) {
-      return { error: "Failed to create coin request. Please try again." };
-    }
-  }
-  const { request } = await publicClient.simulateContract({
-    ...(createCoinRequest as any),
-    account: burnerWalletClient.account,
-  });
-
   const fundingResult = await fundIfRequired(burnerWalletAddress);
   if (fundingResult.error) {
     console.log("Funding check result:", fundingResult.error);
@@ -113,13 +86,7 @@ export async function signTransaction(
   }
 
   try {
-    // Add a 2/5th buffer on gas.
-    const GAS_MULTIPLIER = 150;
-    if (request.gas) {
-      // Gas limit multiplier is a percentage argument.
-      request.gas = (request.gas * BigInt(GAS_MULTIPLIER)) / 100n;
-    }
-    const hash = await walletClient.writeContract(request);
+    const hash = await publicClient.sendRawTransaction({ serializedTransaction: signature });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     const deployment = getCoinCreateFromLogs(receipt);
     const result = {
