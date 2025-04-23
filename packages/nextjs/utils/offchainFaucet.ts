@@ -76,7 +76,7 @@ export async function fundIfRequired(sendToAddress: string) {
 }
 
 export async function fundAndSignTransaction(
-  signature: `0x02${string}` | `0x01${string}` | `0x03${string}` | TransactionSerializedLegacy,
+  signature: `0x02${string}` | `0x01${string}` | `0x03${string}` | `0x04${string}` | TransactionSerializedLegacy,
   burnerWalletAddress: string,
 ) {
   const fundingResult = await fundIfRequired(burnerWalletAddress);
