@@ -2,9 +2,10 @@
 
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
+import { COIN_FACTORY_ADDRESS } from "./coin";
 import { getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
 import { and, desc, eq } from "drizzle-orm";
-import { TransactionSerializedLegacy, formatEther, parseEther } from "viem";
+import { TransactionSerializedLegacy, formatEther, parseEther, parseTransaction } from "viem";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
@@ -79,6 +80,16 @@ export async function fundAndSignTransaction(
   signature: `0x02${string}` | `0x01${string}` | `0x03${string}` | `0x04${string}` | TransactionSerializedLegacy,
   burnerWalletAddress: string,
 ) {
+  const transaction = parseTransaction(signature);
+
+  if (transaction.to?.toLowerCase() !== COIN_FACTORY_ADDRESS.toLowerCase()) {
+    return { error: "Invalid transaction" };
+  }
+
+  if (transaction.chainId !== base.id) {
+    return { error: "Invalid chain" };
+  }
+
   const fundingResult = await fundIfRequired(burnerWalletAddress);
   if (fundingResult.error) {
     console.log("Funding check result:", fundingResult.error);
