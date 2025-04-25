@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createCoinCall, getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
+import { getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
 import { createWalletClient, encodeFunctionData, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -118,18 +118,8 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       owners: [connectedAddress],
       platformReferrer: CONSTANTS.PLATFORM_REFERRER,
     };
-    let createCoinRequest;
     notification.info("Preparing transaction");
-    try {
-      createCoinRequest = await customCreateCoinCall(createCoinParams);
-    } catch (error) {
-      // If first attempt fails, try one more time
-      try {
-        createCoinRequest = await createCoinCall(createCoinParams);
-      } catch (retryError) {
-        throw new Error("Failed to verify metadata. Please try again.");
-      }
-    }
+    const createCoinRequest = await customCreateCoinCall(createCoinParams);
 
     if (isBurnerWalletConnected) {
       if (!pk) throw new Error("No private key provided");
