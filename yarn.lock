@@ -4345,7 +4345,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@uniswap/sdk-core": ^4.0.1
     "@uniswap/v2-sdk": ^3.0.1
-    "@zoralabs/coins-sdk": ^0.0.8
+    "@zoralabs/coins-sdk": ^0.1.0
     abitype: ^1.0.2
     antd: ^5.24.7
     autoprefixer: ^10.4.12
@@ -7453,16 +7453,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@zoralabs/coins-sdk@npm:^0.0.8":
-  version: 0.0.8
-  resolution: "@zoralabs/coins-sdk@npm:0.0.8"
+"@zoralabs/coins-sdk@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@zoralabs/coins-sdk@npm:0.1.0"
   dependencies:
     "@hey-api/client-fetch": ^0.8.3
     "@zoralabs/coins": ^0.7.1
   peerDependencies:
     abitype: ^1.0.8
     viem: ^2.21.55
-  checksum: 7ed1b4a43e7bf176450a96add475b8817a23b876236e1775ba209b8343b817631fe9d5022a9acea1fdf956a2409c2b25411d9846204a459f161160af18734d79
+  checksum: 25e17be2dfba63a8de1443e7bf443c89ea79cde34e97bbef7040cd557043b0f5df805350a8afef63256cfefc6139821d589bb6619618cd9514c4f14aea705b78
   languageName: node
   linkType: hard
 

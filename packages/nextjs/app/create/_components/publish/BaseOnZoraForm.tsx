@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createCoin, createCoinCall } from "@zoralabs/coins-sdk";
+import { getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
 import { createWalletClient, encodeFunctionData, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -9,6 +9,7 @@ import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CheckCircleIcon, ExclamationCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { FormInput } from "~~/components/shared/FormInput";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { customCreateCoinCall } from "~~/utils/coin";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { uploadToIPFS } from "~~/utils/ipfs";
 import { fundAndSignTransaction } from "~~/utils/offchainFaucet";
@@ -21,6 +22,7 @@ const CONSTANTS = {
   PLATFORM_REFERRER: baseAddressPlatformReferrer,
   MAX_TITLE_LENGTH: 64,
   MAX_CAPTION_LENGTH: 180,
+  GAS_MULTIPLIER: 100,
 } as const;
 
 // Types
@@ -113,23 +115,14 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       symbol: formData.title,
       uri: `ipfs://${inkMetadataCID}`,
       payoutRecipient: connectedAddress,
+      owners: [connectedAddress],
       platformReferrer: CONSTANTS.PLATFORM_REFERRER,
     };
+    notification.info("Preparing transaction");
+    const createCoinRequest = await customCreateCoinCall(createCoinParams);
 
     if (isBurnerWalletConnected) {
       if (!pk) throw new Error("No private key provided");
-      let createCoinRequest;
-      notification.info("Preparing transaction. It may take some time...");
-      try {
-        createCoinRequest = await createCoinCall(createCoinParams);
-      } catch (error) {
-        // If first attempt fails, try one more time
-        try {
-          createCoinRequest = await createCoinCall(createCoinParams);
-        } catch (retryError) {
-          throw new Error("Failed to verify metadata. Please try again.");
-        }
-      }
 
       const walletClient = createWalletClient({
         chain: base,
@@ -154,9 +147,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
         to: createCoinRequest.address,
         data: data,
       });
-      const GAS_MULTIPLIER = 180;
-      request.gas = (gas * BigInt(GAS_MULTIPLIER)) / 100n;
-
+      request.gas = (gas * BigInt(CONSTANTS.GAS_MULTIPLIER)) / 100n;
       const signature = await walletClient.signTransaction(request);
       notification.info("Signing transaction... It may take some time.");
       const signResult = await fundAndSignTransaction(signature, connectedAddress);
@@ -170,7 +161,24 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       return signResult.result;
     } else {
       if (!walletClient) throw new Error("Failed to get wallet client");
-      const result = await createCoin(createCoinParams, walletClient, publicClient);
+      const { request } = await publicClient.simulateContract({
+        ...createCoinRequest,
+        account: walletClient.account,
+      });
+      if (request.gas) {
+        // Gas limit multiplier is a percentage argument.
+        request.gas = (request.gas * BigInt(CONSTANTS.GAS_MULTIPLIER)) / 100n;
+      }
+      const hash = await walletClient.writeContract(request);
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const deployment = getCoinCreateFromLogs(receipt);
+      const result = {
+        hash,
+        receipt,
+        address: deployment?.coin,
+        deployment,
+      };
+
       if (!result.address) throw new Error("Failed to create Zora post");
       setCoinAddress(result.address || "");
 
@@ -192,7 +200,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       const errorMessage = error instanceof Error ? error.message : "Failed to create coin";
       console.log(errorMessage);
       const message = errorMessage.length > 150 ? "Failed to create coin" : errorMessage;
-      notification.error(`Error uploading ink metadata: ${message}`);
+      notification.error(`${message}`);
       setFormState("error");
     }
   };
