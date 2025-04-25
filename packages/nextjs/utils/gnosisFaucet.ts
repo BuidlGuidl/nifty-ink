@@ -3,10 +3,11 @@
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
 import { and, desc, eq } from "drizzle-orm";
-import { TransactionSerializedLegacy, formatEther, parseEther } from "viem";
+import { TransactionSerializedLegacy, formatEther, parseEther, parseTransaction } from "viem";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { gnosis } from "viem/chains";
+import deployedContracts from "~~/contracts/deployedContracts";
 
 const GNOSIS_FAUCET_AMOUNT = process.env.GNOSIS_FAUCET_AMOUNT || "0.003";
 
@@ -79,6 +80,15 @@ export async function fundAndSignTransaction(
   signature: `0x02${string}` | `0x01${string}` | `0x03${string}` | `0x04${string}` | TransactionSerializedLegacy,
   burnerWalletAddress: string,
 ) {
+  const transaction = parseTransaction(signature);
+  if (transaction.to?.toLowerCase() !== deployedContracts[100].NiftyInk.address.toLowerCase()) {
+    return { error: "Invalid transaction" };
+  }
+
+  if (transaction.chainId !== gnosis.id) {
+    return { error: "Invalid chain" };
+  }
+
   const fundingResult = await fundIfRequired(burnerWalletAddress);
   if (fundingResult.error) {
     console.log("Funding error:", fundingResult.error);
