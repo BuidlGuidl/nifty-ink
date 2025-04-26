@@ -22,12 +22,12 @@ type HeaderMenuLink = {
 
 export const menuLinks: HeaderMenuLink[] = [
   {
-    label: "Home",
+    label: "🖌 create",
     href: "/",
   },
   {
-    label: "🖌 create",
-    href: "/create",
+    label: "🔍 explore",
+    href: "/explore",
   },
   {
     label: "🖼 inks",
