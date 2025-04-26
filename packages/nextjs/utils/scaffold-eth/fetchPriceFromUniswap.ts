@@ -16,7 +16,8 @@ const ABI = parseAbi([
 ]);
 
 export const fetchPriceFromUniswap = async (targetNetwork: ChainWithAttributes): Promise<number> => {
-  if (targetNetwork.nativeCurrency.symbol === "xDAI") {
+  console.log("fetchPriceFromUniswap", targetNetwork);
+  if (targetNetwork.nativeCurrency.symbol === "XDAI") {
     return 1;
   }
   if (
