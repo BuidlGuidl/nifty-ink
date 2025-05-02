@@ -22,7 +22,7 @@ const CONSTANTS = {
   PLATFORM_REFERRER: baseAddressPlatformReferrer,
   MAX_TITLE_LENGTH: 64,
   MAX_CAPTION_LENGTH: 180,
-  GAS_MULTIPLIER: 140,
+  GAS_MULTIPLIER: 100,
 } as const;
 
 // Types
