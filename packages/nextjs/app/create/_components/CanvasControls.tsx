@@ -7,16 +7,17 @@ import {
   ClearOutlined,
   InfoCircleOutlined,
   PlaySquareOutlined,
-  SaveOutlined,
   UndoOutlined,
 } from "@ant-design/icons";
 import { Button, Popconfirm, Popover, Table } from "antd";
 import { Grid } from "antd";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Address } from "viem";
+import { Address, parseEther } from "viem";
 import { useAccount } from "wagmi";
+import { useWatchBalance } from "~~/hooks/scaffold-eth";
 import { CanvasDrawLines, Lines } from "~~/types/canvasDrawing";
 import { shortCutsInfo, shortCutsInfoCols } from "~~/utils/constants";
+import { notification } from "~~/utils/scaffold-eth";
 
 const { useBreakpoint } = Grid;
 
@@ -41,11 +42,20 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
   color,
   brushRadius,
 }) => {
-  const { address: connectedAddress, chain } = useAccount();
+  const { address: connectedAddress, connector, chain } = useAccount();
   const screens = useBreakpoint();
   const isSmall = !screens.sm;
+  const isBurnerWalletConnected = connector?.name === "Burner Wallet";
+
+  const { data: balance } = useWatchBalance({
+    address: connectedAddress,
+  });
 
   const openModal = () => {
+    if (!isBurnerWalletConnected && balance && balance.value < parseEther("0.00000001")) {
+      notification.error("Insufficient balance. Please add funds to your wallet to continue.");
+      return;
+    }
     const modalToggle = document.getElementById("publish-modal") as HTMLInputElement;
     if (modalToggle) modalToggle.checked = true;
   };

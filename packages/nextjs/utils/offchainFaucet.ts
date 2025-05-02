@@ -10,7 +10,7 @@ import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 
-const FAUCET_AMOUNT = process.env.BASE_FAUCET_AMOUNT || "0.00003";
+const MAX_FAUCET_AMOUNT = process.env.BASE_FAUCET_AMOUNT || "0.00003";
 
 const faucetWalletClient = createWalletClient({
   chain: base,
@@ -23,16 +23,20 @@ const publicClient = createPublicClient({
   transport: http(),
 });
 
-export async function fundIfRequired(sendToAddress: string) {
+export async function fundIfRequired(sendToAddress: string, txCost: bigint) {
   if (process.env.FAUCET_ACCOUNT_ADDRESS !== faucetWalletClient.account.address) {
     return { error: "Faucet account address mismatch" };
   }
 
-  const balance = Number(formatEther(await publicClient.getBalance({ address: sendToAddress })));
-
-  if (balance && sendToAddress && balance >= Number(FAUCET_AMOUNT)) {
-    console.log(`Address has enough funding: ${sendToAddress}`);
+  const balance = await publicClient.getBalance({ address: sendToAddress });
+  if (balance > txCost) {
+    // wallet has enough balance
     return { success: "true" };
+  }
+
+  const gasNeeded = txCost - balance;
+  if (gasNeeded > parseEther(MAX_FAUCET_AMOUNT)) {
+    return { error: "Too much gas needed" };
   }
 
   //   Check if address has already received funding
@@ -56,7 +60,7 @@ export async function fundIfRequired(sendToAddress: string) {
     console.log(`Sending funding from ${process.env.FAUCET_ACCOUNT_ADDRESS} to ${sendToAddress}`);
     const hash = await faucetWalletClient.sendTransaction({
       to: sendToAddress,
-      value: parseEther(FAUCET_AMOUNT),
+      value: gasNeeded,
     });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     console.log(`Transaction confirmed in block ${receipt.blockNumber}. Transaction Hash: ${receipt.transactionHash}`);
@@ -64,7 +68,7 @@ export async function fundIfRequired(sendToAddress: string) {
     // Record the funding in the database
     await db.insert(funding).values({
       address: sendToAddress,
-      amount: FAUCET_AMOUNT,
+      amount: formatEther(gasNeeded),
       chain: "base",
       transactionHash: receipt.transactionHash,
     });
@@ -90,7 +94,13 @@ export async function fundAndSignTransaction(
     return { error: "Invalid chain" };
   }
 
-  const fundingResult = await fundIfRequired(burnerWalletAddress);
+  if (!transaction.gas || !transaction.maxFeePerGas) {
+    return { error: "Missing gas parameters" };
+  }
+
+  const txCost = transaction.gas * transaction.maxFeePerGas;
+
+  const fundingResult = await fundIfRequired(burnerWalletAddress, txCost);
   if (fundingResult.error) {
     console.log("Funding check result:", fundingResult.error);
     return { error: fundingResult.error };
@@ -108,6 +118,7 @@ export async function fundAndSignTransaction(
     };
     return { success: "true", result };
   } catch (error) {
+    console.log("error", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to create coin";
 
     return { error: errorMessage };

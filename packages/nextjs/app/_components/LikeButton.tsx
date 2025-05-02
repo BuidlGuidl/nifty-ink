@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { LikeOutlined, LikeTwoTone } from "@ant-design/icons";
 import { Badge, Button } from "antd";
 import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { checkAddressAndFund } from "~~/utils/checkAddressAndFund";
 
 interface LikeButtonProps {
   likeCount?: number;
@@ -23,7 +22,6 @@ export const LikeButton = ({ likeCount, hasLiked, targetId, connectedAddress }: 
     e.preventDefault();
     if (!hasLiked && !minting) {
       setMinting(true);
-      await checkAddressAndFund(connectedAddress);
       try {
         await writeYourContractAsync({
           functionName: "like",
