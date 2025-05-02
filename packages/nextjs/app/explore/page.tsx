@@ -2,23 +2,23 @@
 
 import { Suspense } from "react";
 import Image from "next/image";
-import ExploreGnosisInks from "./_components/ExploreGnosisInks";
-import ExploreZoraInks from "./_components/ExploreZoraInks";
+import ExploreGnosisInks from "../_components/ExploreGnosisInks";
+import ExploreZoraInks from "../_components/ExploreZoraInks";
 import { Tabs, TabsProps } from "antd";
 import type { NextPage } from "next";
 import Loader from "~~/components/Loader";
 import { useSearchParamsHandler } from "~~/hooks/useSearchParamsHandler";
 import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
 
-const HomeWithSuspense = () => {
+const ExploreWithSuspense = () => {
   return (
     <Suspense fallback={<Loader />}>
-      <Home />
+      <Explore />
     </Suspense>
   );
 };
 
-const Home: NextPage = () => {
+const Explore: NextPage = () => {
   const { paramValue: platform, updateSearchParam: setPlatform } = useSearchParamsHandler("platform", "niftyink");
 
   const handleModeChange = (key: string) => {
@@ -51,4 +51,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default HomeWithSuspense;
+export default ExploreWithSuspense;
