@@ -7,7 +7,7 @@ export const InkingFreeButton = () => {
         <BanknotesIcon className="h-4 w-4" />
       </div>
       <ul tabIndex={0} className="dropdown-content menu bg-base-200 mt-5 rounded-lg z-[1] w-36 shadow">
-        🎨 Inking is free! 🎉
+        🎨 Inking is free for burner wallets! 🎉
       </ul>
     </div>
   );

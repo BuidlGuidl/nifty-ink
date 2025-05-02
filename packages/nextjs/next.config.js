@@ -10,7 +10,7 @@ const nextConfig = {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
   images: {
-    domains: ['gateway.nifty.ink']
+    domains: ["gateway.nifty.ink"],
   },
   webpack: config => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
@@ -19,12 +19,16 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-        {
-            source: '/leaderboard',
-            destination: '/leaderboard/artists'
-        }
+      {
+        source: "/leaderboard",
+        destination: "/leaderboard/artists",
+      },
+      {
+        source: "/",
+        destination: "/create",
+      },
     ];
-}
+  },
 };
 
 module.exports = nextConfig;
