@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
+import { ValidMetadataURI, getCoinCreateFromLogs, validateMetadataURIContent } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
 import { createWalletClient, encodeFunctionData, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -17,12 +17,14 @@ import { notification } from "~~/utils/scaffold-eth";
 
 // Constants
 const CONSTANTS = {
-  IPFS_BASE_URL: "ipfs://",
-  VIEW_INK_URL: "https://view.nifty.ink/ink/",
+  METADATA_BASE_URL: "https://metadata.nifty.ink/ipfs/",
+  IMAGE_BASE_URL: "ipfs://",
+  VIEW_INK_BASE_URL: "https://view.nifty.ink/ink/",
   PLATFORM_REFERRER: baseAddressPlatformReferrer,
   MAX_TITLE_LENGTH: 64,
   MAX_CAPTION_LENGTH: 180,
   GAS_MULTIPLIER: 100,
+  CAPTION_SUFFIX: " Create your own on https://nifty.ink",
 } as const;
 
 // Types
@@ -93,13 +95,13 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
 
     const inkMetadataJson = {
       name: formData.title,
-      description: formData.caption,
+      description: formData.caption + CONSTANTS.CAPTION_SUFFIX,
       content: {
         mime: "text/html",
-        uri: `${CONSTANTS.VIEW_INK_URL}${uploadedDrawing.cid}`,
+        uri: `${CONSTANTS.VIEW_INK_BASE_URL}${uploadedDrawing.cid}`,
       },
-      image: `${CONSTANTS.IPFS_BASE_URL}${uploadedImage.cid}`,
-      animation_url: `${CONSTANTS.VIEW_INK_URL}${uploadedDrawing.cid}`,
+      image: `${CONSTANTS.IMAGE_BASE_URL}${uploadedImage.cid}`,
+      animation_url: `${CONSTANTS.VIEW_INK_BASE_URL}${uploadedDrawing.cid}`,
     };
 
     const uploadedInkMetadata = await uploadToIPFS(inkMetadataJson, "json");
@@ -113,13 +115,16 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
     const createCoinParams = {
       name: formData.title,
       symbol: formData.title,
-      uri: `ipfs://${inkMetadataCID}`,
+      uri: `${CONSTANTS.METADATA_BASE_URL}${inkMetadataCID}`,
       payoutRecipient: connectedAddress,
       owners: [connectedAddress],
       platformReferrer: CONSTANTS.PLATFORM_REFERRER,
     };
     notification.info("Preparing transaction");
-    const createCoinRequest = await customCreateCoinCall(createCoinParams);
+    const createCoinRequest = customCreateCoinCall(createCoinParams);
+    const validatedUri = await validateMetadataURIContent(createCoinParams.uri as ValidMetadataURI);
+    console.log(`URI validation: ${createCoinParams.uri} -> ${validatedUri}`);
+    if (!validatedUri) throw new Error("Invalid metadata URI");
 
     if (isBurnerWalletConnected) {
       if (!pk) throw new Error("No private key provided");

@@ -71,6 +71,11 @@ export async function addToIPFS(fileToUpload: any) {
 
 export function getFetchableUrl(uri: string): string {
   if (uri.startsWith("http://")) return "";
+  if (uri.startsWith("https://niftyink.bgipfs.com")) {
+    const ipfsHash = uri.split("ipfs/").pop();
+    const gatewayUrl = `https://${ipfsHash}.ipfs.niftyink.bgipfs.com`;
+    return gatewayUrl;
+  }
   if (uri.startsWith("https://")) return uri;
 
   const ipfsHash = uri.split("ipfs://").pop();
