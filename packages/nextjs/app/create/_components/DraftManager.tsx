@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Popconfirm, Tooltip, Upload, UploadFile, UploadProps } from "antd";
+import { Button, Popconfirm, Upload, UploadFile, UploadProps } from "antd";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -55,6 +55,12 @@ export const DraftManager: React.FC<DraftManagerProps> = ({ drawingCanvas, saveD
       } else if (file.status === "error") {
         notification.error("file upload failed");
       }
+    },
+    customRequest({ onSuccess }) {
+      // Prevent actual upload behavior, simulate success
+      setTimeout(() => {
+        onSuccess?.("ok");
+      }, 0);
     },
   };
   return (
