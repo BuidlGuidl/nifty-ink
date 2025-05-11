@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { LinkOutlined, XOutlined } from "@ant-design/icons";
+import { IconWrapper } from "./_components/IconWrapper";
+import { HoldersIcon, MarketCapIcon, VolumeIcon } from "./_components/icons";
 import { getCoin } from "@zoralabs/coins-sdk";
-import { Button } from "antd";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
-import CopyToClipboard from "react-copy-to-clipboard";
 import { base } from "viem/chains";
 import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
@@ -33,8 +32,10 @@ type ZoraToken = {
   totalSupply: string;
   totalVolume: string;
   volume24h: string;
+  marketCap: string;
   createdAt?: string;
   creatorAddress?: string;
+  uniqueHolders: number;
   tokenUri?: string;
   zoraComments: any;
 };
@@ -167,29 +168,17 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
         />
       </div>
       <div className="flex justify-between gap-1 w-full" style={{ width: calculatedCanvaSize }}>
-        <div></div>
-        <div className="flex gap-2">
-          <Button
-            shape="circle"
-            onClick={() => {
-              const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                "Check out my drawing here:",
-              )}&url=${encodeURIComponent(`https://nifty.ink/zora/${coinAddress}`)}${`&hashtags=${encodeURIComponent(
-                "handmade #onchain",
-              )}`}${`&via=${encodeURIComponent("NiftyInk")}`}`;
-              window.open(twitterUrl, "_blank");
-            }}
-            icon={<XOutlined />}
-          />
-          <CopyToClipboard text={`https://nifty.ink/zora/${coinAddress}`}>
-            <Button shape="circle" className="border-2" icon={<LinkOutlined />} />
-          </CopyToClipboard>
+        <div className="flex items-center gap-2">
+          <IconWrapper icon={<MarketCapIcon className="w-6 h-6" />} text={`$${zoraToken?.marketCap}`} />
+          <IconWrapper icon={<VolumeIcon className="w-6 h-6" />} text={`$${zoraToken?.totalVolume}`} />
+          <IconWrapper icon={<HoldersIcon className="w-6 h-6" />} text={`${zoraToken?.uniqueHolders}`} />
+        </div>
+        <div className="flex gap-2 mt-1">
+          <button className="bg-[#2BF738] border-1 shadow-[0_0_0_1px_rgba(144,238,144,0.5)] hover:bg-green-500 text-black text-sm font-semibold rounded-lg px-4 py-2 transition">
+            Buy
+          </button>
         </div>
       </div>
-
-      {/* {dataRaw?.ink && (
-        <ArtistInfo artistId={dataRaw.ink.artist.id} createdAt={dataRaw.ink.createdAt} />
-      )} */}
     </div>
   );
 };
