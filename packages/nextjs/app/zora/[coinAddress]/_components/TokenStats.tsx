@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { IconWrapper } from "./IconWrapper";
+import { TradeTokenModal } from "./TradeTokenModal";
 import { HoldersIcon, MarketCapIcon, VolumeIcon } from "./icons";
 
 export const TokenStats = ({
@@ -9,17 +11,26 @@ export const TokenStats = ({
   marketCap?: string;
   totalVolume?: string;
   uniqueHolders?: number;
-}) => (
-  <div className="flex justify-between gap-1 w-full">
-    <div className="flex items-center gap-2">
-      <IconWrapper icon={<MarketCapIcon className="w-6 h-6" />} text={`$${marketCap}`} />
-      <IconWrapper icon={<VolumeIcon className="w-6 h-6" />} text={`$${totalVolume}`} />
-      <IconWrapper icon={<HoldersIcon className="w-6 h-6" />} text={`${uniqueHolders}`} />
+}) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const modalId = "buy-modal";
+
+  return (
+    <div className="flex justify-between gap-1 w-full">
+      <div className="flex items-center gap-2">
+        <IconWrapper icon={<MarketCapIcon className="w-6 h-6" />} text={`$${marketCap}`} />
+        <IconWrapper icon={<VolumeIcon className="w-6 h-6" />} text={`$${totalVolume}`} />
+        <IconWrapper icon={<HoldersIcon className="w-6 h-6" />} text={`${uniqueHolders}`} />
+      </div>
+      <div className="flex gap-2 mt-1">
+        <label
+          htmlFor={modalId}
+          className="bg-[#2BF738] border-1 shadow-[0_0_0_1px_rgba(144,238,144,0.5)] hover:bg-green-500 text-black text-sm font-semibold rounded-lg px-4 py-2 transition cursor-pointer"
+        >
+          Buy
+        </label>
+        <TradeTokenModal modalId={modalId} />
+      </div>
     </div>
-    <div className="flex gap-2 mt-1">
-      <button className="bg-[#2BF738] border-1 shadow-[0_0_0_1px_rgba(144,238,144,0.5)] hover:bg-green-500 text-black text-sm font-semibold rounded-lg px-4 py-2 transition">
-        Buy
-      </button>
-    </div>
-  </div>
-);
+  );
+};
