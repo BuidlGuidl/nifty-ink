@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { base } from "wagmi/chains";
-import { IntegerInput } from "~~/components/scaffold-eth";
+import { TokenAmountInput } from "~~/app/zora/[coinAddress]/_components/TokenAmountInput";
 import { useWatchBalance } from "~~/hooks/scaffold-eth";
 
-const ActionButton = ({ isBuy, handleClick }: { isBuy: boolean; handleClick: (isBuy: boolean) => void }) => {
+const BuySellToggle = ({ isBuy, handleClick }: { isBuy: boolean; handleClick: (isBuy: boolean) => void }) => {
   return (
     <div className="flex gap-2">
       <button
-        className={`btn btn-sm text-sm font-medium rounded-lg ${
-          isBuy ? "bg-[#2BF738] hover:bg-[#2BF738]" : "btn-ghost"
+        className={`btn btn-sm text-black font-medium rounded-lg ${
+          isBuy ? "bg-[#2BF738] hover:bg-[#2BF738]" : "btn-ghost dark:text-white"
         }`}
         onClick={() => handleClick(true)}
       >
         Buy
       </button>
       <button
-        className={`btn btn-sm text-sm font-medium rounded-lg ${
-          isBuy ? "btn-ghost" : "bg-[#FF00F0] hover:bg-[#FF00F0]"
+        className={`btn btn-sm text-black  text-sm font-medium rounded-lg ${
+          isBuy ? "btn-ghost dark:text-white" : "bg-[#FF00F0] hover:bg-[#FF00F0]"
         }`}
         onClick={() => handleClick(false)}
       >
@@ -48,9 +48,9 @@ export const TradeTokenModal = ({ modalId }: { modalId: string }) => {
         <label className="modal-box relative max-w-md w-full p-0 overflow-visible">
           {/* dummy input to capture event onclick on modal box */}
           <input className="h-0 w-0 absolute top-0 left-0" />
-          <div className="bg-white rounded-3xl p-4 w-full max-w-md shadow-lg flex flex-col items-center">
+          <div className="rounded-3xl p-4 w-full max-w-md shadow-lg flex flex-col items-center">
             <div className="flex w-full mb-4">
-              <ActionButton isBuy={isBuy} handleClick={handleClick} />
+              <BuySellToggle isBuy={isBuy} handleClick={handleClick} />
               <div className="w-full flex justify-end mb-1 pr-1">
                 {isBalanceLoading ? (
                   <span className="animate-pulse">Loading balance...</span>
@@ -61,20 +61,14 @@ export const TradeTokenModal = ({ modalId }: { modalId: string }) => {
                 )}
               </div>
             </div>
+            <TokenAmountInput
+              value={amount}
+              onChange={setAmount}
+              tokenSymbol={"ETH"}
+              balance={balance?.formatted ?? "0"}
+            />
             <div className="flex flex-col w-full items-center mb-4">
-              <div className="flex w-full items-center justify-center mb-4">
-                {/* <IntegerInput value={amount} onChange={setAmount} disableMultiplyBy1e18 /> */}
-                <div className="flex items-center px-4 py-2 gap-2">
-                  <span className="font-semibold">ETH</span>
-                </div>
-              </div>
-              <div className="flex w-full gap-2 mb-2">
-                <button className="btn btn-outline btn-sm flex-1">0.001 ETH</button>
-                <button className="btn btn-outline btn-sm flex-1">0.01 ETH</button>
-                <button className="btn btn-outline btn-sm flex-1">0.1 ETH</button>
-                <button className="btn btn-outline btn-sm flex-1">Max</button>
-              </div>
-              <button className="btn w-full bg-[#2BF738] hover:bg-green-500 text-black font-bold text-lg rounded-xl mt-2 border-none">
+              <button className="btn w-full bg-[#2BF738] hover:bg-green-500 text-black font-semibold rounded-xl mt-2 border-none">
                 Buy
               </button>
             </div>
