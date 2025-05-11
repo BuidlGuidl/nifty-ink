@@ -130,7 +130,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
         <InkHeader name={metadata?.name} playClick={playClick} isDrawing={isDrawing} />
       ) : (
         <div className="flex items-center w-full max-w-md animate-pulse mx-auto">
-          <div className="h-6 bg-gray-200 rounded w-2/3 mb-4 mx-auto"></div>
+          <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
         </div>
       )}
       <div className="relative">
@@ -144,7 +144,9 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
           height={calculatedCanvaSize}
           src={`${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${metadata?.image.split("ipfs://").pop()}`}
           alt="Your drawing"
-          className={`bg-white absolute top-0 left-0 ${isDrawing ? "opacity-0" : "opacity-100"}`}
+          className={`bg-white absolute top-0 left-0 transition-opacity duration-150 ${
+            isDrawing ? "opacity-0" : "opacity-100"
+          }`}
         />
         <CanvasDraw
           ref={drawingCanvas}
@@ -164,7 +166,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
               console.log(e);
             }
           }}
-          className={`${isDrawing ? "opacity-100" : "opacity-0"}`}
+          className={`transition-opacity duration-150 ${isDrawing ? "opacity-100" : "opacity-0"}`}
         />
       </div>
       <div className="flex justify-between gap-1 w-full" style={{ width: calculatedCanvaSize }}>
