@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { useAccount } from "wagmi";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { erc20Abi, formatEther } from "viem";
+import { useAccount, useReadContract } from "wagmi";
 import { base } from "wagmi/chains";
 import { TokenAmountInput } from "~~/app/zora/[coinAddress]/_components/TokenAmountInput";
 import { useWatchBalance } from "~~/hooks/scaffold-eth";
@@ -27,7 +29,13 @@ const BuySellToggle = ({ isBuy, handleClick }: { isBuy: boolean; handleClick: (i
   );
 };
 
-export const TradeTokenModal = ({ modalId }: { modalId: string }) => {
+type TradeTokenModalProps = {
+  modalId: string;
+  tokenImage?: string;
+  coinAddress: string;
+};
+
+export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeTokenModalProps) => {
   const { address } = useAccount();
   const [amount, setAmount] = useState<string>("");
   const [isBuy, setIsBuy] = useState<boolean>(true);
@@ -37,8 +45,21 @@ export const TradeTokenModal = ({ modalId }: { modalId: string }) => {
     chainId: base.id,
   });
 
+  const { data: tokenBalance, refetch } = useReadContract({
+    address: coinAddress,
+    chainId: base.id,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address || ""],
+  });
+
+  useEffect(() => {
+    refetch();
+  }, [address]);
+
   const handleClick = (isBuy: boolean) => {
     setIsBuy(isBuy);
+    setAmount("");
   };
 
   return (
@@ -75,10 +96,13 @@ export const TradeTokenModal = ({ modalId }: { modalId: string }) => {
             {isBuy && (
               <div className="flex w-full justify-between items-center text-gray-400 text-sm mt-2">
                 <span>Minimum received</span>
-                <span className="flex items-center gap-1 font-semibold text-black">
-                  <img src="https://i.imgur.com/your-token-image.png" alt="token" className="w-5 h-5 rounded-full" />
-                  3,632,877
-                </span>
+                {tokenImage && (
+                  <span className="flex items-center gap-1 font-semibold text-black">
+                    <Image src={tokenImage} alt="token" className="w-5 h-5" width={20} height={20} />
+                    {/* TODO: UPDATE TO USE THE TOKEN BALANCE */}
+                    {tokenBalance ? `${formatEther(tokenBalance)}` : "0"}
+                  </span>
+                )}
               </div>
             )}
           </div>

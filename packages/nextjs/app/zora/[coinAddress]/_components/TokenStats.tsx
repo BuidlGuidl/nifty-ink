@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { IconWrapper } from "./IconWrapper";
-import { TradeTokenModal } from "./TradeTokenModal";
 import { HoldersIcon, MarketCapIcon, VolumeIcon } from "./icons";
 
 export const TokenStats = ({
@@ -12,7 +10,6 @@ export const TokenStats = ({
   totalVolume?: string;
   uniqueHolders?: number;
 }) => {
-  const [modalOpen, setModalOpen] = useState(false);
   const modalId = "buy-modal";
 
   return (
@@ -29,7 +26,6 @@ export const TokenStats = ({
         >
           Buy
         </label>
-        <TradeTokenModal modalId={modalId} />
       </div>
     </div>
   );

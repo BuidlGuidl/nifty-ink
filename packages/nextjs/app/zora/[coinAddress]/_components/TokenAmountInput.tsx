@@ -11,13 +11,14 @@ export const TokenAmountInput = ({ value, onChange, tokenSymbol = "ETH", balance
     const currentAmount = parseFloat(value) || 0;
     const addAmount = parseFloat(amountToAdd);
     const newAmount = currentAmount + addAmount;
-    onChange(newAmount.toString());
+    const roundedAmount = parseFloat(newAmount.toFixed(10)); // <-- Rounds to 2 decimal places
+    onChange(roundedAmount.toString());
   };
 
   // Handle max click by setting to max balance minus a small buffer
   const handleMaxClick = () => {
     if (balance) {
-      const maxBuffer = 0.000001;
+      const maxBuffer = 0.0000015;
 
       const maxAmount = parseFloat(balance);
       // Subtract buffer amount to avoid "insufficient funds" errors
@@ -25,7 +26,7 @@ export const TokenAmountInput = ({ value, onChange, tokenSymbol = "ETH", balance
       const safeMaxAmount = maxAmount - bufferAmount;
       // Ensure we don't go below zero
       const finalAmount = Math.max(0, safeMaxAmount);
-      onChange(finalAmount.toFixed(6));
+      onChange(finalAmount.toFixed(10));
     }
   };
 
@@ -37,7 +38,7 @@ export const TokenAmountInput = ({ value, onChange, tokenSymbol = "ETH", balance
           value={value}
           onChange={e => onChange(e.target.value)}
           className="bg-base-200 w-full px-4 py-4 text-3xl font-bold text-left rounded-xl focus:outline-none"
-          placeholder="0,000111"
+          placeholder="0.0"
         />
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
           <div className="flex items-center gap-2 bg-base-100 border border-gray-200 rounded-lg px-3 py-1.5 z-10">

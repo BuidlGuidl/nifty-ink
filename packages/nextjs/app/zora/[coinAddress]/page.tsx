@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { TokenStats } from "./_components/TokenStats";
+import { TradeTokenModal } from "./_components/TradeTokenModal";
 import { useZoraDrawing } from "./_hooks/useZoraDrawing";
 import CanvasDraw from "react-canvas-draw";
 import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { getFetchableUrl } from "~~/utils/ipfs";
 
 const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
   const { isLoading, error, drawingData, metadata, zoraToken, totalLines, fetchAndShowDrawing } = useZoraDrawing(
@@ -86,6 +88,12 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
           marketCap={zoraToken?.marketCap}
           totalVolume={zoraToken?.totalVolume}
           uniqueHolders={zoraToken?.uniqueHolders}
+        />
+
+        <TradeTokenModal
+          modalId={"buy-modal"}
+          tokenImage={getFetchableUrl(metadata?.image || "")}
+          coinAddress={params.coinAddress}
         />
       </div>
     </div>
