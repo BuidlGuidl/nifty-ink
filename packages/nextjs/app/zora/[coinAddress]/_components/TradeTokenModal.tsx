@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { BuyCoinComponent } from "./BuySellButtons";
-import { erc20Abi, parseEther } from "viem";
+import { TradeTokenButton } from "./TradeTokenButton";
+import { erc20Abi, formatEther, parseEther } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import { base } from "wagmi/chains";
-import { TokenAmountInput } from "~~/app/zora/[coinAddress]/_components/TokenAmountInput";
+import { BuyTokenAmountInput, SellTokenAmountInput } from "~~/app/zora/[coinAddress]/_components/TokenAmountInput";
 import { useWatchBalance } from "~~/hooks/scaffold-eth";
 
 const BuySellToggle = ({ isBuy, handleClick }: { isBuy: boolean; handleClick: (isBuy: boolean) => void }) => {
@@ -18,8 +18,8 @@ const BuySellToggle = ({ isBuy, handleClick }: { isBuy: boolean; handleClick: (i
         Buy
       </button>
       <button
-        className={`btn btn-sm text-black  text-sm font-medium rounded-lg ${
-          isBuy ? "btn-ghost dark:text-white" : "bg-[#FF00F0] hover:bg-[#FF00F0]"
+        className={`btn btn-sm text-sm font-medium rounded-lg ${
+          isBuy ? "btn-ghost text-black" : "text-white bg-[#FF00F0] hover:bg-[#FF00F0]"
         }`}
         onClick={() => handleClick(false)}
       >
@@ -53,9 +53,16 @@ export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeToken
     args: [address || ""],
   });
 
+  const isSufficient = isBuy ? (balance?.value ?? 0n) > parseEther(amount) : (tokenBalance ?? 0n) > parseEther(amount);
+
   useEffect(() => {
     refetch();
   }, [address]);
+
+  const handleTrade = () => {
+    setAmount("");
+    refetch();
+  };
 
   const handleChangeAmount = (value: string) => {
     // add check to see if the value is a number
@@ -64,7 +71,6 @@ export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeToken
     }
 
     setAmount(value);
-    setIsBuy(true);
   };
 
   const handleClick = (isBuy: boolean) => {
@@ -87,23 +93,38 @@ export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeToken
                   <span className="animate-pulse">Loading balance...</span>
                 ) : (
                   <div className="flex items-center gap-2 text-sm">
-                    <span>Balance: {balance ? `${Number(balance.formatted).toFixed(6)} ETH` : "0 ETH"}</span>
+                    {isBuy ? (
+                      <span>Balance: {balance ? `${Number(balance.formatted).toFixed(6)} ETH` : "0 ETH"}</span>
+                    ) : (
+                      <span>Balance: {tokenBalance ? `${Number(formatEther(tokenBalance)).toFixed(4)}` : "0 "}</span>
+                    )}
                   </div>
                 )}
               </div>
             </div>
-            <TokenAmountInput
-              value={amount}
-              onChange={handleChangeAmount}
-              tokenSymbol={"ETH"}
-              balance={balance?.formatted ?? "0"}
-            />
+            {isBuy ? (
+              <BuyTokenAmountInput
+                value={amount}
+                onChange={handleChangeAmount}
+                tokenSymbol={"ETH"}
+                balance={balance?.formatted ?? "0"}
+              />
+            ) : (
+              <SellTokenAmountInput
+                value={amount}
+                onChange={handleChangeAmount}
+                tokenImage={tokenImage}
+                balance={tokenBalance ?? 0n}
+              />
+            )}
             <div className="flex flex-col w-full items-center mb-4">
-              <BuyCoinComponent
+              <TradeTokenButton
+                direction={isBuy ? "buy" : "sell"}
                 coinAddress={coinAddress}
                 connectedAddress={address || ""}
                 amount={amount}
-                isSufficient={balance?.value ? balance.value > parseEther(amount) : false}
+                isSufficient={isSufficient}
+                onTrade={handleTrade}
               />
             </div>
 

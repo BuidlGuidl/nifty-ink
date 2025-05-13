@@ -7,31 +7,38 @@ import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
 
 // In your component
-export const BuyCoinComponent = ({
+export const TradeTokenButton = ({
+  direction,
   coinAddress,
   connectedAddress,
   amount,
   isSufficient,
+  onTrade,
 }: {
+  direction: "buy" | "sell";
   coinAddress: Address;
   connectedAddress: Address;
   amount: string;
   isSufficient: boolean;
+  onTrade: () => void;
 }) => {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient({ chainId: base.id });
+  const buttonText = direction === "buy" ? "Buy" : "Sell";
+  const buttonColor = direction === "buy" ? "bg-[#2BF738]" : "bg-[#FF00F0]";
+  const textColor = direction === "buy" ? "text-black" : "text-white";
 
   const [isPending, setIsPending] = useState(false);
 
-  const handleBuy = async () => {
+  const handleTrade = async () => {
     // Define trade parameters
     const tradeParams = {
-      direction: "buy" as const,
+      direction: direction,
       target: coinAddress as Address,
       args: {
         recipient: connectedAddress as Address,
         orderSize: parseEther(amount),
-        minAmountOut: 0n,
+        minAmountOut: 0n, // TODO: Add min amount out when we have an expected amount out
         tradeReferrer: baseAddressPlatformReferrer as Address,
       },
     };
@@ -53,6 +60,7 @@ export const BuyCoinComponent = ({
           )}
         </>,
       );
+      onTrade();
     } catch (error) {
       const parsedError = getParsedError(error);
       notification.error(parsedError);
@@ -71,11 +79,11 @@ export const BuyCoinComponent = ({
 
   return (
     <button
-      onClick={handleBuy}
+      onClick={handleTrade}
       disabled={isPending}
-      className="btn w-full bg-[#2BF738] disabled:bg-[#2BF738] hover:bg-green-500 text-black font-semibold rounded-xl mt-2 border-none"
+      className={`btn w-full ${buttonColor} disabled:bg-${buttonColor} hover:${buttonColor} hover:brightness-95 ${textColor} text-lg font-medium rounded-xl mt-2 border-none`}
     >
-      {isPending ? <span className="loading loading-spinner loading-sm"></span> : "Buy"}
+      {isPending ? <span className="loading loading-spinner loading-sm"></span> : buttonText}
     </button>
   );
 };
