@@ -11,7 +11,7 @@ export const TokenAmountInput = ({ value, onChange, tokenSymbol = "ETH", balance
     const currentAmount = parseFloat(value) || 0;
     const addAmount = parseFloat(amountToAdd);
     const newAmount = currentAmount + addAmount;
-    const roundedAmount = parseFloat(newAmount.toFixed(10)); // <-- Rounds to 2 decimal places
+    const roundedAmount = parseFloat(newAmount.toFixed(10));
     onChange(roundedAmount.toString());
   };
 
