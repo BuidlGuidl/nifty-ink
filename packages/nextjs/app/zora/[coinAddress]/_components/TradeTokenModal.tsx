@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import { erc20Abi, formatEther } from "viem";
+import { BuyCoinComponent } from "./BuySellButtons";
+import { erc20Abi, parseEther } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import { base } from "wagmi/chains";
 import { TokenAmountInput } from "~~/app/zora/[coinAddress]/_components/TokenAmountInput";
@@ -57,6 +57,16 @@ export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeToken
     refetch();
   }, [address]);
 
+  const handleChangeAmount = (value: string) => {
+    // add check to see if the value is a number
+    if (isNaN(Number(value))) {
+      return;
+    }
+
+    setAmount(value);
+    setIsBuy(true);
+  };
+
   const handleClick = (isBuy: boolean) => {
     setIsBuy(isBuy);
     setAmount("");
@@ -84,27 +94,21 @@ export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeToken
             </div>
             <TokenAmountInput
               value={amount}
-              onChange={setAmount}
+              onChange={handleChangeAmount}
               tokenSymbol={"ETH"}
               balance={balance?.formatted ?? "0"}
             />
             <div className="flex flex-col w-full items-center mb-4">
-              <button className="btn w-full bg-[#2BF738] hover:bg-green-500 text-black font-semibold rounded-xl mt-2 border-none">
-                Buy
-              </button>
+              <BuyCoinComponent
+                coinAddress={coinAddress}
+                connectedAddress={address || ""}
+                amount={amount}
+                isSufficient={balance?.value ? balance.value > parseEther(amount) : false}
+              />
             </div>
-            {isBuy && (
-              <div className="flex w-full justify-between items-center text-gray-400 text-sm mt-2">
-                <span>Minimum received</span>
-                {tokenImage && (
-                  <span className="flex items-center gap-1 font-semibold text-black">
-                    <Image src={tokenImage} alt="token" className="w-5 h-5" width={20} height={20} />
-                    {/* TODO: UPDATE TO USE THE TOKEN BALANCE */}
-                    {tokenBalance ? `${formatEther(tokenBalance)}` : "0"}
-                  </span>
-                )}
-              </div>
-            )}
+
+            {/* Simulate buy doesn't work.  */}
+            {/* <ExpectedAmount isBuy={isBuy} tokenImage={tokenImage} tokenBalance={tokenBalance} /> */}
           </div>
         </label>
       </label>
