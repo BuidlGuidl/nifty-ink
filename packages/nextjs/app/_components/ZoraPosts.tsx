@@ -23,12 +23,7 @@ const ZoraPosts: React.FC<ZoraPostsProps> = ({ isLoading, posts }) => {
           key={`${post.name}-${index}`}
           className="border-2 border-gray-200 rounded-lg p-2 transition-transform hover:scale-105 w-full"
         >
-          <Link
-            href={`https://zora.co/coin/base:${post.contractAddress}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full"
-          >
+          <Link href={{ pathname: "/zora/" + post.contractAddress }} className="block w-full">
             <div className="aspect-square w-full">
               <LazyImage
                 uri={post?.uri}
