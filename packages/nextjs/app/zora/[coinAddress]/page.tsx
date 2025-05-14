@@ -66,9 +66,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
             height={calculatedCanvaSize}
             src={zoraToken.mediaContent.previewImage.medium}
             alt={zoraToken.name || "Zora ink"}
-            className={`bg-white absolute top-0 left-0 transition-opacity duration-150 ${
-              isDrawing ? "opacity-0" : "opacity-100"
-            }`}
+            className={`bg-white absolute top-0 left-0 ${isDrawing ? "opacity-0" : "opacity-100"}`}
           />
         )}
         <CanvasDraw
@@ -87,7 +85,6 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
               setIsDrawing(false);
             }
           }}
-          className={`transition-opacity duration-150 ${isDrawing ? "opacity-100" : "opacity-0"}`}
         />
       </div>
       <div style={{ width: calculatedCanvaSize }}>
