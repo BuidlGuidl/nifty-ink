@@ -17,17 +17,13 @@ export const fetchCoinData = async (coinAddress: string): Promise<ZoraToken> => 
 };
 
 export const fetchMetadata = async (tokenUri: string): Promise<Metadata> => {
-  const inkId = tokenUri.split("/ipfs/").pop();
+  let inkId = tokenUri.split("/ipfs/").pop();
+  inkId = inkId?.split("ipfs://").pop();
   if (!inkId) {
     throw new Error("Invalid token URI format");
   }
 
-  let url = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${inkId}`;
-
-  // Special case handling should be moved to a config file
-  if (inkId === "bafybeiaxw4zkw57lsc7iueyxpzwalb2rxdr5dx4vervynjhwgxagbbdeli") {
-    url = "https://bafkreifhnbmjsb4c4cobi2bk4x2vikityhqcwzv6nprs3sd3i2qk5xlqne.ipfs.community.bgipfs.com/";
-  }
+  const url = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${inkId}`;
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -43,7 +39,12 @@ export const fetchDrawingContent = async (metadata: Metadata): Promise<string> =
     throw new Error("Invalid ink URI format");
   }
 
-  const inkUrl = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${inkPath}`;
+  let inkUrl = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${inkPath}`;
+  // Special case handling should be moved to a config file
+  console.log("inkPath", inkPath);
+  if (inkPath === "bafybeiaxw4zkw57lsc7iueyxpzwalb2rxdr5dx4vervynjhwgxagbbdeli") {
+    inkUrl = "https://bafkreifhnbmjsb4c4cobi2bk4x2vikityhqcwzv6nprs3sd3i2qk5xlqne.ipfs.community.bgipfs.com/";
+  }
   const response = await fetch(inkUrl);
 
   if (!response.ok) {

@@ -82,3 +82,15 @@ export function getFetchableUrl(uri: string): string {
   const gatewayUrl = `https://gateway.nifty.ink:42069/ipfs/${ipfsHash}`;
   return gatewayUrl;
 }
+
+export function getImageUrl(uri: string): string {
+  if (uri === "") return "";
+  if (uri.startsWith("https://niftyink.bgipfs.com")) {
+    const ipfsHash = uri.split("ipfs/").pop();
+    const gatewayUrl = `https://${ipfsHash}.ipfs.niftyink.bgipfs.com`;
+    return gatewayUrl;
+  }
+  let imageCID = uri.split("ipfs/").pop();
+  imageCID = imageCID?.split("ipfs://").pop();
+  return `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${imageCID}`;
+}

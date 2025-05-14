@@ -10,7 +10,13 @@ const nextConfig = {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
   images: {
-    domains: ["gateway.nifty.ink", "metadata.nifty.ink"],
+    domains: ["gateway.nifty.ink", "metadata.nifty.ink", "niftyink.bgipfs.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.ipfs.niftyink.bgipfs.com",
+      }
+    ],
   },
   webpack: config => {
     config.resolve.fallback = { fs: false, net: false, tls: false };

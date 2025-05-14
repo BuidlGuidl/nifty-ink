@@ -9,7 +9,7 @@ import CanvasDraw from "react-canvas-draw";
 import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
-import { getFetchableUrl } from "~~/utils/ipfs";
+import { getImageUrl } from "~~/utils/ipfs";
 
 const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
   const { isLoading, error, drawingData, metadata, zoraToken, totalLines, fetchAndShowDrawing } = useZoraDrawing(
@@ -59,7 +59,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
           <Image
             width={calculatedCanvaSize}
             height={calculatedCanvaSize}
-            src={`${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${(metadata.image as string).split("ipfs://").pop()}`}
+            src={getImageUrl(metadata.image)}
             alt="Your drawing"
             className={`bg-white absolute top-0 left-0 transition-opacity duration-150 ${
               isDrawing ? "opacity-0" : "opacity-100"
@@ -92,7 +92,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
 
         <TradeTokenModal
           modalId={"buy-modal"}
-          tokenImage={getFetchableUrl(metadata?.image || "")}
+          tokenImage={getImageUrl(metadata?.image || "")}
           coinAddress={params.coinAddress}
         />
       </div>

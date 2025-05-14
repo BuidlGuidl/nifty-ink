@@ -15,9 +15,9 @@ export const TokenStats = ({
   return (
     <div className="flex justify-between gap-1 w-full">
       <div className="flex items-center gap-2">
-        <IconWrapper icon={<MarketCapIcon className="w-6 h-6" />} text={`$${marketCap}`} />
-        <IconWrapper icon={<VolumeIcon className="w-6 h-6" />} text={`$${totalVolume}`} />
-        <IconWrapper icon={<HoldersIcon className="w-6 h-6" />} text={`${uniqueHolders}`} />
+        <IconWrapper icon={<MarketCapIcon className="w-6 h-6" />} text={marketCap ? `$${marketCap}` : "$0"} />
+        <IconWrapper icon={<VolumeIcon className="w-6 h-6" />} text={totalVolume ? `$${totalVolume}` : "$0"} />
+        <IconWrapper icon={<HoldersIcon className="w-6 h-6" />} text={uniqueHolders ? uniqueHolders.toString() : "0"} />
       </div>
       <div className="flex gap-2 mt-1">
         <label
