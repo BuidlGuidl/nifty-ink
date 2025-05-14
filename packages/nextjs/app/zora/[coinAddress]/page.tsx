@@ -22,13 +22,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
   const calculatedCanvaSize = useMemo(() => Math.round(0.7 * Math.min(window.innerWidth, window.innerHeight)), []);
 
   useEffect(() => {
-    fetchAndShowDrawing()
-      .then(({ drawingData }) => {
-        if (drawingCanvas.current) {
-          drawingCanvas.current.loadSaveData(drawingData, true);
-        }
-      })
-      .catch(console.error);
+    fetchAndShowDrawing();
   }, [fetchAndShowDrawing]);
 
   const playClick = useCallback(() => {
@@ -59,7 +53,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
   return (
     <div className="flex flex-col mt-4 items-center">
       {zoraToken ? (
-        <InkHeader zoraToken={zoraToken} playClick={playClick} isDrawing={isDrawing} />
+        <InkHeader zoraToken={zoraToken} playClick={playClick} isDrawing={isDrawing || !drawingData} />
       ) : (
         <div className="flex items-center w-full max-w-md animate-pulse mx-auto">
           <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
@@ -71,7 +65,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
             width={calculatedCanvaSize}
             height={calculatedCanvaSize}
             src={zoraToken.mediaContent.previewImage.medium}
-            alt="Your drawing"
+            alt={zoraToken.name || "Zora ink"}
             className={`bg-white absolute top-0 left-0 transition-opacity duration-150 ${
               isDrawing ? "opacity-0" : "opacity-100"
             }`}
@@ -82,6 +76,8 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
           canvasWidth={calculatedCanvaSize}
           canvasHeight={calculatedCanvaSize}
           disabled={true}
+          saveData={drawingData}
+          immediateLoading={true}
           loadTimeOffset={5}
           hideInterface={true}
           hideGrid={true}
