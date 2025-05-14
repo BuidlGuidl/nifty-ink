@@ -44,7 +44,7 @@ export interface ZoraToken {
   volume24h: string;
   marketCap: string;
   createdAt?: string;
-  creatorAddress?: string;
+  creatorAddress: string;
   uniqueHolders: number;
   tokenUri?: string;
   zoraComments: any; // TODO: Define proper type

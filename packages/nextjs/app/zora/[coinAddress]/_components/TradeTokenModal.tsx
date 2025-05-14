@@ -19,7 +19,7 @@ const BuySellToggle = ({ isBuy, handleClick }: { isBuy: boolean; handleClick: (i
       </button>
       <button
         className={`btn btn-sm text-sm font-medium rounded-lg ${
-          isBuy ? "btn-ghost text-black" : "text-white bg-[#FF00F0] hover:bg-[#FF00F0]"
+          isBuy ? "btn-ghost dark:text-white" : "bg-[#FF00F0] hover:bg-[#FF00F0]"
         }`}
         onClick={() => handleClick(false)}
       >
@@ -54,7 +54,7 @@ export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeToken
     args: [address || ""],
   });
 
-  const isSufficient = isBuy ? (balance?.value ?? 0n) > parseEther(amount) : (tokenBalance ?? 0n) > parseEther(amount);
+  const isSufficient = isBuy ? (balance?.value ?? 0n) > parseEther(amount) : (tokenBalance ?? 0n) >= parseEther(amount);
 
   useEffect(() => {
     refetch();

@@ -38,22 +38,32 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
     return <div className="error-message">Error: {error.message}</div>;
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (!zoraToken) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div>No token found</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col mt-4 items-center">
       {zoraToken ? (
-        // TODO: add skeleton inside InkHeader
-        <InkHeader name={zoraToken.name} playClick={playClick} isDrawing={isDrawing} />
+        <InkHeader zoraToken={zoraToken} playClick={playClick} isDrawing={isDrawing} />
       ) : (
         <div className="flex items-center w-full max-w-md animate-pulse mx-auto">
           <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
         </div>
       )}
       <div className="relative">
-        {isLoading && (
-          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-            <Loader />
-          </div>
-        )}
         {zoraToken?.mediaContent.previewImage.medium && (
           <Image
             width={calculatedCanvaSize}
@@ -83,11 +93,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
         />
       </div>
       <div style={{ width: calculatedCanvaSize }}>
-        <TokenStats
-          marketCap={zoraToken?.marketCap}
-          totalVolume={zoraToken?.totalVolume}
-          uniqueHolders={zoraToken?.uniqueHolders}
-        />
+        <TokenStats zoraToken={zoraToken} />
 
         <TradeTokenModal
           modalId={"buy-modal"}

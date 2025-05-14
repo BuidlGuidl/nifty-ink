@@ -83,7 +83,7 @@ type SellTokenAmountInputProps = {
 export const SellTokenAmountInput = ({ value, onChange, tokenImage, balance }: SellTokenAmountInputProps) => {
   const handlePresetAmountClick = (amountToMultiply: string) => {
     const multiplyAmount = parseFloat(amountToMultiply);
-    const newAmount = formatEther((balance / 100n) * BigInt(multiplyAmount));
+    const newAmount = formatEther((balance * BigInt(multiplyAmount)) / 100n);
     onChange(newAmount);
   };
 
