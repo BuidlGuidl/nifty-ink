@@ -13,17 +13,20 @@ export const TokenStats = ({
   const modalId = "buy-modal";
 
   return (
-    <div className="flex justify-between gap-1 w-full">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col sm:flex-row justify-between gap-2 w-full">
+      <div className="flex flex-wrap items-center gap-2">
         <IconWrapper
-          icon={<MarketCapIcon className="w-6 h-6" />}
+          icon={<MarketCapIcon className="w-4 h-4 sm:w-6 sm:h-6" />}
           text={marketCap ? `$${Number(marketCap).toFixed(2)}` : "$0"}
         />
         <IconWrapper
-          icon={<VolumeIcon className="w-6 h-6" />}
+          icon={<VolumeIcon className="w-5 h-4 sm:w-6 sm:h-6" />}
           text={totalVolume ? `$${Number(totalVolume).toFixed(2)}` : "$0"}
         />
-        <IconWrapper icon={<HoldersIcon className="w-6 h-6" />} text={uniqueHolders ? uniqueHolders.toString() : "0"} />
+        <IconWrapper
+          icon={<HoldersIcon className="w-4 h-4 sm:w-6 sm:h-6" />}
+          text={uniqueHolders ? uniqueHolders.toString() : "0"}
+        />
       </div>
       <div className="flex gap-2 mt-1">
         <label
