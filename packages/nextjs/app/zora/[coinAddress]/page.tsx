@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { TokenStats } from "./_components/TokenStats";
 import { TradeTokenModal } from "./_components/TradeTokenModal";
 import { useZoraDrawing } from "./_hooks/useZoraDrawing";
 import CanvasDraw from "react-canvas-draw";
 import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
+import { Address } from "~~/components/scaffold-eth";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 
 const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
@@ -100,6 +102,20 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
           tokenImage={zoraToken?.mediaContent.previewImage.small || ""}
           coinAddress={params.coinAddress}
         />
+      </div>
+      <div className="flex flex-col items-center text-center mb-5 mt-2">
+        <p className="my-0 text-lg">Artist:</p>
+        <Link href={`/artist/${zoraToken?.creatorAddress}?platform=zora`} className="my-1">
+          <Address address={zoraToken?.creatorAddress} size="xl" disableAddressLink />
+        </Link>
+        <p className="my-0 text-sm">
+          {zoraToken?.createdAt &&
+            new Date(zoraToken?.createdAt).toLocaleString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+        </p>
       </div>
     </div>
   );
