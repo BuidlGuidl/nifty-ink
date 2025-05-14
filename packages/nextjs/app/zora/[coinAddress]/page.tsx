@@ -25,6 +25,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
     fetchAndShowDrawing()
       .then(({ drawingData }) => {
         if (drawingCanvas.current) {
+          console.log("drawingData", JSON.stringify(drawingData).length, totalLines);
           drawingCanvas.current.loadSaveData(drawingData, true);
         }
       })
@@ -87,11 +88,12 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
           hideGrid={true}
           onChange={() => {
             const drawnLines = drawingCanvas?.current?.lines.length;
+            console.log("drawnLines", drawnLines, totalLines);
             if ((drawnLines ?? 0) >= totalLines && isDrawing) {
               setIsDrawing(false);
             }
           }}
-          className={`transition-opacity duration-150 ${isDrawing ? "opacity-100" : "opacity-0"}`}
+          className={`${isDrawing ? "opacity-100" : "opacity-0"}`}
         />
       </div>
       <div style={{ width: calculatedCanvaSize }}>
