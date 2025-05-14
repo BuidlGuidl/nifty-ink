@@ -25,11 +25,8 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
     console.log("fetching drawing");
     fetchAndShowDrawing()
       .then(({ drawingData }) => {
-        console.log("drawingData", JSON.stringify(drawingData).length, totalLines);
-        if (drawingCanvas.current) {
-          console.log("loading drawing");
-          drawingCanvas.current.loadSaveData(drawingData, true);
-        }
+        console.log("drawingData", JSON.stringify(drawingData).length, drawingCanvas);
+        drawingCanvas.current?.loadSaveData(drawingData, true);
       })
       .catch(console.error);
   }, [fetchAndShowDrawing]);
