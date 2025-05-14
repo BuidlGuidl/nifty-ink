@@ -22,10 +22,12 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
   const calculatedCanvaSize = useMemo(() => Math.round(0.7 * Math.min(window.innerWidth, window.innerHeight)), []);
 
   useEffect(() => {
+    console.log("fetching drawing");
     fetchAndShowDrawing()
       .then(({ drawingData }) => {
+        console.log("drawingData", JSON.stringify(drawingData).length, totalLines);
         if (drawingCanvas.current) {
-          console.log("drawingData", JSON.stringify(drawingData).length, totalLines);
+          console.log("loading drawing");
           drawingCanvas.current.loadSaveData(drawingData, true);
         }
       })

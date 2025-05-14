@@ -11,6 +11,7 @@ export const useZoraDrawing = (coinAddress: string) => {
 
   const fetchAndShowDrawing = useCallback(async () => {
     try {
+      console.log("fetching drawing");
       setIsLoading(true);
       setError(null);
 
@@ -24,6 +25,7 @@ export const useZoraDrawing = (coinAddress: string) => {
       const parsedDrawing = JSON.parse(drawingContent);
       setTotalLines(parsedDrawing.lines.length);
       setDrawingData(drawingContent);
+      console.log("received drawing", JSON.stringify(drawingContent).length);
 
       return {
         drawingData: drawingContent,
