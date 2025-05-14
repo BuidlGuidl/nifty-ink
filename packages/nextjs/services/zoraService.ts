@@ -1,9 +1,10 @@
 import { getCoin } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
 import { base } from "viem/chains";
-import { Metadata, ZoraToken } from "~~/types/zora";
+import { Metadata } from "~~/types/zora";
+import { getFetchableUrl } from "~~/utils/ipfs";
 
-export const fetchCoinData = async (coinAddress: string): Promise<ZoraToken> => {
+export const fetchCoinData = async (coinAddress: string) => {
   const coinResponse = await getCoin({
     address: coinAddress,
     chain: base.id,
@@ -33,22 +34,25 @@ export const fetchMetadata = async (tokenUri: string): Promise<Metadata> => {
   return response.json();
 };
 
-export const fetchDrawingContent = async (metadata: Metadata): Promise<string> => {
-  const inkPath = metadata.content.uri.split("/ink/").pop();
-  if (!inkPath) {
+export const fetchDrawingContent = async (link: string): Promise<string> => {
+  const inkCID = link.split("/ink/").pop();
+  if (!inkCID) {
     throw new Error("Invalid ink URI format");
   }
 
-  let inkUrl = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${inkPath}`;
+  let inkUrl = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${inkCID}`;
   // Special case handling should be moved to a config file
-  console.log("inkPath", inkPath);
-  if (inkPath === "bafybeiaxw4zkw57lsc7iueyxpzwalb2rxdr5dx4vervynjhwgxagbbdeli") {
+  if (inkCID === "bafybeiaxw4zkw57lsc7iueyxpzwalb2rxdr5dx4vervynjhwgxagbbdeli") {
     inkUrl = "https://bafkreifhnbmjsb4c4cobi2bk4x2vikityhqcwzv6nprs3sd3i2qk5xlqne.ipfs.community.bgipfs.com/";
   }
-  const response = await fetch(inkUrl);
+  let response = await fetch(inkUrl);
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch drawing content: ${response.statusText}`);
+    const niftyInkUrl = getFetchableUrl(inkCID);
+    response = await fetch(niftyInkUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch drawing content: ${response.statusText}`);
+    }
   }
 
   const drawingContent = await response.arrayBuffer();

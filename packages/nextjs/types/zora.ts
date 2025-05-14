@@ -31,6 +31,15 @@ export interface ZoraToken {
   address: string;
   symbol: string;
   totalSupply: string;
+  mediaContent: {
+    originalUri: string;
+    mimeType: string;
+    previewImage: {
+      blurhash: string;
+      medium: string;
+      small: string;
+    };
+  };
   totalVolume: string;
   volume24h: string;
   marketCap: string;

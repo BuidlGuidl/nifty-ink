@@ -9,10 +9,9 @@ import CanvasDraw from "react-canvas-draw";
 import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
-import { getImageUrl } from "~~/utils/ipfs";
 
 const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
-  const { isLoading, error, drawingData, metadata, zoraToken, totalLines, fetchAndShowDrawing } = useZoraDrawing(
+  const { isLoading, error, drawingData, zoraToken, totalLines, fetchAndShowDrawing } = useZoraDrawing(
     params.coinAddress,
   );
 
@@ -41,9 +40,9 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
 
   return (
     <div className="flex flex-col mt-4 items-center">
-      {metadata ? (
+      {zoraToken ? (
         // TODO: add skeleton inside InkHeader
-        <InkHeader name={metadata?.name} playClick={playClick} isDrawing={isDrawing} />
+        <InkHeader name={zoraToken.name} playClick={playClick} isDrawing={isDrawing} />
       ) : (
         <div className="flex items-center w-full max-w-md animate-pulse mx-auto">
           <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
@@ -55,11 +54,11 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
             <Loader />
           </div>
         )}
-        {metadata?.image && (
+        {zoraToken?.mediaContent.previewImage.medium && (
           <Image
             width={calculatedCanvaSize}
             height={calculatedCanvaSize}
-            src={getImageUrl(metadata.image)}
+            src={zoraToken.mediaContent.previewImage.medium}
             alt="Your drawing"
             className={`bg-white absolute top-0 left-0 transition-opacity duration-150 ${
               isDrawing ? "opacity-0" : "opacity-100"
@@ -92,7 +91,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
 
         <TradeTokenModal
           modalId={"buy-modal"}
-          tokenImage={getImageUrl(metadata?.image || "")}
+          tokenImage={zoraToken?.mediaContent.previewImage.small || ""}
           coinAddress={params.coinAddress}
         />
       </div>
