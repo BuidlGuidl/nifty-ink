@@ -11,11 +11,11 @@ import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { getFetchableUrl } from "~~/utils/ipfs";
 
 const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
-  const { isLoading, error, drawingData, zoraToken, totalLines, fetchAndShowDrawing } = useZoraDrawing(
-    params.coinAddress,
-  );
+  const { isLoading, error, drawingData, zoraToken, totalLines, fetchAndShowDrawing, metadata, owners } =
+    useZoraDrawing(params.coinAddress);
 
   const drawingCanvas = useRef<CanvasDrawLines>(null);
   const [isDrawing, setIsDrawing] = useState(true);
@@ -42,7 +42,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
     );
   }
 
-  if (!zoraToken) {
+  if (!metadata) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div>No token found</div>
@@ -52,23 +52,21 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
 
   return (
     <div className="flex flex-col mt-4 items-center">
-      {zoraToken ? (
-        <InkHeader zoraToken={zoraToken} playClick={playClick} isDrawing={isDrawing || !drawingData} />
+      {metadata ? (
+        <InkHeader name={metadata.name} playClick={playClick} isDrawing={isDrawing || !drawingData} />
       ) : (
         <div className="flex items-center w-full max-w-md animate-pulse mx-auto">
           <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
         </div>
       )}
       <div className="relative">
-        {zoraToken?.mediaContent.previewImage.medium && (
-          <Image
-            width={calculatedCanvaSize}
-            height={calculatedCanvaSize}
-            src={zoraToken.mediaContent.previewImage.medium}
-            alt={zoraToken.name || "Zora ink"}
-            className={`bg-white absolute top-0 left-0 ${isDrawing ? "opacity-0" : "opacity-100"}`}
-          />
-        )}
+        <Image
+          width={calculatedCanvaSize}
+          height={calculatedCanvaSize}
+          src={getFetchableUrl(metadata.image)}
+          alt={metadata.name || "Zora ink"}
+          className={`bg-white absolute top-0 left-0 ${isDrawing ? "opacity-0" : "opacity-100"}`}
+        />
         <CanvasDraw
           ref={drawingCanvas}
           canvasWidth={calculatedCanvaSize}
@@ -87,28 +85,31 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
           }}
         />
       </div>
-      <div style={{ width: calculatedCanvaSize }}>
-        <TokenStats zoraToken={zoraToken} />
+      {zoraToken && (
+        <div style={{ width: calculatedCanvaSize }}>
+          <TokenStats zoraToken={zoraToken} />
 
-        <TradeTokenModal
-          modalId={"buy-modal"}
-          tokenImage={zoraToken?.mediaContent.previewImage.small || ""}
-          coinAddress={params.coinAddress}
-        />
-      </div>
+          <TradeTokenModal
+            modalId={"buy-modal"}
+            tokenImage={zoraToken?.mediaContent.previewImage.small || ""}
+            coinAddress={params.coinAddress}
+          />
+        </div>
+      )}
       <div className="flex flex-col items-center text-center mb-5 mt-2">
         <p className="my-0 text-lg">Artist:</p>
-        <Link href={`/artist/${zoraToken?.creatorAddress}?platform=zora`} className="my-1">
-          <Address address={zoraToken?.creatorAddress} size="xl" disableAddressLink />
+        <Link href={`/artist/${owners?.[0]}?platform=zora`} className="my-1">
+          <Address address={owners?.[0]} size="xl" disableAddressLink />
         </Link>
-        <p className="my-0 text-sm">
-          {zoraToken?.createdAt &&
-            new Date(zoraToken?.createdAt).toLocaleString("en-US", {
+        {zoraToken?.createdAt && (
+          <p className="my-0 text-sm">
+            {new Date(zoraToken?.createdAt).toLocaleString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",
             })}
-        </p>
+          </p>
+        )}
       </div>
     </div>
   );
