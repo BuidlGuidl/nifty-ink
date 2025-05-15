@@ -3,18 +3,17 @@
 import React from "react";
 import { PlaySquareOutlined } from "@ant-design/icons";
 import { Button } from "antd";
-import { ZoraToken } from "~~/types/zora";
 
 type InkHeaderProps = {
-  zoraToken: ZoraToken;
+  name: string;
   playClick: () => void;
   isDrawing: boolean;
 };
 
-export const InkHeader: React.FC<InkHeaderProps> = ({ zoraToken, playClick, isDrawing }) => {
+export const InkHeader: React.FC<InkHeaderProps> = ({ name, playClick, isDrawing }) => {
   return (
     <div className="flex justify-center">
-      <p className="text-2xl my-1">{zoraToken.name}</p>
+      <p className="text-2xl my-1">{name}</p>
 
       <Button
         loading={isDrawing}

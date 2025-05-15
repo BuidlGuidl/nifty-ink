@@ -9,6 +9,7 @@ import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CheckCircleIcon, ExclamationCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { FormInput } from "~~/components/shared/FormInput";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
+import { Metadata } from "~~/types/zora";
 import { customCreateCoinCall } from "~~/utils/coin";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { uploadToIPFS } from "~~/utils/ipfs";
@@ -93,7 +94,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
     if (!uploadedImage?.success) throw new Error("Failed to upload image to IPFS");
     if (!uploadedDrawing.success) throw new Error("Failed to upload drawing to IPFS");
 
-    const inkMetadataJson = {
+    const inkMetadataJson: Metadata = {
       name: formData.title,
       description: formData.caption + CONSTANTS.CAPTION_SUFFIX,
       content: {
