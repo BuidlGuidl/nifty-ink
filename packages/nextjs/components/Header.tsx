@@ -183,11 +183,19 @@ export const Header = () => {
             </ul>
           )}
         </div>
+        <Link
+          href="/create"
+          passHref
+          className={`min-[1150px]:hidden hover:bg-secondary hover:shadow-md focus:bg-secondary active:text-neutral py-1.5 px-3 text-sm rounded-full flex items-center`}
+        >
+          <span className="ml-2">🖌 create</span>
+        </Link>
         <Link href="/" passHref className="hidden min-[1150px]:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative text-2xl">
             <span className="mb-2">🎨 Nifty Ink</span>
           </div>
         </Link>
+
         <ul className="hidden min-[1150px]:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
           <HeaderMenuLinks placement={"bottom"} />
         </ul>

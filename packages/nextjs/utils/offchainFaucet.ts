@@ -10,7 +10,7 @@ import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 
-const MAX_FAUCET_AMOUNT = process.env.BASE_FAUCET_AMOUNT || "0.00003";
+const MAX_FAUCET_AMOUNT = process.env.BASE_FAUCET_AMOUNT || "0.00005";
 const GAS_MULTIPLIER = process.env.GAS_MULTIPLIER || 120;
 
 const faucetWalletClient = createWalletClient({
