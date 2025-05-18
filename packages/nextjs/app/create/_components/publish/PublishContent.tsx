@@ -17,17 +17,11 @@ type PublishContentProps = {
 };
 
 export const PublishContent = ({ connectedAddress, drawingCanvas }: PublishContentProps) => {
-  const { chain } = useAccount();
   const { switchChain } = useSwitchChain();
   const { paramValue: platform, updateSearchParam: setPlatform } = useSearchParamsHandler("platform", "niftyink");
 
-  useEffect(() => {
-    if (chain?.id !== getChainId(platform === "niftyink" ? Chains.gnosis : Chains.base)) {
-      switchChain?.({ chainId: getChainId(platform === "niftyink" ? Chains.gnosis : Chains.base) });
-    }
-  }, [chain, switchChain, platform]);
-
   const handleChangePlatform = (newValue: Platform) => {
+    switchChain?.({ chainId: getChainId(newValue === "niftyink" ? Chains.gnosis : Chains.base) });
     setPlatform(newValue);
   };
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { tradeCoin } from "@zoralabs/coins-sdk";
 import { Address, formatEther, parseEther } from "viem";
-import { usePublicClient, useWalletClient } from "wagmi";
+import { useAccount, usePublicClient, useSwitchChain, useWalletClient } from "wagmi";
 import { base } from "wagmi/chains";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
@@ -22,7 +22,9 @@ export const TradeTokenButton = ({
   isSufficient: boolean;
   onTrade: () => void;
 }) => {
-  const { data: walletClient } = useWalletClient();
+  const { chain } = useAccount();
+  const { switchChainAsync } = useSwitchChain();
+  const { data: walletClient } = useWalletClient({ chainId: base.id });
   const publicClient = usePublicClient({ chainId: base.id });
   const buttonText = direction === "buy" ? "Buy" : "Sell";
   const buttonColor = direction === "buy" ? "bg-[#2BF738]" : "bg-[#FF00F0]";
@@ -31,6 +33,10 @@ export const TradeTokenButton = ({
   const [isPending, setIsPending] = useState(false);
 
   const handleTrade = async () => {
+    if (chain?.id !== base.id) {
+      await switchChainAsync({ chainId: base.id });
+    }
+
     // Define trade parameters
     const tradeParams = {
       direction: direction,
