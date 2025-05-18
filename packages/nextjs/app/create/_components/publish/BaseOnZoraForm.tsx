@@ -234,7 +234,7 @@ const SuccessMessage = ({ coinAddress, onReset }: { coinAddress: string; onReset
       </p>
       <p>
         {account.address && (
-          <Link href={`/artist/${account.address}?platform=zora`} className="btn mt-5">
+          <Link href={`/zora/${coinAddress}`} className="btn mt-5">
             View your Zora inks
           </Link>
         )}
