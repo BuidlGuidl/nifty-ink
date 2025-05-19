@@ -13,15 +13,15 @@ export const TokenStats = ({ zoraToken }: { zoraToken: ZoraToken }) => {
       <div className="flex flex-wrap items-center gap-2">
         <IconWrapper
           icon={<MarketCapIcon className="w-4 h-4 sm:w-6 sm:h-6" />}
-          text={zoraToken.marketCap ? `$${Number(zoraToken.marketCap).toFixed(2)}` : "$0"}
+          text={zoraToken?.marketCap ? `$${Number(zoraToken.marketCap).toFixed(2)}` : "$0"}
         />
         <IconWrapper
           icon={<VolumeIcon className="w-5 h-4 sm:w-6 sm:h-6" />}
-          text={zoraToken.totalVolume ? `$${Number(zoraToken.totalVolume).toFixed(2)}` : "$0"}
+          text={zoraToken?.totalVolume ? `$${Number(zoraToken.totalVolume).toFixed(2)}` : "$0"}
         />
         <IconWrapper
           icon={<HoldersIcon className="w-4 h-4 sm:w-6 sm:h-6" />}
-          text={zoraToken.uniqueHolders ? zoraToken.uniqueHolders.toString() : "0"}
+          text={zoraToken?.uniqueHolders ? zoraToken.uniqueHolders.toString() : "0"}
         />
         <div className="tooltip" data-tip="View on Zora">
           <button

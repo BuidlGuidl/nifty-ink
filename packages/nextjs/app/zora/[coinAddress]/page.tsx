@@ -91,7 +91,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
 
           <TradeTokenModal
             modalId={"buy-modal"}
-            tokenImage={zoraToken?.mediaContent.previewImage.small || ""}
+            tokenImage={zoraToken?.mediaContent?.previewImage?.small || ""}
             coinAddress={params.coinAddress}
           />
         </div>

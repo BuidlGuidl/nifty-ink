@@ -18,7 +18,7 @@ import { notification } from "~~/utils/scaffold-eth";
 
 // Constants
 const CONSTANTS = {
-  METADATA_BASE_URL: "https://metadata.nifty.ink/ipfs/",
+  METADATA_BASE_URL: "ipfs://",
   IMAGE_BASE_URL: "ipfs://",
   VIEW_INK_BASE_URL: "https://view.nifty.ink/ink/",
   PLATFORM_REFERRER: baseAddressPlatformReferrer,
