@@ -81,13 +81,7 @@ export const InkDetails = ({
               <p className={`${TEXT_PRIMARY_COLOR} text-xl my-0`}>{mintDescription}</p>{" "}
               {isConnectedAddressArtist && ink.limit && ink.count < ink.limit && <MintButton inkId={inkId} />}
               {isConnectedAddressArtist && isBuyButtonVisible ? (
-                <NiftyShop
-                  type={"ink"}
-                  price={ink.mintPrice || 0}
-                  itemForSale={inkId}
-                  placement="top"
-                  connectedAddress={connectedAddress}
-                />
+                <NiftyShop type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} placement="top" />
               ) : (
                 <NiftyShopBuy type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} inkName={inkJson.name} />
               )}
@@ -141,13 +135,7 @@ export const InkDetails = ({
                 {sendInkButton(item.owner.id, item.id)}
                 {item.network !== "mainnet" &&
                   (isConnectedAddressOwner ? (
-                    <NiftyShop
-                      type={"token"}
-                      price={item.price}
-                      itemForSale={item.id}
-                      placement="top"
-                      connectedAddress={connectedAddress}
-                    />
+                    <NiftyShop type={"token"} price={item.price} itemForSale={item.id} placement="top" />
                   ) : (
                     <NiftyShopBuy type={"token"} price={item.price} itemForSale={item.id} inkName={inkJson.name} />
                   ))}

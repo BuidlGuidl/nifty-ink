@@ -20,7 +20,7 @@ export const LikeButton = ({ likeCount, hasLiked, targetId }: LikeButtonProps) =
   const { chain } = useAccount();
   const { switchTo } = useChainSwitcher();
 
-  const { writeContractAsync: writeLikeContractAsync } = useWriteContract();
+  const { writeContractAsync: writeContractAsync } = useWriteContract();
 
   const handleLike = async (e: React.MouseEvent<HTMLElement, MouseEvent>): Promise<void> => {
     e.preventDefault();
@@ -33,7 +33,7 @@ export const LikeButton = ({ likeCount, hasLiked, targetId }: LikeButtonProps) =
       }
 
       try {
-        await writeLikeContractAsync({
+        await writeContractAsync({
           abi: LIKER_CONTRACT.abi,
           address: LIKER_CONTRACT.address,
           functionName: "like",

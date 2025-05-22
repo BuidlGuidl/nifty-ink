@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useChainSwitcher } from "../_hooks/useChainSwitcher";
 import { ShopOutlined } from "@ant-design/icons";
 import { Button, Form, InputNumber, Popover, Row } from "antd";
 import { TooltipPlacement } from "antd/es/tooltip";
 import { formatEther, parseEther } from "viem";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { gnosis } from "viem/chains";
+import { useAccount, useWriteContract } from "wagmi";
+import { NIFTY_INK_CONTRACT, NIFTY_TOKEN_CONTRACT } from "~~/contracts/externalContracts";
 import { notification } from "~~/utils/scaffold-eth";
 
 export const NiftyShop = ({
@@ -13,37 +16,46 @@ export const NiftyShop = ({
   itemForSale,
   placement = "left",
   type,
-  connectedAddress,
 }: {
   price: number;
   itemForSale: string;
   placement: TooltipPlacement;
   type: string;
-  connectedAddress: string;
 }) => {
+  const { chain } = useAccount();
+  const { switchTo } = useChainSwitcher();
+  const { writeContractAsync } = useWriteContract();
   const [newPrice, setNewPrice] = useState<number>(0);
   const [buying, setBuying] = useState(false);
 
   const [priceForm] = Form.useForm();
 
-  const { writeContractAsync: writeYourContractAsyncToken } = useScaffoldWriteContract("NiftyToken");
-  const { writeContractAsync: writeYourContractAsyncInk } = useScaffoldWriteContract("NiftyInk");
-
   const setPrice = async (values: any) => {
     setBuying(true);
+    if (chain?.id !== gnosis.id) {
+      const switched = await switchTo(gnosis);
+      if (!switched) return;
+    }
 
     try {
       if (type === "ink") {
-        await writeYourContractAsyncInk({
+        await writeContractAsync({
+          abi: NIFTY_INK_CONTRACT.abi,
+          address: NIFTY_INK_CONTRACT.address,
           functionName: "setPrice",
           args: [itemForSale, parseEther(String(values["price"]))],
         });
       } else {
-        await writeYourContractAsyncToken({
+        await writeContractAsync({
+          abi: NIFTY_TOKEN_CONTRACT.abi,
+          address: NIFTY_TOKEN_CONTRACT.address,
           functionName: "setTokenPrice",
           args: [BigInt(itemForSale), parseEther(String(values["price"]))],
         });
       }
+      notification.success("Transaction completed successfully!", {
+        icon: "🎉",
+      });
     } catch (e) {
       setBuying(false);
       console.log(e);

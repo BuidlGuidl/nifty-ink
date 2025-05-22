@@ -1493,5 +1493,5 @@ const externalContracts = {
 
 export const LIKER_CONTRACT = externalContracts[100].Liker;
 export const NIFTY_INK_CONTRACT = externalContracts[100].NiftyInk;
-
+export const NIFTY_TOKEN_CONTRACT = externalContracts[100].NiftyToken;
 export default externalContracts satisfies GenericContractsDeclaration;

@@ -184,13 +184,7 @@ export const GnosisChainInks = ({ address, connectedAddress }: { address: string
                                 transactionConfig={props.transactionConfig}
                                 buttonSize="small"
                               /> */}{" "}
-                            <NiftyShop
-                              type="token"
-                              price={token.price}
-                              itemForSale={token.id}
-                              placement="left"
-                              connectedAddress={connectedAddress}
-                            />
+                            <NiftyShop type="token" price={token.price} itemForSale={token.id} placement="left" />
                           </>
                         )}
                       </>
