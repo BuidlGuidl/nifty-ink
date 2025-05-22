@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { tradeCoin } from "@zoralabs/coins-sdk";
 import { Address, formatEther, parseEther } from "viem";
-import { useAccount, usePublicClient, useSwitchChain, useWalletClient } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { base } from "wagmi/chains";
+import { useChainSwitcher } from "~~/app/_hooks/useChainSwitcher";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { getParsedError, notification } from "~~/utils/scaffold-eth";
 
@@ -23,7 +24,7 @@ export const TradeTokenButton = ({
   onTrade: () => void;
 }) => {
   const { chain } = useAccount();
-  const { switchChainAsync } = useSwitchChain();
+  const { switchTo } = useChainSwitcher();
   const { data: walletClient } = useWalletClient({ chainId: base.id });
   const publicClient = usePublicClient({ chainId: base.id });
   const buttonText = direction === "buy" ? "Buy" : "Sell";
@@ -34,7 +35,8 @@ export const TradeTokenButton = ({
 
   const handleTrade = async () => {
     if (chain?.id !== base.id) {
-      await switchChainAsync({ chainId: base.id });
+      const switched = await switchTo(base);
+      if (!switched) return;
     }
 
     // Define trade parameters

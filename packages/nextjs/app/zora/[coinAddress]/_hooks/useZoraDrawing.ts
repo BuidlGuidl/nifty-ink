@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useReadContracts, useSwitchChain } from "wagmi";
+import { useReadContracts } from "wagmi";
 import { createConfig, http } from "wagmi";
 import { base } from "wagmi/chains";
 import { fetchCoinData, fetchDrawingContent, fetchMetadata } from "~~/services/zoraService";
@@ -19,11 +19,6 @@ export const useZoraDrawing = (coinAddress: string) => {
   const [error, setError] = useState<Error | null>(null);
   const [drawingData, setDrawingData] = useState<string>("");
   const [totalLines, setTotalLines] = useState<number>(0);
-  const { switchChain } = useSwitchChain();
-
-  useEffect(() => {
-    switchChain?.({ chainId: base.id });
-  }, [switchChain]);
 
   const zoraTokenContract = {
     address: coinAddress as `0x${string}`,
