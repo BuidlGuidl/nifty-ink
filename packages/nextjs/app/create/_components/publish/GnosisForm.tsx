@@ -4,10 +4,10 @@ import LZ from "lz-string";
 import { createWalletClient, encodeFunctionData, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { gnosis } from "viem/chains";
-import { useAccount, usePublicClient } from "wagmi";
+import { useAccount, usePublicClient, useWriteContract } from "wagmi";
+import { useChainSwitcher } from "~~/app/_hooks/useChainSwitcher";
 import { FormInput } from "~~/components/shared/FormInput";
-import deployedContracts from "~~/contracts/deployedContracts";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { NIFTY_INK_CONTRACT } from "~~/contracts/externalContracts";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { fundAndSignTransaction } from "~~/utils/gnosisFaucet";
 import { uploadToIPFS } from "~~/utils/ipfs";
@@ -20,14 +20,14 @@ type GnosisFormProps = {
 
 export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps) => {
   const router = useRouter();
-  const { connector } = useAccount();
-  // const { data: walletClient } = useWalletClient();
+  const { connector, chain } = useAccount();
+  const { switchTo } = useChainSwitcher();
+  const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient()!;
 
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [inkName, setInkName] = useState<string>("");
   const [inkNumber, setInkNumber] = useState<number | undefined>(undefined);
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("NiftyInk");
   const isBurnerWalletConnected = connector?.name === "Burner Wallet";
 
   const [pk, setPk] = useState<string | null>(null);
@@ -96,6 +96,10 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
   };
 
   const createInkGnosis = async (drawingCID: string, jsonCID: string) => {
+    if (chain?.id !== gnosis.id) {
+      const switched = await switchTo(gnosis);
+      if (!switched) return;
+    }
     if (isBurnerWalletConnected) {
       if (!pk) throw new Error("No private key provided");
 
@@ -107,20 +111,20 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
       notification.info("Signing transaction... It may take some time.");
 
       const data = encodeFunctionData({
-        abi: deployedContracts[100].NiftyInk.abi,
+        abi: NIFTY_INK_CONTRACT.abi,
         functionName: "createInk",
         args: [drawingCID, jsonCID, BigInt(inkNumber ?? 0)],
       });
 
       const request = await walletClient.prepareTransactionRequest({
         account: walletClient.account,
-        to: deployedContracts[100].NiftyInk.address,
+        to: NIFTY_INK_CONTRACT.address,
         data: data,
         gas: 0n, // without this it will fail with "low balance"
       });
       const gas = await publicClient.estimateGas({
         account: "0xa23956202395086DDb8EbE4d43c75E2aBEa8e97A",
-        to: deployedContracts[100].NiftyInk.address,
+        to: NIFTY_INK_CONTRACT.address,
         data: data,
       });
       const GAS_MULTIPLIER = 200;
@@ -137,13 +141,15 @@ export const GnosisForm = ({ connectedAddress, drawingCanvas }: GnosisFormProps)
       notification.success("Successfully created Ink!");
       router.push(`/ink/${drawingCID}`);
     } else {
-      await writeYourContractAsync(
+      await writeContractAsync(
         {
+          abi: NIFTY_INK_CONTRACT.abi,
+          address: NIFTY_INK_CONTRACT.address,
           functionName: "createInk",
           args: [drawingCID, jsonCID, BigInt(inkNumber ?? 0)],
         },
         {
-          onBlockConfirmation: () => {
+          onSuccess: () => {
             router.push(`/ink/${drawingCID}`);
           },
         },
