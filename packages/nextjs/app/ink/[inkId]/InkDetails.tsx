@@ -115,10 +115,7 @@ export const InkDetails = ({
                   <Address address={mainnetTokens[item.id] ?? item.owner.id} size="sm" disableAddressLink />
                 </Link>
                 <a
-                  href={
-                    "https://blockscout.com/poa/xdai/tokens/0xCF964c89f509a8c0Ac36391c5460dF94B91daba5/instance/" +
-                    item.id
-                  }
+                  href={`https://gnosisscan.io/token/0xcf964c89f509a8c0ac36391c5460df94b91daba5?a=${item.id}`}
                   target="_blank"
                 >
                   <LinkOutlined className="mx-1 text-md" />
