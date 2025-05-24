@@ -23,7 +23,7 @@ export const TokenStats = ({ zoraToken }: { zoraToken: ZoraToken }) => {
           icon={<HoldersIcon className="w-4 h-4 sm:w-6 sm:h-6" />}
           text={zoraToken?.uniqueHolders ? zoraToken.uniqueHolders.toString() : "0"}
         />
-        <div className="tooltip" data-tip="View on Zora">
+        <div className="tooltip tooltip-primary" data-tip="View on Zora">
           <button
             onClick={() => window.open(ink, "_blank")}
             className="p-2 rounded-full transition-all duration-200 group"

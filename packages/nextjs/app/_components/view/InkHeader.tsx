@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { Grid } from "antd";
 import { Address } from "~~/components/scaffold-eth";
 import { formatDate, formatFullDate } from "~~/utils/date";
 
@@ -13,21 +14,33 @@ type InkHeaderProps = {
 };
 
 export const InkHeader: React.FC<InkHeaderProps> = ({ name, artist, createdAt, buttons }) => {
+  const screens = Grid.useBreakpoint();
+  const isSmall = !screens.sm;
+
   return (
     <div className="flex flex-col justify-center w-full">
       <p className="text-xl md:text-3xl my-0 text-center">{name}</p>
 
-      <div className="w-full h-10 my-2 grid grid-cols-3 items-center px-2">
+      <div className="w-full my-2 grid grid-cols-3 items-center">
         <div className="justify-self-start">
-          <Link href={`/artist/${artist}?platform=zora`} className="my-1">
-            <Address address={artist} size="sm" format="short" disableAddressLink />
+          <Link href={`/artist/${artist}?platform=zora`}>
+            <Address
+              address={artist}
+              size={isSmall ? "xs" : "base"}
+              format="short"
+              disableAddressLink
+              showBlockie={!isSmall}
+            />
           </Link>
         </div>
 
         <div className="justify-self-center gap-2 flex">{buttons}</div>
 
         <div className="justify-self-end">
-          <p className="text-sm tooltip tooltip-primary tooltip-top" data-tip={formatFullDate(createdAt)}>
+          <p
+            className={`my-0 tooltip tooltip-primary tooltip-top ${isSmall ? "text-sm" : "text-base"}`}
+            data-tip={formatFullDate(createdAt)}
+          >
             {formatDate(createdAt)}
           </p>
         </div>
