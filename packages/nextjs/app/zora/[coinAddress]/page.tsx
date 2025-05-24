@@ -2,14 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { TokenStats } from "./_components/TokenStats";
 import { TradeTokenModal } from "./_components/TradeTokenModal";
 import { useZoraDrawing } from "./_hooks/useZoraDrawing";
 import CanvasDraw from "react-canvas-draw";
 import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
-import { Address } from "~~/components/scaffold-eth";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { getFetchableUrl } from "~~/utils/ipfs";
 
@@ -51,9 +49,16 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
   }
 
   return (
-    <div className="flex flex-col mt-4 items-center">
+    <div className="flex flex-col mt-4 items-center mx-auto" style={{ width: calculatedCanvaSize }}>
       {metadata ? (
-        <InkHeader name={metadata.name} playClick={playClick} isDrawing={isDrawing || !drawingData} />
+        <InkHeader
+          name={metadata.name}
+          artist={owners?.[0] ?? ""}
+          playClick={playClick}
+          isDrawing={isDrawing || !drawingData}
+          createdAt={zoraToken?.createdAt ?? ""}
+          drawing={drawingData}
+        />
       ) : (
         <div className="flex items-center w-full max-w-md animate-pulse mx-auto">
           <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
@@ -86,31 +91,15 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
         />
       </div>
       {zoraToken && (
-        <div style={{ width: calculatedCanvaSize }}>
+        <>
           <TokenStats zoraToken={zoraToken} />
-
           <TradeTokenModal
             modalId={"buy-modal"}
             tokenImage={zoraToken?.mediaContent?.previewImage?.small || ""}
             coinAddress={params.coinAddress}
           />
-        </div>
+        </>
       )}
-      <div className="flex flex-col items-center text-center mb-5 mt-2">
-        <p className="my-0 text-lg">Artist:</p>
-        <Link href={`/artist/${owners?.[0]}?platform=zora`} className="my-1">
-          <Address address={owners?.[0]} size="xl" disableAddressLink />
-        </Link>
-        {zoraToken?.createdAt && (
-          <p className="my-0 text-sm">
-            {new Date(zoraToken?.createdAt).toLocaleString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-        )}
-      </div>
     </div>
   );
 };

@@ -26,10 +26,10 @@ export const TokenStats = ({ zoraToken }: { zoraToken: ZoraToken }) => {
         <div className="tooltip" data-tip="View on Zora">
           <button
             onClick={() => window.open(ink, "_blank")}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200"
+            className="p-2 rounded-full transition-all duration-200 group"
             aria-label="View on Zora"
           >
-            <ZoraIcon className="w-4 h-4 sm:w-6 sm:h-6" />
+            <ZoraIcon className="w-4 h-4 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-200" />
           </button>
         </div>
       </div>

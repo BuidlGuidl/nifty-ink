@@ -1,49 +1,44 @@
 "use client";
 
 import React from "react";
-import { PlaySquareOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import Link from "next/link";
+import { ForkButton } from "../buttons/ForkButton";
+import { PlayButton } from "../buttons/PlayButton";
+import { Address } from "~~/components/scaffold-eth";
+import { formatDate, formatFullDate } from "~~/utils/date";
 
 type InkHeaderProps = {
   name: string;
+  artist: string;
   playClick: () => void;
   isDrawing: boolean;
+  createdAt: string;
+  drawing: string;
 };
 
-export const InkHeader: React.FC<InkHeaderProps> = ({ name, playClick, isDrawing }) => {
+export const InkHeader: React.FC<InkHeaderProps> = ({ name, artist, playClick, isDrawing, createdAt, drawing }) => {
   return (
-    <div className="flex justify-center">
-      <p className="text-2xl my-1">{name}</p>
+    <div className="flex flex-col justify-center w-full">
+      <p className="text-xl md:text-3xl  my-0 text-center">{name}</p>
 
-      <Button
-        loading={isDrawing}
-        disabled={isDrawing}
-        className="mt-1 ml-1"
-        onClick={playClick}
-        icon={<PlaySquareOutlined />}
-      >
-        {isDrawing ? "Drawing..." : "Play"}
-      </Button>
+      <div className="w-full h-10 my-2 grid grid-cols-3 items-center px-2">
+        <div className="justify-self-start">
+          <Link href={`/artist/${artist}?platform=zora`} className="my-1">
+            <Address address={artist} size="sm" format="short" disableAddressLink />
+          </Link>
+        </div>
 
-      {/* TODO: Add fork button
-      {ink && connectedAddress && connectedAddress.toLowerCase() == ink.artist.id && (
-        <>
-          <Button
-            className="mt-1 ml-1"
-            onClick={() => {
-              if (!drawing) return;
-              const _savedData = LZ.compress(drawing);
-              setDrawingLocalStorage(_savedData);
-              router.push("/create");
-            }}
-          >
-            <span style={{ marginRight: 12 }} role="img" aria-label="Fork">
-              🍴
-            </span>{" "}
-            FORK
-          </Button>
-        </>
-      )} */}
+        <div className="justify-self-center gap-2 flex">
+          <PlayButton isDrawing={isDrawing} playClick={playClick} />
+          <ForkButton artist={artist} drawing={drawing} />
+        </div>
+
+        <div className="justify-self-end">
+          <p className="text-sm tooltip tooltip-primary tooltip-top" data-tip={formatFullDate(createdAt)}>
+            {formatDate(createdAt)}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
