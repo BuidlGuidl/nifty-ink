@@ -6,6 +6,7 @@ import { TokenStats } from "./_components/TokenStats";
 import { TradeTokenModal } from "./_components/TradeTokenModal";
 import { useZoraDrawing } from "./_hooks/useZoraDrawing";
 import CanvasDraw from "react-canvas-draw";
+import { ForkButton, PlayButton } from "~~/app/_components/buttons";
 import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
@@ -50,20 +51,17 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
 
   return (
     <div className="flex flex-col mt-4 items-center mx-auto" style={{ width: calculatedCanvaSize }}>
-      {metadata ? (
-        <InkHeader
-          name={metadata.name}
-          artist={owners?.[0] ?? ""}
-          playClick={playClick}
-          isDrawing={isDrawing || !drawingData}
-          createdAt={zoraToken?.createdAt ?? ""}
-          drawing={drawingData}
-        />
-      ) : (
-        <div className="flex items-center w-full max-w-md animate-pulse mx-auto">
-          <div className="h-6 bg-gray-200 rounded w-2/3 mx-auto"></div>
-        </div>
-      )}
+      <InkHeader
+        name={metadata.name}
+        artist={owners?.[0] ?? ""}
+        createdAt={zoraToken?.createdAt ?? ""}
+        buttons={
+          <>
+            <PlayButton isDrawing={isDrawing} playClick={playClick} />
+            <ForkButton artist={owners?.[0] ?? ""} drawing={drawingData} />
+          </>
+        }
+      />
       <div className="relative">
         <Image
           width={calculatedCanvaSize}
