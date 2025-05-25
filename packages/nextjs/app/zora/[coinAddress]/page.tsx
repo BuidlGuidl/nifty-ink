@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { ShareModal } from "./_components/ShareModal";
 import { TokenStats } from "./_components/TokenStats";
 import { TradeTokenModal } from "./_components/TradeTokenModal";
 import { useZoraDrawing } from "./_hooks/useZoraDrawing";
@@ -96,6 +97,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
             tokenImage={zoraToken?.mediaContent?.previewImage?.small || ""}
             coinAddress={params.coinAddress}
           />
+          <ShareModal modalId={"share-modal"} shareUrl={`https://nifty.ink/zora/${params.coinAddress}`} />
         </>
       )}
     </div>

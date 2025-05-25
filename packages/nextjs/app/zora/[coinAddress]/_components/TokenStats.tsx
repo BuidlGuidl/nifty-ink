@@ -1,11 +1,13 @@
 import { IconWrapper } from "./IconWrapper";
 import { HoldersIcon, MarketCapIcon, VolumeIcon } from "./icons";
+import { ShareIcon } from "@heroicons/react/24/outline";
 import { ZoraIcon } from "~~/app/_components/ZoraIcon";
 import { ZoraToken } from "~~/types/zora";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 
 export const TokenStats = ({ zoraToken }: { zoraToken: ZoraToken }) => {
   const modalId = "buy-modal";
+  const shareModalId = "share-modal";
   const ink = `https://zora.co/coin/base:${zoraToken.address}?referrer=${baseAddressPlatformReferrer}`;
 
   return (
@@ -23,6 +25,9 @@ export const TokenStats = ({ zoraToken }: { zoraToken: ZoraToken }) => {
           icon={<HoldersIcon className="w-4 h-4 sm:w-6 sm:h-6" />}
           text={zoraToken?.uniqueHolders ? zoraToken.uniqueHolders.toString() : "0"}
         />
+        <label htmlFor={shareModalId} className="cursor-pointer">
+          <ShareIcon className="w-4 h-4 sm:w-6 sm:h-6" />
+        </label>
         <div className="tooltip tooltip-primary" data-tip="View on Zora">
           <button
             onClick={() => window.open(ink, "_blank")}
