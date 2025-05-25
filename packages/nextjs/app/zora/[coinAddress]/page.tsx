@@ -12,6 +12,7 @@ import { InkHeader } from "~~/app/_components/view/InkHeader";
 import Loader from "~~/components/Loader";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { getFetchableUrl } from "~~/utils/ipfs";
+import { calculateLoadTimeOffset } from "~~/utils/loadTime";
 
 const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
   const { isLoading, error, drawingData, zoraToken, totalLines, fetchAndShowDrawing, metadata, owners } =
@@ -78,7 +79,7 @@ const ZoraView = ({ params }: { params: { coinAddress: string } }) => {
           disabled={true}
           saveData={drawingData}
           immediateLoading={true}
-          loadTimeOffset={5}
+          loadTimeOffset={calculateLoadTimeOffset(totalLines)}
           hideInterface={true}
           hideGrid={true}
           onChange={() => {
