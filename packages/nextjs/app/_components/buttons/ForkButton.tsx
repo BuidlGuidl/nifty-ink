@@ -25,7 +25,7 @@ export const ForkButton = ({ artist, drawing }: ForkButtonProps) => {
 
   return (
     <>
-      {connectedAddress && connectedAddress.toLowerCase() == artist && (
+      {connectedAddress && connectedAddress.toLowerCase() == artist?.toLowerCase() && (
         <>
           <Popconfirm
             title="This will replace your current drawing!"
