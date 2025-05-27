@@ -28,7 +28,7 @@
     "@zoralabs/coins-sdk": "^0.1.1",
     "antd": "^5.24.7",
     "blo": "^1.0.1",
-    "burner-connector": "^0.0.13",
+    "burner-connector": "^0.0.15",
     "daisyui": "4.5.0",
     "dayjs": "^1.11.11",
     "dotenv": "^16.5.0",
