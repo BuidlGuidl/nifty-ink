@@ -241,12 +241,7 @@ export const InkCanvas = ({
         <div style={{ marginLeft: calculatedCanvaSize - 10, marginTop: calculatedCanvaSize + 5 }}></div>
         <div className="mt-15 flex justify-between gap-1">
           <div className="flex gap-2">
-            <LikeButton
-              likeCount={ink?.likeCount}
-              hasLiked={ink?.likes?.length > 0}
-              targetId={ink?.inkNumber}
-              connectedAddress={connectedAddress}
-            />
+            <LikeButton likeCount={ink?.likeCount} hasLiked={ink?.likes?.length > 0} targetId={ink?.inkNumber} />
             <div className="hidden sm:block">
               <Popover
                 content={detailContent}

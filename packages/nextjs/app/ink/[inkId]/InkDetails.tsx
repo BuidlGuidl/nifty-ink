@@ -81,13 +81,7 @@ export const InkDetails = ({
               <p className={`${TEXT_PRIMARY_COLOR} text-xl my-0`}>{mintDescription}</p>{" "}
               {isConnectedAddressArtist && ink.limit && ink.count < ink.limit && <MintButton inkId={inkId} />}
               {isConnectedAddressArtist && isBuyButtonVisible ? (
-                <NiftyShop
-                  type={"ink"}
-                  price={ink.mintPrice || 0}
-                  itemForSale={inkId}
-                  placement="top"
-                  connectedAddress={connectedAddress}
-                />
+                <NiftyShop type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} placement="top" />
               ) : (
                 <NiftyShopBuy type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} inkName={inkJson.name} />
               )}
@@ -121,10 +115,7 @@ export const InkDetails = ({
                   <Address address={mainnetTokens[item.id] ?? item.owner.id} size="sm" disableAddressLink />
                 </Link>
                 <a
-                  href={
-                    "https://blockscout.com/poa/xdai/tokens/0xCF964c89f509a8c0Ac36391c5460dF94B91daba5/instance/" +
-                    item.id
-                  }
+                  href={`https://gnosisscan.io/token/0xcf964c89f509a8c0ac36391c5460df94b91daba5?a=${item.id}`}
                   target="_blank"
                 >
                   <LinkOutlined className="mx-1 text-md" />
@@ -141,13 +132,7 @@ export const InkDetails = ({
                 {sendInkButton(item.owner.id, item.id)}
                 {item.network !== "mainnet" &&
                   (isConnectedAddressOwner ? (
-                    <NiftyShop
-                      type={"token"}
-                      price={item.price}
-                      itemForSale={item.id}
-                      placement="top"
-                      connectedAddress={connectedAddress}
-                    />
+                    <NiftyShop type={"token"} price={item.price} itemForSale={item.id} placement="top" />
                   ) : (
                     <NiftyShopBuy type={"token"} price={item.price} itemForSale={item.id} inkName={inkJson.name} />
                   ))}

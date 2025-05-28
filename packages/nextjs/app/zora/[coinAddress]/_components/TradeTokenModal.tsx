@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { TradeTokenButton } from "./TradeTokenButton";
 import { erc20Abi, formatEther, parseEther } from "viem";
-import { useAccount, useReadContract, useSwitchChain } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { base } from "wagmi/chains";
 import { BuyTokenAmountInput, SellTokenAmountInput } from "~~/app/zora/[coinAddress]/_components/TokenAmountInput";
 import { useWatchBalance } from "~~/hooks/scaffold-eth";
@@ -36,8 +36,7 @@ type TradeTokenModalProps = {
 };
 
 export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeTokenModalProps) => {
-  const { address, chain } = useAccount();
-  const { switchChain } = useSwitchChain();
+  const { address } = useAccount();
   const [amount, setAmount] = useState<string>("");
   const [isBuy, setIsBuy] = useState<boolean>(true);
 
@@ -59,12 +58,6 @@ export const TradeTokenModal = ({ modalId, tokenImage, coinAddress }: TradeToken
   useEffect(() => {
     refetch();
   }, [address]);
-
-  useEffect(() => {
-    if (chain?.id !== base.id) {
-      switchChain?.({ chainId: base.id });
-    }
-  }, [chain, switchChain]);
 
   const handleTrade = () => {
     setAmount("");

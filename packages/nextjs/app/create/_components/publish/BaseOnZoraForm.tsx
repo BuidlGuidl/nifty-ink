@@ -7,6 +7,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { CheckCircleIcon, ExclamationCircleIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
+import { useChainSwitcher } from "~~/app/_hooks/useChainSwitcher";
 import { FormInput } from "~~/components/shared/FormInput";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { Metadata } from "~~/types/zora";
@@ -46,9 +47,10 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
   const [formState, setFormState] = useState<FormState>("fill");
   const [formData, setFormData] = useState<FormData>({ title: "", caption: "" });
   const [coinAddress, setCoinAddress] = useState<string>("");
-  const { connector } = useAccount();
-  const publicClient = usePublicClient()!;
-  const { data: walletClient } = useWalletClient();
+  const { connector, chain } = useAccount();
+  const { switchTo } = useChainSwitcher();
+  const publicClient = usePublicClient({ chainId: base.id })!;
+  const { data: walletClient } = useWalletClient({ chainId: base.id });
   const isBurnerWalletConnected = connector?.name === "Burner Wallet";
   const [pk, setPk] = useState<string | null>(null);
 
@@ -170,6 +172,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       const { request } = await publicClient.simulateContract({
         ...createCoinRequest,
         account: walletClient.account,
+        chain: base,
       });
       if (request.gas) {
         // Gas limit multiplier is a percentage argument.
@@ -197,6 +200,10 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
     event.preventDefault();
     try {
       setFormState("loading");
+      if (chain?.id !== base.id) {
+        const switched = await switchTo(base);
+        if (!switched) return;
+      }
       const inkMetadata = await uploadInkMetadata();
 
       await createZoraCoins(inkMetadata.cid);
@@ -234,8 +241,8 @@ const SuccessMessage = ({ coinAddress, onReset }: { coinAddress: string; onReset
       </p>
       <p>
         {account.address && (
-          <Link href={`/artist/${account.address}?platform=zora`} className="btn mt-5">
-            View your Zora inks
+          <Link href={`/zora/${coinAddress}`} className="btn mt-5">
+            View your Zora ink
           </Link>
         )}
       </p>

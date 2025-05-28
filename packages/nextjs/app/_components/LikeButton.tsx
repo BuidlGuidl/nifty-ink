@@ -1,34 +1,50 @@
 "use client";
 
 import React, { useState } from "react";
+import { useChainSwitcher } from "../_hooks/useChainSwitcher";
 import { LikeOutlined, LikeTwoTone } from "@ant-design/icons";
 import { Badge, Button } from "antd";
-import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { gnosis } from "viem/chains";
+import { useAccount, useWriteContract } from "wagmi";
+import { LIKER_CONTRACT, NIFTY_INK_CONTRACT } from "~~/contracts/externalContracts";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface LikeButtonProps {
   likeCount?: number;
   hasLiked?: boolean;
   targetId?: number;
-  connectedAddress?: string;
 }
 
-export const LikeButton = ({ likeCount, hasLiked, targetId, connectedAddress }: LikeButtonProps) => {
+export const LikeButton = ({ likeCount, hasLiked, targetId }: LikeButtonProps) => {
   const [minting, setMinting] = useState(false);
+  const { chain } = useAccount();
+  const { switchTo } = useChainSwitcher();
 
-  const niftyInkContract = useDeployedContractInfo("NiftyInk");
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("Liker");
+  const { writeContractAsync: writeContractAsync } = useWriteContract();
 
   const handleLike = async (e: React.MouseEvent<HTMLElement, MouseEvent>): Promise<void> => {
     e.preventDefault();
+
     if (!hasLiked && !minting) {
       setMinting(true);
+      if (chain?.id !== gnosis.id) {
+        const switched = await switchTo(gnosis);
+        if (!switched) return;
+      }
+
       try {
-        await writeYourContractAsync({
+        await writeContractAsync({
+          abi: LIKER_CONTRACT.abi,
+          address: LIKER_CONTRACT.address,
           functionName: "like",
-          args: [niftyInkContract?.data?.address, BigInt(String(targetId))],
+          args: [NIFTY_INK_CONTRACT.address, BigInt(String(targetId))],
+        });
+        notification.success("Transaction completed successfully!", {
+          icon: "🎉",
         });
       } catch (e) {
         console.log(e);
+        notification.error("Failed to like");
       } finally {
         setMinting(false);
       }
