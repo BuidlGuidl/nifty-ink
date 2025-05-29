@@ -79,7 +79,9 @@ export const InkDetails = ({
           header={
             <div className="flex justify-center gap-2">
               <p className={`${TEXT_PRIMARY_COLOR} text-xl my-0`}>{mintDescription}</p>{" "}
-              {isConnectedAddressArtist && ink.limit && ink.count < ink.limit && <MintButton inkId={inkId} />}
+              {isConnectedAddressArtist && ink.limit && Number(ink.count) < Number(ink.limit) && (
+                <MintButton inkId={inkId} />
+              )}
               {isConnectedAddressArtist && isBuyButtonVisible ? (
                 <NiftyShop type={"ink"} price={ink.mintPrice || 0} itemForSale={inkId} placement="top" />
               ) : (

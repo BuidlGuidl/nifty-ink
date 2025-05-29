@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import { SendOutlined } from "@ant-design/icons";
 import { Button } from "antd";
-import { isAddress } from "viem";
+import { encodeFunctionData, isAddress } from "viem";
 import { gnosis } from "viem/chains";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useSendCalls } from "wagmi";
 import { PaperAirplaneIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useChainSwitcher } from "~~/app/_hooks/useChainSwitcher";
 import { AddressInput } from "~~/components/scaffold-eth";
@@ -29,7 +29,7 @@ const MintButton = ({ inkId }: MintButtonProps) => {
   const { chain } = useAccount();
 
   const { switchTo } = useChainSwitcher();
-  const { writeContractAsync } = useWriteContract();
+  const { sendCallsAsync, isPending } = useSendCalls();
 
   const mint = async () => {
     // Validate all addresses
@@ -61,14 +61,19 @@ const MintButton = ({ inkId }: MintButtonProps) => {
       if (!switched) return;
     }
     try {
+      const calls = [];
       for (const address of validAddresses) {
-        await writeContractAsync({
-          abi: NIFTY_TOKEN_CONTRACT.abi,
-          address: NIFTY_TOKEN_CONTRACT.address,
-          functionName: "mint",
-          args: [address, inkId],
+        calls.push({
+          to: NIFTY_TOKEN_CONTRACT.address,
+          data: encodeFunctionData({
+            abi: NIFTY_TOKEN_CONTRACT.abi,
+            functionName: "mint",
+            args: [address, inkId],
+          }),
         });
       }
+      await sendCallsAsync({ calls });
+
       notification.success("Transaction completed successfully!", {
         icon: "🎉",
       });
@@ -107,7 +112,7 @@ const MintButton = ({ inkId }: MintButtonProps) => {
   return (
     <>
       {/* Trigger Button */}
-      <Button loading={minting} icon={<SendOutlined />} onClick={() => setModalOpen(true)}>
+      <Button icon={<SendOutlined />} onClick={() => setModalOpen(true)}>
         Mint
       </Button>
 
