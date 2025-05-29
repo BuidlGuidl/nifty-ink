@@ -1,19 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import LZ from "lz-string";
 import CanvasDraw from "react-canvas-draw";
 import { CanvasDrawLines } from "../../../types/canvasDrawing";
 import Loader from "~~/app/_components/Loader";
+import { calculateLoadTimeOffset } from "~~/utils/loadTime";
 
 const NiftyView = ({ params }: { params: { cid: string } }) => {
   const cid = params?.cid;
   const [calculatedCanvaSize, setCalculatedCanvaSize] = useState<number>(500);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDrawing, setIsDrawing] = useState<boolean>(true);
-  const [finalDrawing, setFinalDrawing] = useState<string>("");
-  const totalLines = useRef<number>(0);
+  const [totalLines, setTotalLines] = useState<number>(0);
   const isMounted = useRef(false);
 
   const drawingCanvas = useRef<CanvasDrawLines>(null);
@@ -43,11 +42,10 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
 
       const decompressed = LZ.decompressFromUint8Array(new Uint8Array(drawingContent));
       const parsedDrawing = JSON.parse(decompressed);
-      totalLines.current = parsedDrawing.lines.length;
+      setTotalLines(parsedDrawing.lines.length);
 
       setDrawingData(decompressed);
       drawingCanvas.current?.loadSaveData(decompressed, true);
-      setFinalDrawing(drawingCanvas.current?.canvas.drawing.toDataURL("image/png"));
     } catch (e) {
       console.error("Error loading or decompressing drawing:", e);
     } finally {
@@ -75,32 +73,26 @@ const NiftyView = ({ params }: { params: { cid: string } }) => {
             <Loader />
           </div>
         )}
-        <Image
-          width={calculatedCanvaSize}
-          height={calculatedCanvaSize}
-          src={`${finalDrawing}`}
-          alt="Your drawing"
-          className={`bg-white absolute top-0 left-0 ${isDrawing ? "opacity-0" : "opacity-100"}`}
-        />
         <CanvasDraw
           ref={drawingCanvas}
           canvasWidth={calculatedCanvaSize}
           canvasHeight={calculatedCanvaSize}
           disabled={true}
-          loadTimeOffset={5}
+          saveData={drawingData}
+          immediateLoading={true}
+          loadTimeOffset={calculateLoadTimeOffset(totalLines)}
           hideInterface={true}
           hideGrid={true}
           onChange={() => {
             try {
               const drawnLines = drawingCanvas?.current?.lines.length;
-              if ((drawnLines ?? 0) >= totalLines?.current && isDrawing) {
+              if ((drawnLines ?? 0) >= totalLines && isDrawing) {
                 setIsDrawing(false);
               }
             } catch (e) {
               console.log(e);
             }
           }}
-          className={`${isDrawing ? "opacity-100" : "opacity-0"}`}
         />
       </div>
     </div>
