@@ -22,7 +22,9 @@ export async function generateMetadata({ params }: { params: { coinAddress: stri
       description: "Nifty Ink is a platform for creating and sharing digital art.",
     });
 
-  const imageUrl = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/${metadata.image}`;
+  const imageUrl = metadata.image?.includes("ipfs://")
+    ? `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${metadata.image.replace("ipfs://", "")}`
+    : `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${metadata.image}`;
 
   return {
     title: metadata.name,
