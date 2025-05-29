@@ -32,8 +32,8 @@ const MintButton = ({ inkId }: MintButtonProps) => {
   const { sendCallsAsync, isPending } = useSendCalls();
   const { writeContractAsync } = useWriteContract();
 
-  const mint = async () => {
-    // Validate all addresses
+  // Helper function to validate addresses
+  const validateAddresses = () => {
     const validAddresses: string[] = [];
     let hasErrors = false;
 
@@ -51,73 +51,92 @@ const MintButton = ({ inkId }: MintButtonProps) => {
     });
 
     setAddresses(updatedAddresses);
+    return { validAddresses, hasErrors };
+  };
+
+  // Helper function to create mint calls
+  const createMintCalls = (addresses: string[]) => {
+    return addresses.map(address => ({
+      to: NIFTY_TOKEN_CONTRACT.address,
+      data: encodeFunctionData({
+        abi: NIFTY_TOKEN_CONTRACT.abi,
+        functionName: "mint",
+        args: [address, inkId],
+      }),
+    }));
+  };
+
+  // Helper function to handle successful minting
+  const handleMintSuccess = () => {
+    notification.success("Transaction completed successfully!", {
+      icon: "🎉",
+    });
+    // Reset form and close modal on success
+    setAddresses([{ id: 1, address: "", error: "" }]);
+    setNextId(2);
+    setModalOpen(false);
+  };
+
+  // Helper function to handle single address minting fallback
+  const mintToSingleAddress = async (address: string) => {
+    await writeContractAsync({
+      abi: NIFTY_TOKEN_CONTRACT.abi,
+      address: NIFTY_TOKEN_CONTRACT.address,
+      functionName: "mint",
+      args: [address, inkId],
+    });
+    handleMintSuccess();
+  };
+
+  // Helper function to handle specific error cases
+  const handleMintError = async (error: unknown, validAddresses: string[]) => {
+    if (error instanceof Error) {
+      if (
+        error.name === "AtomicityNotSupportedError" ||
+        error.name === "AtomicReadyWalletRejectedUpgradeError" ||
+        (error.cause instanceof Error && error.cause.name === "AtomicityNotSupportedError") ||
+        (error.cause instanceof Error && error.cause.name === "AtomicReadyWalletRejectedUpgradeError")
+      ) {
+        try {
+          notification.error("Batch minting not supported. Minting only to the first address.");
+          await mintToSingleAddress(validAddresses[0]);
+          return;
+        } catch (fallbackError) {
+          console.log(fallbackError);
+        }
+      }
+    }
+
+    notification.error("Failed to mint");
+    console.log(error);
+  };
+
+  const mint = async () => {
+    // Step 1: Validate addresses
+    const { validAddresses, hasErrors } = validateAddresses();
 
     if (hasErrors || validAddresses.length === 0) {
       return;
     }
 
     setMinting(true);
-    if (chain?.id !== gnosis.id) {
-      const switched = await switchTo(gnosis);
-      if (!switched) return;
-    }
+
     try {
-      const calls = [];
-      for (const address of validAddresses) {
-        calls.push({
-          to: NIFTY_TOKEN_CONTRACT.address,
-          data: encodeFunctionData({
-            abi: NIFTY_TOKEN_CONTRACT.abi,
-            functionName: "mint",
-            args: [address, inkId],
-          }),
-        });
+      // Step 2: Ensure we're on the correct chain
+      if (chain?.id !== gnosis.id) {
+        const switched = await switchTo(gnosis);
+        if (!switched) return;
       }
+
+      // Step 3: Execute batch mint
+      const calls = createMintCalls(validAddresses);
       await sendCallsAsync({ calls });
 
-      notification.success("Transaction completed successfully!", {
-        icon: "🎉",
-      });
-      // Reset form and close modal on success
-      setAddresses([{ id: 1, address: "", error: "" }]);
-      setNextId(2);
-      setModalOpen(false);
-    } catch (e) {
-      if (e instanceof Error) {
-        if (e.name === "AtomicityNotSupportedError") {
-          notification.error("Atomicity not supported");
-          await writeContractAsync({
-            abi: NIFTY_TOKEN_CONTRACT.abi,
-            address: NIFTY_TOKEN_CONTRACT.address,
-            functionName: "mint",
-            args: [validAddresses[0], inkId],
-          });
-          notification.success("Transaction completed successfully!", {
-            icon: "🎉",
-          });
-          return;
-        }
-        if (e.name === "AtomicReadyWalletRejectedUpgradeError") {
-          notification.error("Atomic ready wallet rejected upgrade. Minting only to the first address.");
-          try {
-            await writeContractAsync({
-              abi: NIFTY_TOKEN_CONTRACT.abi,
-              address: NIFTY_TOKEN_CONTRACT.address,
-              functionName: "mint",
-              args: [validAddresses[0], inkId],
-            });
-            notification.success("Transaction completed successfully!", {
-              icon: "🎉",
-            });
-            return;
-          } catch (e) {
-            console.log(e);
-          }
-          return;
-        }
-      }
-      notification.error("Failed to mint");
-      console.log(e);
+      // Step 4: Handle success
+      handleMintSuccess();
+    } catch (error) {
+      // Step 5: Handle errors
+      await handleMintError(error, validAddresses);
     } finally {
       setMinting(false);
     }
