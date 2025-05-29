@@ -5,7 +5,7 @@ import { SendOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import { encodeFunctionData, isAddress } from "viem";
 import { gnosis } from "viem/chains";
-import { useAccount, useSendCalls } from "wagmi";
+import { useAccount, useSendCalls, useWriteContract } from "wagmi";
 import { PaperAirplaneIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useChainSwitcher } from "~~/app/_hooks/useChainSwitcher";
 import { AddressInput } from "~~/components/scaffold-eth";
@@ -30,6 +30,7 @@ const MintButton = ({ inkId }: MintButtonProps) => {
 
   const { switchTo } = useChainSwitcher();
   const { sendCallsAsync, isPending } = useSendCalls();
+  const { writeContractAsync } = useWriteContract();
 
   const mint = async () => {
     // Validate all addresses
@@ -82,6 +83,39 @@ const MintButton = ({ inkId }: MintButtonProps) => {
       setNextId(2);
       setModalOpen(false);
     } catch (e) {
+      if (e instanceof Error) {
+        if (e.name === "AtomicityNotSupportedError") {
+          notification.error("Atomicity not supported");
+          await writeContractAsync({
+            abi: NIFTY_TOKEN_CONTRACT.abi,
+            address: NIFTY_TOKEN_CONTRACT.address,
+            functionName: "mint",
+            args: [validAddresses[0], inkId],
+          });
+          notification.success("Transaction completed successfully!", {
+            icon: "🎉",
+          });
+          return;
+        }
+        if (e.name === "AtomicReadyWalletRejectedUpgradeError") {
+          notification.error("Atomic ready wallet rejected upgrade. Minting only to the first address.");
+          try {
+            await writeContractAsync({
+              abi: NIFTY_TOKEN_CONTRACT.abi,
+              address: NIFTY_TOKEN_CONTRACT.address,
+              functionName: "mint",
+              args: [validAddresses[0], inkId],
+            });
+            notification.success("Transaction completed successfully!", {
+              icon: "🎉",
+            });
+            return;
+          } catch (e) {
+            console.log(e);
+          }
+          return;
+        }
+      }
       notification.error("Failed to mint");
       console.log(e);
     } finally {
