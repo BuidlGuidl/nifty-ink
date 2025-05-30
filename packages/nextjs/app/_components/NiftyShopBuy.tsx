@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useChainSwitcher } from "../_hooks/useChainSwitcher";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { Button, Popconfirm } from "antd";
 import { formatEther } from "viem";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { gnosis } from "viem/chains";
+import { useAccount, useWriteContract } from "wagmi";
+import { NIFTY_TOKEN_CONTRACT } from "~~/contracts/externalContracts";
 import { notification } from "~~/utils/scaffold-eth";
 
 export const NiftyShopBuy = ({
@@ -18,22 +21,31 @@ export const NiftyShopBuy = ({
   inkName: string;
   type: string;
 }) => {
-  const [buying, setBuying] = useState(true);
-
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("NiftyToken");
+  const { chain } = useAccount();
+  const { switchTo } = useChainSwitcher();
+  const { writeContractAsync } = useWriteContract();
+  const [buying, setBuying] = useState(false);
 
   const buyInk = async () => {
     setBuying(true);
+    if (chain?.id !== gnosis.id) {
+      const switched = await switchTo(gnosis);
+      if (!switched) return;
+    }
     try {
-      await writeYourContractAsync({
+      await writeContractAsync({
+        abi: NIFTY_TOKEN_CONTRACT.abi,
+        address: NIFTY_TOKEN_CONTRACT.address,
         functionName: type === "ink" ? "buyInk" : "buyToken",
         args: [itemForSale],
         value: BigInt(price),
       });
+      notification.success("Transaction completed successfully!", {
+        icon: "🎉",
+      });
     } catch (e) {
-      setBuying(false);
       console.log(e);
-      notification.error("Something went wrong");
+      notification.error("Transaction failed");
     } finally {
       setBuying(false);
     }
@@ -49,7 +61,7 @@ export const NiftyShopBuy = ({
           cancelText="Cancel"
           icon={<ShoppingCartOutlined />}
         >
-          <Button type="primary" size="small" icon={<ShoppingCartOutlined />}>
+          <Button disabled={buying} type="primary" size="small" icon={<ShoppingCartOutlined />}>
             {"$" + parseFloat(formatEther(BigInt(price))).toFixed(2)}
           </Button>
         </Popconfirm>

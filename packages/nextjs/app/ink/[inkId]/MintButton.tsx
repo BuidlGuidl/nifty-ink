@@ -2,10 +2,14 @@
 
 import React, { useState } from "react";
 import { SendOutlined } from "@ant-design/icons";
-import { Button, Form, Popover, Row } from "antd";
+import { Button, Form, Popover } from "antd";
+import { gnosis } from "viem/chains";
+import { useAccount, useWriteContract } from "wagmi";
+import { useChainSwitcher } from "~~/app/_hooks/useChainSwitcher";
 import { AddressInput } from "~~/components/scaffold-eth";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { NIFTY_TOKEN_CONTRACT } from "~~/contracts/externalContracts";
 import { AddressType } from "~~/types/abitype/abi";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface MintButton {
   inkId: string;
@@ -14,20 +18,31 @@ interface MintButton {
 const MintButton: React.FC<MintButton> = ({ inkId }) => {
   const [minting, setMinting] = useState<boolean>(false);
   const [inputAddress, setInputAddress] = useState<AddressType>("");
+  const { chain } = useAccount();
+  const { switchTo } = useChainSwitcher();
+  const { writeContractAsync } = useWriteContract();
 
   const [form] = Form.useForm();
 
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("NiftyToken");
-
   const mint = async () => {
     setMinting(true);
+    if (chain?.id !== gnosis.id) {
+      const switched = await switchTo(gnosis);
+      if (!switched) return;
+    }
     try {
-      await writeYourContractAsync({
+      await writeContractAsync({
+        abi: NIFTY_TOKEN_CONTRACT.abi,
+        address: NIFTY_TOKEN_CONTRACT.address,
         functionName: "mint",
         args: [inputAddress, inkId],
       });
+      notification.success("Transaction completed successfully!", {
+        icon: "🎉",
+      });
       form.resetFields();
     } catch (e) {
+      notification.error("Failed to mint");
       console.log(e);
     } finally {
       setMinting(false);

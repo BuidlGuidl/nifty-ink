@@ -98,7 +98,6 @@ export const InkList = ({
                                         targetId={inks[ink].inkNumber}
                                         likeCount={(likeInfo && likeInfo?.likeCount) || 0}
                                         hasLiked={(likeInfo && likeInfo?.likes?.length > 0) || false}
-                                        connectedAddress={connectedAddress}
                                       />
                                     )}
                                   </div>

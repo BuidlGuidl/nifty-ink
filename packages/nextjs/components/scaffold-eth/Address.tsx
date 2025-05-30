@@ -5,7 +5,6 @@ import Link from "next/link";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Address as AddressType, getAddress, isAddress } from "viem";
 import { hardhat } from "viem/chains";
-import { normalize } from "viem/ens";
 import { useEnsAvatar, useEnsName } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
@@ -18,6 +17,7 @@ type AddressProps = {
   format?: "short" | "long";
   size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
   showCopy?: boolean;
+  showBlockie?: boolean;
 };
 
 const blockieSizeMap = {
@@ -33,7 +33,14 @@ const blockieSizeMap = {
 /**
  * Displays an address (or ENS) with a Blockie image and option to copy address.
  */
-export const Address = ({ address, disableAddressLink, format, size = "base", showCopy = false }: AddressProps) => {
+export const Address = ({
+  address,
+  disableAddressLink,
+  format,
+  size = "base",
+  showCopy = false,
+  showBlockie = true,
+}: AddressProps) => {
   const [ens, setEns] = useState<string | null>();
   const [ensAvatar, setEnsAvatar] = useState<string | null>();
   const [addressCopied, setAddressCopied] = useState(false);
@@ -94,22 +101,24 @@ export const Address = ({ address, disableAddressLink, format, size = "base", sh
 
   return (
     <div className="flex items-center">
-      <div className="flex-shrink-0">
-        <BlockieAvatar
-          address={checkSumAddress}
-          ensImage={ensAvatar}
-          size={(blockieSizeMap[size] * 24) / blockieSizeMap["base"]}
-        />
-      </div>
+      {showBlockie && (
+        <div className="flex-shrink-0">
+          <BlockieAvatar
+            address={checkSumAddress}
+            ensImage={ensAvatar}
+            size={(blockieSizeMap[size] * 24) / blockieSizeMap["base"]}
+          />
+        </div>
+      )}
       {disableAddressLink ? (
-        <span className={`ml-1.5 text-${size} font-normal`}>{displayAddress}</span>
+        <span className={`${showBlockie ? "ml-1.5" : "ml-0"} text-${size} font-normal`}>{displayAddress}</span>
       ) : targetNetwork.id === hardhat.id ? (
-        <span className={`ml-1.5 text-${size} font-normal`}>
+        <span className={`${showBlockie ? "ml-1.5" : "ml-0"} text-${size} font-normal`}>
           <Link href={blockExplorerAddressLink}>{displayAddress}</Link>
         </span>
       ) : (
         <a
-          className={`ml-1.5 text-${size} font-normal`}
+          className={`${showBlockie ? "ml-1.5" : "ml-0"} text-${size} font-normal`}
           target="_blank"
           href={blockExplorerAddressLink}
           rel="noopener noreferrer"
