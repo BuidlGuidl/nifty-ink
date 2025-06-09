@@ -130,7 +130,7 @@ const MintButton = ({ inkId }: MintButtonProps) => {
 
       // Step 3: Execute batch mint
       const calls = createMintCalls(validAddresses);
-      await sendCallsAsync({ calls });
+      await sendCallsAsync({ calls, experimental_fallback: true });
 
       // Step 4: Handle success
       handleMintSuccess();

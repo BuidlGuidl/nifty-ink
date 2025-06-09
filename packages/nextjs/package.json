@@ -56,8 +56,8 @@
     "uint8arrays": "^3.1.1",
     "use-debounce": "^8.0.4",
     "usehooks-ts": "^2.13.0",
-    "viem": "^2.29.2",
-    "wagmi": "^2.15.2",
+    "viem": "^2.31.0",
+    "wagmi": "^2.15.6",
     "zustand": "^4.1.2"
   },
   "devDependencies": {
