@@ -10,7 +10,7 @@ const nextConfig = {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
   images: {
-    domains: ["gateway.nifty.ink", "metadata.nifty.ink", "niftyink.bgipfs.com", "scontent-iad4-1.choicecdn.com"],
+    domains: ["metadata.nifty.ink", "niftyink.bgipfs.com", "scontent-iad4-1.choicecdn.com"],
     remotePatterns: [
       {
         protocol: "https",

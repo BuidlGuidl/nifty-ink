@@ -26,17 +26,17 @@ export const createQueryString = (name: string, value: string, searchParams: URL
 };
 
 export const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
-  const response = await fetch(`https://gateway.nifty.ink:42069/ipfs/${jsonURL}`);
+  const response = await fetch(`https://niftyink.bgipfs.com/ipfs/${jsonURL}`);
   const data: InkMetadata = await response.json();
-  data.image = data.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/");
+  data.image = data.image.replace("https://ipfs.io/ipfs/", "https://niftyink.bgipfs.com/ipfs/");
   return data;
 };
 
 export const getMetadataWithTimeout = async (jsonURL: string, timeout = 2000): Promise<InkMetadata> => {
   const fetchPromise = (async () => {
-    const response = await fetch(`https://gateway.nifty.ink:42069/ipfs/${jsonURL}`);
+    const response = await fetch(`https://niftyink.bgipfs.com/ipfs/${jsonURL}`);
     const data: InkMetadata = await response.json();
-    data.image = data.image.replace("https://ipfs.io/ipfs/", "https://gateway.nifty.ink:42069/ipfs/");
+    data.image = data.image.replace("https://ipfs.io/ipfs/", "https://niftyink.bgipfs.com/ipfs/");
     return data;
   })();
 
