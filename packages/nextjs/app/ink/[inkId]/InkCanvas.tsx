@@ -98,7 +98,7 @@ export const InkCanvas = ({
         <Descriptions.Item label="Image">
           {
             <a
-              href={inkJson.image.replace("https://ipfs.io/ipfs/", "https://niftyink.bgipfs.com/ipfs/")}
+              href={inkJson.image.replace("https://ipfs.io/ipfs/", `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/`)}
               target="_blank"
             >
               {inkJson.image}
@@ -177,7 +177,10 @@ export const InkCanvas = ({
                 <object
                   type="image/png"
                   className="w-full h-full"
-                  data={inkJson.image.replace("https://ipfs.io/ipfs/", "https://niftyink.bgipfs.com/ipfs/")}
+                  data={inkJson.image.replace(
+                    "https://ipfs.io/ipfs/",
+                    `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/`,
+                  )}
                 >
                   <img src={inkJson.image} />
                 </object>

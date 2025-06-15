@@ -7,10 +7,10 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     openGraph: {
-      images: [`https://niftyink.bgipfs.com/ipfs/${params?.inkId}`],
+      images: [`${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${params?.inkId}`],
     },
     twitter: {
-      images: [`https://niftyink.bgipfs.com/ipfs/${params?.inkId}`],
+      images: [`${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${params?.inkId}`],
     },
   };
 }

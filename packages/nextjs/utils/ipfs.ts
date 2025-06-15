@@ -52,7 +52,7 @@ export async function getFromIPFS(hashToGet: string, timeout: number) {
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const response = await fetch(`https://niftyink.bgipfs.com/ipfs/${hashToGet}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${hashToGet}`, {
       signal: controller.signal,
     });
 
@@ -69,14 +69,14 @@ export async function getFromIPFS(hashToGet: string, timeout: number) {
 
 export function getFetchableUrl(uri: string): string {
   if (uri.startsWith("http://")) return "";
-  if (uri.startsWith("https://niftyink.bgipfs.com")) {
+  if (process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT && uri.startsWith(process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT)) {
     const ipfsHash = uri.split("ipfs/").pop();
-    const gatewayUrl = `https://niftyink.bgipfs.com/ipfs/${ipfsHash}`;
+    const gatewayUrl = `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${ipfsHash}`;
     return gatewayUrl;
   }
   if (uri.startsWith("https://")) return uri;
 
   const ipfsHash = uri.split("ipfs://").pop();
-  const gatewayUrl = `https://niftyink.bgipfs.com/ipfs/${ipfsHash}`;
+  const gatewayUrl = `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${ipfsHash}`;
   return gatewayUrl;
 }

@@ -174,7 +174,7 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
                     <Link href={{ pathname: "/ink/" + e.inkId }}>
                       <div className="relative top-0 left-0">
                         <img
-                          src={`https://niftyink.bgipfs.com/ipfs/${e.inkId}`}
+                          src={`${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${e.inkId}`}
                           alt="ink"
                           className="w-[70px] h-[70px] border border-gray-300 rounded-[5px] p-[5px] relative top-0 left-0"
                         ></img>
