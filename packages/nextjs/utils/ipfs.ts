@@ -1,7 +1,4 @@
 import { createUploader } from "ipfs-uploader";
-import all from "it-all";
-import { create } from "kubo-rpc-client";
-import * as uint8arrays from "uint8arrays";
 
 export function createIPFSUploader() {
   if (!process.env.NEXT_PUBLIC_PINATA_JWT) {
@@ -50,35 +47,36 @@ export async function uploadToIPFS(fileToUpload: any, type: "file" | "json" | "b
   }
 }
 
-const ipfsConfig = {
-  host: "ipfs.nifty.ink",
-  port: 3001,
-  protocol: "https",
-  timeout: 250000,
-};
-
 export async function getFromIPFS(hashToGet: string, timeout: number) {
-  const ipfs = create({ ...ipfsConfig, timeout });
-  const data = uint8arrays.concat(await all(ipfs.cat(hashToGet)));
-  return data;
-}
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-export async function addToIPFS(fileToUpload: any) {
-  const ipfs = create(ipfsConfig);
-  const result = await ipfs.add(fileToUpload);
-  return result;
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${hashToGet}`, {
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch from IPFS: ${response.statusText}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    return new Uint8Array(arrayBuffer);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export function getFetchableUrl(uri: string): string {
   if (uri.startsWith("http://")) return "";
-  if (uri.startsWith("https://niftyink.bgipfs.com")) {
+  if (process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT && uri.startsWith(process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT)) {
     const ipfsHash = uri.split("ipfs/").pop();
-    const gatewayUrl = `https://${ipfsHash}.ipfs.niftyink.bgipfs.com`;
+    const gatewayUrl = `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${ipfsHash}`;
     return gatewayUrl;
   }
   if (uri.startsWith("https://")) return uri;
 
   const ipfsHash = uri.split("ipfs://").pop();
-  const gatewayUrl = `https://gateway.nifty.ink:42069/ipfs/${ipfsHash}`;
+  const gatewayUrl = `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${ipfsHash}`;
   return gatewayUrl;
 }

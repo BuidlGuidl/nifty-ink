@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: { params: { coinAddress: stri
     });
 
   const imageUrl = metadata.image?.includes("ipfs://")
-    ? `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${metadata.image.replace("ipfs://", "")}`
-    : `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${metadata.image}`;
+    ? `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${metadata.image.replace("ipfs://", "")}`
+    : `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${metadata.image}`;
 
   return {
     title: metadata.name,

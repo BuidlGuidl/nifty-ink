@@ -24,7 +24,7 @@ export const fetchMetadata = async (tokenUri: string): Promise<Metadata> => {
     throw new Error("Invalid token URI format");
   }
 
-  const url = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${inkId}`;
+  const url = `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${inkId}`;
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -40,7 +40,7 @@ export const fetchDrawingContent = async (link: string): Promise<string> => {
     throw new Error("Invalid ink URI format");
   }
 
-  let inkUrl = `${process.env.NEXT_PUBLIC_PINATA_GATEWAY}/ipfs/${inkCID}`;
+  let inkUrl = `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${inkCID}`;
   // Special case handling should be moved to a config file
   if (inkCID === "bafybeiaxw4zkw57lsc7iueyxpzwalb2rxdr5dx4vervynjhwgxagbbdeli") {
     inkUrl = "https://bafkreifhnbmjsb4c4cobi2bk4x2vikityhqcwzv6nprs3sd3i2qk5xlqne.ipfs.community.bgipfs.com/";
