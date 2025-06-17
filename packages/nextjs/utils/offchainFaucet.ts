@@ -2,7 +2,7 @@
 
 import { db } from "../db/drizzle";
 import { funding } from "../db/schema";
-import { COIN_FACTORY_ADDRESS } from "./coin";
+import { COIN_FACTORY_ADDRESS } from "./constants";
 import { getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
 import { and, desc, eq } from "drizzle-orm";
 import { TransactionSerializedLegacy, formatEther, parseEther, parseTransaction } from "viem";
