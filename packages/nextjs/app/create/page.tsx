@@ -214,6 +214,8 @@ const CreateInk = () => {
                 onChange={handleCanvasChange}
                 saveData={initialDrawing}
                 immediateLoading={true} //drawingSize >= 10000}
+                enablePanAndZoom={true}
+                zoomExtents={{ min: 1, max: 4 }}
                 loadTimeOffset={3}
               />
             </div>

@@ -8,6 +8,7 @@ import {
   InfoCircleOutlined,
   PlaySquareOutlined,
   UndoOutlined,
+  ZoomInOutlined,
 } from "@ant-design/icons";
 import { Button, Popconfirm, Popover, Table } from "antd";
 import { Grid } from "antd";
@@ -141,6 +142,28 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({
         className="tooltip tooltip-primary tooltip-bottom"
         data-tip="Fill the canvas"
       />
+      <Popover
+        content={
+          <div className="text-sm">
+            Ctrl + mouse wheel to zoom in/out.
+            <br />
+            Two finger pinch on touch devices.
+            <br />
+            Click this button to reset zoom to default (Recommended after every zoom).
+          </div>
+        }
+        title="Zoom Controls"
+        trigger="hover"
+        placement="bottom"
+      >
+        <Button
+          onClick={() => {
+            (drawingCanvas.current as any)?.resetView();
+          }}
+          icon={<ZoomInOutlined />}
+          size={"middle"}
+        />
+      </Popover>
       <Button
         onClick={() => drawFrame(color, brushRadius)}
         icon={<BorderOutlined />}

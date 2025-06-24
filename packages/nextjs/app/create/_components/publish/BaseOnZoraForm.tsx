@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ValidMetadataURI, getCoinCreateFromLogs, validateMetadataURIContent } from "@zoralabs/coins-sdk";
+import { createCoinCall, getCoinCreateFromLogs } from "@zoralabs/coins-sdk";
 import LZ from "lz-string";
 import { createWalletClient, encodeFunctionData, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -11,7 +11,6 @@ import { useChainSwitcher } from "~~/app/_hooks/useChainSwitcher";
 import { FormInput } from "~~/components/shared/FormInput";
 import { CanvasDrawLines } from "~~/types/canvasDrawing";
 import { Metadata } from "~~/types/zora";
-import { customCreateCoinCall } from "~~/utils/coin";
 import { baseAddressPlatformReferrer } from "~~/utils/constants";
 import { uploadToIPFS } from "~~/utils/ipfs";
 import { fundAndSignTransaction } from "~~/utils/offchainFaucet";
@@ -121,13 +120,11 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
       uri: `${CONSTANTS.METADATA_BASE_URL}${inkMetadataCID}`,
       payoutRecipient: connectedAddress,
       owners: [connectedAddress],
+      chainId: base.id,
       platformReferrer: CONSTANTS.PLATFORM_REFERRER,
     };
     notification.info("Preparing transaction");
-    const createCoinRequest = customCreateCoinCall(createCoinParams);
-    const validatedUri = await validateMetadataURIContent(createCoinParams.uri as ValidMetadataURI);
-    console.log(`URI validation: ${createCoinParams.uri} -> ${validatedUri}`);
-    if (!validatedUri) throw new Error("Invalid metadata URI");
+    const createCoinRequest = await createCoinCall(createCoinParams);
 
     if (isBurnerWalletConnected) {
       if (!pk) throw new Error("No private key provided");
@@ -173,7 +170,7 @@ const useZoraForm = (connectedAddress: string, drawingCanvas: React.RefObject<Ca
         ...createCoinRequest,
         account: walletClient.account,
         chain: base,
-      });
+      } as any);
       if (request.gas) {
         // Gas limit multiplier is a percentage argument.
         request.gas = (request.gas * BigInt(CONSTANTS.GAS_MULTIPLIER)) / 100n;

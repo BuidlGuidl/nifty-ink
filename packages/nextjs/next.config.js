@@ -21,6 +21,18 @@ const nextConfig = {
   webpack: config => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push("pino-pretty", "lokijs", "encoding");
+    
+    // Handle worker files that contain ES6 module syntax
+    config.module.rules.push({
+      test: /HeartbeatWorker\.js$/,
+      loader: 'string-replace-loader',
+      options: {
+        search: 'export {};',
+        replace: '',
+        flags: 'g'
+      }
+    });
+    
     return config;
   },
   async rewrites() {
