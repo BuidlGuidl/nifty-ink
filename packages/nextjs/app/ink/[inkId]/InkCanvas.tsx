@@ -33,7 +33,7 @@ export const InkCanvas = ({
   const [drawing, setDrawing] = useState<string | undefined>();
   const [canvasState, setCanvasState] = useState("downloading");
   const [totalLines, setTotalLines] = useState<number>(0);
-  const [drawingLocalStorage, setDrawingLocalStorage] = useLocalStorage("drawing", "");
+  const [, setDrawingLocalStorage] = useLocalStorage("drawing", "");
 
   const [canvasKey, setCanvasKey] = useState(Date.now());
 
@@ -54,7 +54,7 @@ export const InkCanvas = ({
         console.log(`finding length ${new Date().toISOString()}`);
         const parsedDrawing = JSON.parse(decompressed);
         const points = parsedDrawing.lines.reduce((acc: number, line: any) => acc + line.points.length, 0);
-        drawingCanvas.current?.loadSaveData(decompressed, true);
+        // drawingCanvas.current?.loadSaveData(decompressed, true);
         console.log(`saving ${new Date().toISOString()}`);
         setDrawingSize(points);
         setTotalLines(parsedDrawing.lines.length);
@@ -70,6 +70,7 @@ export const InkCanvas = ({
 
     setCanvasKey(Date.now());
     fetchAndShowDrawing();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inkId]);
 
   const detailContent = (
@@ -200,7 +201,8 @@ export const InkCanvas = ({
                 disabled={true}
                 hideGrid={true}
                 hideInterface={true}
-                // saveData={drawing}
+                saveData={drawing}
+                immediateLoading={true}
                 loadTimeOffset={calculateLoadTimeOffset(totalLines)}
                 onChange={() => {
                   try {
