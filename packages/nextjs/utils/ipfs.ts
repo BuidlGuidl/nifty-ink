@@ -14,12 +14,12 @@ export function createIPFSUploader() {
       jwt: process.env.NEXT_PUBLIC_PINATA_JWT,
       gateway: process.env.NEXT_PUBLIC_PINATA_GATEWAY,
     },
-    {
-      id: "nifty-ipfs",
-      options: {
-        url: "https://ipfs.nifty.ink:3001",
-      },
-    },
+    // {
+    //   id: "nifty-ipfs",
+    //   options: {
+    //     url: "https://ipfs.nifty.ink:3001",
+    //   },
+    // },
     {
       url: "https://upload.bgipfs.com",
       headers: {
