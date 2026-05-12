@@ -1,9 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import ZoraPostsContainer from "../_components/ZoraPostsContainer";
 import { RecentActivity } from "./RecentActivity";
 import { useQuery } from "@apollo/client";
 import { Tabs, TabsProps } from "antd";
@@ -21,9 +18,6 @@ import { getMetadataWithTimeout } from "~~/utils/helpers";
 const ITEMS_PER_PAGE = 15;
 
 const ArtistContent = ({ params }: { params: { address: string } }) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const platform = searchParams.get("platform");
   const address = params?.address;
   const [inks, setInks] = useState<Ink[]>([]);
   const { data, fetchMore } = useQuery(ARTISTS_QUERY, {
@@ -112,16 +106,6 @@ const ArtistContent = ({ params }: { params: { address: string } }) => {
     },
     {
       key: "2",
-      label: (
-        <p className={`${TEXT_PRIMARY_COLOR} my-0 flex items-center`}>
-          <Image src="/zora.png" alt="zora" width={16} height={16} className="w-4 h-4 flex-shrink-0" />
-          &nbsp;Zora Posts
-        </p>
-      ),
-      children: <ZoraPostsContainer connectedAddress={address} />,
-    },
-    {
-      key: "3",
       label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>📈 Statistics</p>,
       children: (
         <div className={`flex flex-wrap justify-center p-0 my-0 mx-5 ${TEXT_PRIMARY_COLOR}`}>
@@ -137,40 +121,24 @@ const ArtistContent = ({ params }: { params: { address: string } }) => {
       ),
     },
     {
-      key: "4",
+      key: "3",
       label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🕗 Recent activity</p>,
       children: <RecentActivity address={address} />,
     },
 
     {
-      key: "5",
+      key: "4",
       label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🔍 Search artists</p>,
       children: <SearchAddress redirectToPage="artist" placeholderText="Search artist" />,
     },
   ];
-
-  const handleTabChange = (key: string) => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    if (key === "2") {
-      newSearchParams.set("platform", "zora");
-    } else {
-      newSearchParams.delete("platform");
-    }
-    router.push(`/artist/${address}?${newSearchParams.toString()}`);
-  };
 
   return (
     <div className="flex justify-center">
       <div className="min-w-xl">
         <Profile address={address} />
 
-        <Tabs
-          defaultActiveKey={platform === "zora" ? "2" : "1"}
-          type="line"
-          centered
-          items={items}
-          onChange={handleTabChange}
-        />
+        <Tabs defaultActiveKey="1" type="line" centered items={items} />
       </div>
     </div>
   );

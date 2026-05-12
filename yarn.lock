@@ -2152,13 +2152,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hey-api/client-fetch@npm:^0.8.3":
-  version: 0.8.3
-  resolution: "@hey-api/client-fetch@npm:0.8.3"
-  checksum: 0a156f3728a0f6bb7adec4ecb8b6fffcb1f07450569bd40587980162cb99fca57223e6a1d6a915671cbe16aa993debd605f351825afbb56954f35e3db1a39fd5
-  languageName: node
-  linkType: hard
-
 "@humanwhocodes/config-array@npm:^0.11.14":
   version: 0.11.14
   resolution: "@humanwhocodes/config-array@npm:0.11.14"
@@ -4472,7 +4465,6 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@uniswap/sdk-core": ^4.0.1
     "@uniswap/v2-sdk": ^3.0.1
-    "@zoralabs/coins-sdk": ^0.2.1
     abitype: ^1.0.2
     antd: ^5.24.7
     autoprefixer: ^10.4.12
@@ -7543,26 +7535,6 @@ __metadata:
   dependencies:
     tslib: ^2.3.0
   checksum: 92aeea34152bd8485184236fe328d3d05fc98ee3b431d82ee60cf3584dbf68155419c3d65d0ff3731b204ee79c149440a9b7672784a545afddc8d4342fbf21c9
-  languageName: node
-  linkType: hard
-
-"@zoralabs/coins-sdk@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "@zoralabs/coins-sdk@npm:0.2.1"
-  dependencies:
-    "@hey-api/client-fetch": ^0.8.3
-    "@zoralabs/protocol-deployments": ^0.5.10
-  peerDependencies:
-    abitype: ^1.0.8
-    viem: ^2.21.55
-  checksum: 552286a13d47072395ea017f1eaaca66835f97463500df62c57ee404a69675113faa47e5da93bd3aa80517d9c22280d7072281120ce8338325a2a07098914b8b
-  languageName: node
-  linkType: hard
-
-"@zoralabs/protocol-deployments@npm:^0.5.10":
-  version: 0.5.10
-  resolution: "@zoralabs/protocol-deployments@npm:0.5.10"
-  checksum: a771af2e0a0d4758c35d0843c79ed306404e8872f26b5bce9e9bdabfdd66c985daa9887fc1a482dafc618c52c1a80b469f3c40f0d984ac8f8515d37d16154b27
   languageName: node
   linkType: hard
 

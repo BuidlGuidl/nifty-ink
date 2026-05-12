@@ -152,6 +152,3 @@ export const shortCutsInfo = [
     action: "Decrease opacity by 10%",
   },
 ];
-
-export const baseAddressPlatformReferrer = "0x60D9d464549Dd2d5040EF2D56be10218dc1B9090";
-export const COIN_FACTORY_ADDRESS = "0x777777751622c0d3258f214F9DF38E35BF45baF3";

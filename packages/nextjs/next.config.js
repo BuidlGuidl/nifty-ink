@@ -35,6 +35,15 @@ const nextConfig = {
     
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: "/zora/:path*",
+        destination: "/explore",
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

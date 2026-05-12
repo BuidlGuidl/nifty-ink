@@ -24,7 +24,7 @@ export const PublishModal = ({ connectedAddress, modalId, chain, drawingCanvas }
             <div className="space-y-3 py-6">
               <div className="flex flex-col items-center gap-6">
                 {chain && connectedAddress ? (
-                  <PublishContent chain={chain} connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
+                  <PublishContent connectedAddress={connectedAddress} drawingCanvas={drawingCanvas} />
                 ) : (
                   <p>Please connect your wallet to proceed</p>
                 )}

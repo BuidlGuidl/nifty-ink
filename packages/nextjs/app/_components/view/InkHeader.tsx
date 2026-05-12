@@ -23,7 +23,7 @@ export const InkHeader: React.FC<InkHeaderProps> = ({ name, artist, createdAt, b
 
       <div className="w-full my-2 grid grid-cols-3 items-center">
         <div className="justify-self-start">
-          <Link href={`/artist/${artist}?platform=zora`}>
+          <Link href={`/artist/${artist}`}>
             <Address
               address={artist}
               size={isSmall ? "xs" : "base"}
