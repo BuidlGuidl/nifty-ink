@@ -26,6 +26,10 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/explore",
   },
   {
+    label: "⚔️ head to head",
+    href: "/head-to-head",
+  },
+  {
     label: "🖌 create",
     href: "/create",
   },

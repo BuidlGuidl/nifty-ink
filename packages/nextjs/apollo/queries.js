@@ -147,6 +147,27 @@ export const INKS_QUERY = gql`
   }
 `;
 
+/** Top artists by on-chain sale count; nested inks power random head-to-head matchups (no per-ink sale index). */
+export const HEAD_TO_HEAD_POOL_QUERY = gql`
+  query headToHeadPool($artistFirst: Int!, $inksPerArtist: Int!) {
+    artists(first: $artistFirst, orderBy: saleCount, orderDirection: desc, where: { inkCount_gt: "0" }) {
+      id
+      address
+      saleCount
+      inks(first: $inksPerArtist, orderBy: createdAt, orderDirection: desc, where: { burned: false }) {
+        id
+        inkNumber
+        jsonUrl
+        likeCount
+        artist {
+          id
+          address
+        }
+      }
+    }
+  }
+`;
+
 export const EXPLORE_QUERY = gql`
   query inks($first: Int, $skip: Int, $orderBy: String, $orderDirection: String, $filters: Ink_filter, $liker: String) {
     inks(first: $first, skip: $skip, where: $filters, orderBy: $orderBy, orderDirection: $orderDirection) {
