@@ -25,26 +25,51 @@ export const createQueryString = (name: string, value: string, searchParams: URL
   return params.toString();
 };
 
-export const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${jsonURL}`);
+function rewriteInkMetadataImage(data: InkMetadata): InkMetadata {
+  const base = process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT;
+  if (base && typeof data.image === "string") {
+    data.image = data.image.replace("https://ipfs.io/ipfs/", `${base}/ipfs/`);
+  }
+  return data;
+}
+
+async function fetchInkMetadataFromIpfs(jsonURL: string, signal?: AbortSignal): Promise<InkMetadata> {
+  const base = process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT;
+  if (!base) throw new Error("Missing NEXT_PUBLIC_BGIPFS_ENDPOINT");
+  const response = await fetch(`${base}/ipfs/${jsonURL}`, { signal });
+  if (!response.ok) throw new Error(`IPFS metadata ${response.status}`);
   const data: InkMetadata = await response.json();
-  data.image = data.image.replace("https://ipfs.io/ipfs/", `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/`);
+  return rewriteInkMetadataImage(data);
+}
+
+/** Same JSON as IPFS, but served from our app with HTTP + Next fetch caching (browser hits /api, not the gateway each time). */
+async function fetchInkMetadataFromAppRoute(jsonURL: string, signal?: AbortSignal): Promise<InkMetadata> {
+  const response = await fetch(`/api/ink-metadata?cid=${encodeURIComponent(jsonURL)}`, { signal });
+  if (!response.ok) throw new Error(`Ink metadata API ${response.status}`);
+  const data: InkMetadata = await response.json();
+  return rewriteInkMetadataImage(data);
+}
+
+export const getMetadata = async (jsonURL: string): Promise<InkMetadata> => {
+  const data =
+    typeof window !== "undefined"
+      ? await fetchInkMetadataFromAppRoute(jsonURL)
+      : await fetchInkMetadataFromIpfs(jsonURL);
   return data;
 };
 
 export const getMetadataWithTimeout = async (jsonURL: string, timeout = 2000): Promise<InkMetadata> => {
-  const fetchPromise = (async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${jsonURL}`);
-    const data: InkMetadata = await response.json();
-    data.image = data.image.replace("https://ipfs.io/ipfs/", `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const data =
+      typeof window !== "undefined"
+        ? await fetchInkMetadataFromAppRoute(jsonURL, controller.signal)
+        : await fetchInkMetadataFromIpfs(jsonURL, controller.signal);
     return data;
-  })();
-
-  const timeoutPromise = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error("Request timed out")), timeout),
-  );
-
-  return Promise.race([fetchPromise, timeoutPromise]);
+  } finally {
+    clearTimeout(timer);
+  }
 };
 
 export const isGnosisChain = (chainId: number): boolean => {

@@ -12,7 +12,7 @@ import { ARTIST_RECENT_ACTIVITY_QUERY, FIRST_ARTIST_ACTIVITY_QUERY } from "~~/ap
 import Loader from "~~/components/Loader";
 import { Address } from "~~/components/scaffold-eth";
 import { TEXT_PRIMARY_COLOR } from "~~/utils/constants";
-import { calculateStartingDate } from "~~/utils/helpers";
+import { calculateStartingDate, getMetadataWithTimeout } from "~~/utils/helpers";
 
 interface SearchAddressProps {
   address: string;
@@ -23,7 +23,7 @@ type Activity = {
   emoji: string;
   createdAt: number;
   inkId: string;
-  jsonUrL: string;
+  jsonUrl?: string;
   liker: string;
   id: string;
 
@@ -37,6 +37,12 @@ type Activity = {
 
 const burnAddress = "0x000000000000000000000000000000000000dead";
 const zeroAddress = "0x0000000000000000000000000000000000000000";
+
+/** In-memory only: skip refetching the same jsonUrl in this session (e.g. load more, revisit tab). */
+const activityInkImageCache = new Map<string, string>();
+
+const inkThumbFrameClass =
+  "w-[70px] h-[70px] border border-gray-300 rounded-[5px] p-[5px] relative top-0 left-0 object-contain bg-white";
 
 const createActivityArray = (user: any) => {
   const activities: any[] = [];
@@ -101,6 +107,7 @@ const createActivityArray = (user: any) => {
 
 export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
   const [activity, setActivity] = useState<Activity[]>([]);
+  const [inkImages, setInkImages] = useState<Record<string, string>>({});
   const [startFrom, setStartFrom] = useState<number>(calculateStartingDate("sixmonth"));
   const dateRange = 2592000 * 3; // three months
   const [userFirstActivity, setUserFirstActivity] = useState<number>(calculateStartingDate("sixmonth"));
@@ -131,14 +138,14 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
   });
 
   useEffect(() => {
-    setUserFirstActivity(
-      Math.min(
-        Number(dataFirstActivity?.artists[0]?.lastInkAt),
-        Number(dataFirstActivity?.artists[0]?.lastSaleAt),
-        Number(dataFirstActivity?.artists[0]?.lastLikeAt),
-        Number(dataFirstActivity?.artists[0]?.createdAt),
-      ),
-    );
+    const artist = dataFirstActivity?.artists?.[0];
+    if (!artist) return;
+    // Subgraph uses "0" when there has been no like/sale yet; including those in Math.min
+    // yields 0, which is falsy in JSX and hid the activity list for new artists.
+    const timestamps = [artist.lastInkAt, artist.lastSaleAt, artist.lastLikeAt, artist.createdAt]
+      .map(t => Number(t))
+      .filter(t => Number.isFinite(t) && t > 0);
+    setUserFirstActivity(timestamps.length ? Math.min(...timestamps) : calculateStartingDate("sixmonth"));
   }, [dataFirstActivity]);
 
   useEffect(() => {
@@ -155,6 +162,51 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
     }
   }, [dataActivity]);
 
+  useEffect(() => {
+    if (activity.length === 0) {
+      setInkImages({});
+      return;
+    }
+    const jsonUrls = [...new Set(activity.map(a => a.jsonUrl).filter((u): u is string => Boolean(u)))];
+    const fromCache: Record<string, string> = {};
+    const toFetch: string[] = [];
+    for (const jsonUrl of jsonUrls) {
+      const cached = activityInkImageCache.get(jsonUrl);
+      if (cached) fromCache[jsonUrl] = cached;
+      else toFetch.push(jsonUrl);
+    }
+    if (Object.keys(fromCache).length) {
+      setInkImages(prev => ({ ...prev, ...fromCache }));
+    }
+    if (toFetch.length === 0) return;
+
+    let cancelled = false;
+    Promise.all(
+      toFetch.map(async jsonUrl => {
+        try {
+          const meta = await getMetadataWithTimeout(jsonUrl);
+          if (meta?.image) {
+            activityInkImageCache.set(jsonUrl, meta.image);
+            return [jsonUrl, meta.image] as const;
+          }
+        } catch {
+          /* ignore */
+        }
+        return null;
+      }),
+    ).then(results => {
+      if (cancelled) return;
+      const next: Record<string, string> = {};
+      for (const row of results) {
+        if (row) next[row[0]] = row[1];
+      }
+      if (Object.keys(next).length) setInkImages(prev => ({ ...prev, ...next }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activity]);
+
   const onLoadMore = () => {
     setStartFrom(startFrom - dateRange);
   };
@@ -165,19 +217,19 @@ export const RecentActivity: React.FC<SearchAddressProps> = ({ address }) => {
         <Loader />
       ) : (
         <div className="">
-          {userFirstActivity ? (
+          {userFirstActivity != null && userFirstActivity > 0 ? (
             <ul className="list-none p-0 text-left mt-5">
               {activity
                 .sort((a, b) => b.createdAt - a.createdAt)
                 .map((e, i) => (
-                  <li key={i} className="border-b border-gray-200 py-1.5 flex">
+                  <li key={e.id} className="border-b border-gray-200 py-1.5 flex">
                     <Link href={{ pathname: "/ink/" + e.inkId }}>
                       <div className="relative top-0 left-0">
-                        <img
-                          src={`${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/${e.inkId}`}
-                          alt="ink"
-                          className="w-[70px] h-[70px] border border-gray-300 rounded-[5px] p-[5px] relative top-0 left-0"
-                        ></img>
+                        {e.jsonUrl && inkImages[e.jsonUrl] ? (
+                          <img src={inkImages[e.jsonUrl]} alt="" className={inkThumbFrameClass} />
+                        ) : (
+                          <div className={`${inkThumbFrameClass} bg-gray-100 animate-pulse`} aria-hidden />
+                        )}
                         <span className="absolute top-[42px] left-0 border-2 border-gray-200 bg-white rounded-[5px] p-[1px]">
                           {e.emoji}
                         </span>

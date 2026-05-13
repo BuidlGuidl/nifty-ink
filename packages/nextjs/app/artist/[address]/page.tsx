@@ -123,7 +123,7 @@ const ArtistContent = ({ params }: { params: { address: string } }) => {
     {
       key: "3",
       label: <p className={`${TEXT_PRIMARY_COLOR} my-0`}>🕗 Recent activity</p>,
-      children: <RecentActivity address={address} />,
+      children: <RecentActivity key={address} address={address} />,
     },
 
     {
