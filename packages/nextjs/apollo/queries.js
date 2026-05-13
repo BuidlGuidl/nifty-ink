@@ -168,6 +168,23 @@ export const HEAD_TO_HEAD_POOL_QUERY = gql`
   }
 `;
 
+/** Load two inks by subgraph id for shared head-to-head URLs (`?a=&b=`). */
+export const HEAD_TO_HEAD_INKS_BY_IDS_QUERY = gql`
+  query headToHeadInksByIds($ids: [String!]!) {
+    inks(where: { id_in: $ids }) {
+      id
+      inkNumber
+      jsonUrl
+      likeCount
+      artist {
+        id
+        address
+        saleCount
+      }
+    }
+  }
+`;
+
 export const EXPLORE_QUERY = gql`
   query inks($first: Int, $skip: Int, $orderBy: String, $orderDirection: String, $filters: Ink_filter, $liker: String) {
     inks(first: $first, skip: $skip, where: $filters, orderBy: $orderBy, orderDirection: $orderDirection) {

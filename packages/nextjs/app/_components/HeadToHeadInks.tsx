@@ -1,15 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@apollo/client";
-import { HEAD_TO_HEAD_POOL_QUERY } from "~~/apollo/queries";
+import { HEAD_TO_HEAD_INKS_BY_IDS_QUERY, HEAD_TO_HEAD_POOL_QUERY } from "~~/apollo/queries";
 import Loader from "~~/components/Loader";
 import { getMetadata } from "~~/utils/helpers";
+import { notification } from "~~/utils/scaffold-eth";
 
 const TOP_ARTISTS = 25;
 const INKS_PER_ARTIST = 80;
+const PARAM_A = "a";
+const PARAM_B = "b";
 
 function pickTwoDistinct<T>(items: T[]): [T, T] | null {
   if (items.length < 2) return null;
@@ -29,7 +33,6 @@ type ArtistRow = {
 };
 
 type HeadToHeadInkRow = Pick<Ink, "id" | "inkNumber" | "jsonUrl" | "likeCount" | "artist"> & {
-  /** Parent artist's total sale count (ranking uses the same subgraph field). */
   artistSaleCount: string;
 };
 
@@ -46,38 +49,134 @@ function flattenInksFromArtists(artists: ArtistRow[]): HeadToHeadInkRow[] {
   return Array.from(byId.values());
 }
 
+type SubgraphInkById = {
+  id: string;
+  inkNumber: string | number;
+  jsonUrl: string;
+  likeCount?: string;
+  artist: { id: string; address: string; saleCount?: string };
+};
+
+function mapSubgraphInkToRow(ink: SubgraphInkById): HeadToHeadInkRow {
+  const n = ink.inkNumber;
+  return {
+    id: ink.id,
+    inkNumber: typeof n === "string" ? Number(n) : n,
+    jsonUrl: ink.jsonUrl,
+    likeCount: ink.likeCount as unknown as number | undefined,
+    artist: ink.artist,
+    artistSaleCount: ink.artist.saleCount ?? "0",
+  };
+}
+
 type SideState = { ink: HeadToHeadInkRow; metadata: InkMetadata | null; error?: string };
 
 const HeadToHeadInks = () => {
-  const { data, loading, error } = useQuery(HEAD_TO_HEAD_POOL_QUERY, {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const idA = searchParams.get(PARAM_A)?.trim() ?? "";
+  const idB = searchParams.get(PARAM_B)?.trim() ?? "";
+  const urlPairValid = Boolean(idA && idB && idA !== idB);
+
+  const {
+    data: poolData,
+    loading: poolLoading,
+    error: poolError,
+  } = useQuery(HEAD_TO_HEAD_POOL_QUERY, {
     variables: { artistFirst: TOP_ARTISTS, inksPerArtist: INKS_PER_ARTIST },
   });
-  const [round, setRound] = useState(0);
+
+  const inkPool = useMemo(() => flattenInksFromArtists((poolData?.artists as ArtistRow[]) ?? []), [poolData]);
+
+  const {
+    data: pairGraphData,
+    loading: pairGraphLoading,
+    error: pairGraphError,
+  } = useQuery(HEAD_TO_HEAD_INKS_BY_IDS_QUERY, {
+    variables: { ids: [idA, idB] },
+    skip: !urlPairValid,
+  });
+
   const [left, setLeft] = useState<SideState | null>(null);
   const [right, setRight] = useState<SideState | null>(null);
+  const [pairInvalid, setPairInvalid] = useState(false);
   const [pairLoading, setPairLoading] = useState(false);
 
-  const inkPool = useMemo(() => flattenInksFromArtists((data?.artists as ArtistRow[]) ?? []), [data]);
+  const replacePairInUrl = useCallback(
+    (nextA: string, nextB: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(PARAM_A, nextA);
+      params.set(PARAM_B, nextB);
+      const q = params.toString();
+      router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
-  const advance = useCallback(() => {
-    setRound(r => r + 1);
-  }, []);
+  const clearPairParams = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(PARAM_A);
+    params.delete(PARAM_B);
+    const q = params.toString();
+    router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (urlPairValid) {
+      seededRef.current = false;
+      return;
+    }
+    if (poolLoading || inkPool.length < 2) return;
+    if (seededRef.current) return;
+    seededRef.current = true;
+    const picked = pickTwoDistinct(inkPool);
+    if (!picked) return;
+    replacePairInUrl(picked[0].id, picked[1].id);
+  }, [poolLoading, inkPool, urlPairValid, replacePairInUrl]);
 
   useEffect(() => {
-    if (inkPool.length < 2) {
+    if (!urlPairValid) {
+      setLeft(null);
+      setRight(null);
+      setPairInvalid(false);
+      return;
+    }
+
+    if (pairGraphLoading) {
+      setPairInvalid(false);
+      return;
+    }
+
+    if (pairGraphError) {
+      setPairInvalid(true);
       setLeft(null);
       setRight(null);
       return;
     }
 
-    const picked = pickTwoDistinct(inkPool);
-    if (!picked) {
+    const inks = pairGraphData?.inks as SubgraphInkById[] | undefined;
+    if (!inks || inks.length < 2) {
+      setPairInvalid(true);
       setLeft(null);
       setRight(null);
       return;
     }
 
-    const [l, r] = picked;
+    const rowL = inks.find(i => i.id === idA);
+    const rowR = inks.find(i => i.id === idB);
+    if (!rowL || !rowR) {
+      setPairInvalid(true);
+      setLeft(null);
+      setRight(null);
+      return;
+    }
+
+    setPairInvalid(false);
+    const l = mapSubgraphInkToRow(rowL);
+    const r = mapSubgraphInkToRow(rowR);
     setLeft({ ink: l, metadata: null });
     setRight({ ink: r, metadata: null });
     setPairLoading(true);
@@ -104,22 +203,42 @@ const HeadToHeadInks = () => {
     return () => {
       cancelled = true;
     };
-  }, [inkPool, round]);
+  }, [urlPairValid, idA, idB, pairGraphLoading, pairGraphError, pairGraphData]);
 
-  if (loading && !data?.artists) {
+  const advance = useCallback(() => {
+    if (inkPool.length < 2) return;
+    const picked = pickTwoDistinct(inkPool);
+    if (!picked) return;
+    replacePairInUrl(picked[0].id, picked[1].id);
+  }, [inkPool, replacePairInUrl]);
+
+  const copyMatchupLink = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const url = window.location.href;
+    void navigator.clipboard.writeText(url).then(
+      () => {
+        notification.success("Link copied to clipboard.", { duration: 2500 });
+      },
+      () => {
+        notification.error("Could not copy link.");
+      },
+    );
+  }, []);
+
+  if (poolLoading && !poolData?.artists) {
     return <Loader />;
   }
 
-  if (error) {
+  if (poolError) {
     return (
       <div className="max-w-xl mx-auto text-center space-y-3">
         <p className="text-error">Could not load artists from the subgraph.</p>
-        <p className="text-sm text-base-content/70">{error.message}</p>
+        <p className="text-sm text-base-content/70">{poolError.message}</p>
       </div>
     );
   }
 
-  if (!data?.artists?.length) {
+  if (!poolData?.artists?.length) {
     return <p className="text-center text-base-content/70">No artists returned for the head-to-head pool.</p>;
   }
 
@@ -129,6 +248,23 @@ const HeadToHeadInks = () => {
         Not enough inks in the pool (top {TOP_ARTISTS} artists, up to {INKS_PER_ARTIST} recent inks each). Try again
         later or raise the per-artist ink limit in code.
       </p>
+    );
+  }
+
+  const seedingUrl = !urlPairValid && inkPool.length >= 2;
+
+  if (seedingUrl || (urlPairValid && pairGraphLoading)) {
+    return <Loader />;
+  }
+
+  if (urlPairValid && pairInvalid) {
+    return (
+      <div className="max-w-md mx-auto text-center space-y-4">
+        <p className="text-error">This matchup link is invalid or those inks are not in the indexer.</p>
+        <button type="button" className="btn btn-primary" onClick={clearPairParams}>
+          Show a random matchup
+        </button>
+      </div>
     );
   }
 
@@ -183,19 +319,21 @@ const HeadToHeadInks = () => {
 
   return (
     <div className="space-y-6">
-      <p className="text-center text-base-content/80 max-w-lg mx-auto">
-        Each matchup picks two random inks from the latest work of the top {TOP_ARTISTS} artists by on-chain sale count
-        (up to {INKS_PER_ARTIST} most recent inks per artist). Pick the piece you prefer; we rotate to a new random
-        pair.
+      <p className="text-center text-base-content/80 max-w-lg mx-auto text-sm leading-relaxed">
+        Pick the piece you&apos;d rather keep. Copy the link so a friend gets the same bout—or tap next for two new
+        challengers from top artists.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-4 md:gap-6">
-        {renderSide(left)}
-        {renderSide(right)}
-      </div>
-      <div className="flex justify-center">
+      <div className="flex flex-wrap justify-center gap-2">
+        <button type="button" className="btn btn-outline btn-sm" onClick={copyMatchupLink}>
+          Copy matchup link
+        </button>
         <button type="button" className="btn btn-ghost btn-sm" disabled={pairLoading} onClick={() => advance()}>
           Next random pair
         </button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-4 md:gap-6">
+        {renderSide(left)}
+        {renderSide(right)}
       </div>
     </div>
   );
