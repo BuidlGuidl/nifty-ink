@@ -13,6 +13,9 @@
     "vercel": "vercel",
     "vercel:yolo": "vercel --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true"
   },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "@ant-design/cssinjs": "^1.20.0",
     "@ant-design/nextjs-registry": "^1.0.0",
