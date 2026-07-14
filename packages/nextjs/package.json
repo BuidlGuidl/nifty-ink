@@ -28,6 +28,7 @@
     "@types/react-color": "^3.0.13",
     "@uniswap/sdk-core": "^4.0.1",
     "@uniswap/v2-sdk": "^3.0.1",
+    "@vercel/analytics": "^2.0.1",
     "antd": "^5.24.7",
     "blo": "^1.0.1",
     "burner-connector": "^0.0.15",

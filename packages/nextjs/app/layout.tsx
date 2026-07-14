@@ -1,4 +1,5 @@
 import "@rainbow-me/rainbowkit/styles.css";
+import { Analytics } from "@vercel/analytics/next";
 import PlausibleProvider from "next-plausible";
 import { ApolloWrapper } from "~~/apollo/ApolloWrapper";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
@@ -20,6 +21,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
             <PlausibleProvider domain="nifty.ink">
               <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
             </PlausibleProvider>
+            <Analytics />
           </ThemeProvider>
         </ApolloWrapper>
       </body>
