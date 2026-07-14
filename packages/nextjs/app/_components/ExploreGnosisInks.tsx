@@ -87,7 +87,6 @@ const ExploreGnosisInks = () => {
       inks: debouncedInks?.[0],
       liker: connectedAddress ? connectedAddress.toLowerCase() : "",
     },
-    pollInterval: 6000,
   });
 
   const getInks = async (data: Ink[]) => {
