@@ -1,7 +1,7 @@
 "use server";
 
 import { ethers, formatEther } from "ethers";
-import deployedContracts from "~~/contracts/deployedContracts";
+import externalContracts from "~~/contracts/externalContracts";
 
 export async function faucetWithdraw(sendToAddress: string) {
   const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_ALCHEMY_API);
@@ -16,7 +16,7 @@ export async function faucetWithdraw(sendToAddress: string) {
     const signer = new ethers.Wallet(process.env.FAUCET_ACCOUNT_PRIVATE_KEY!, provider);
     const contract = new ethers.Contract(
       process.env.NEXT_PUBLIC_FAUCET_CONTRACT_ADDRESS as string,
-      deployedContracts[100]["Faucet"]["abi"],
+      externalContracts[100]["Faucet"]["abi"],
       signer,
     );
 
