@@ -1,24 +1,14 @@
-packages/react-app/*.env
-packages/buidler/*.txt
-packages/react-app/src/gsn
-
-packages/nifty-art-server/*.pem
-packages/buidler/mnemonic.txt
 **/aws.json
 
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-**/node_modules
-packages/buidler/artifacts
-packages/buidler/cache
-packages/niftygraph/generated
-packages/niftygraph/subgraph.yaml
-
-docker/*/data
-
 # dependencies
+**/node_modules
 /node_modules
 /.pnp
 .pnp.js
+
+# subgraph build output
+packages/niftygraph/subgraph.yaml
+packages/niftygraph/build
 
 # testing
 coverage
