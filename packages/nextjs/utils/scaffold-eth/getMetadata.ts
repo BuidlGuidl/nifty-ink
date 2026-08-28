@@ -8,15 +8,16 @@ const titleTemplate = "%s";
 export const getMetadata = ({
   title,
   description,
-  imageRelativePath = "/thumbnail.jpg",
+  imageRelativePath = "/unfurl.png",
 }: {
   title: string;
   description: string;
   imageRelativePath?: string;
 }): Metadata => {
-  const imageUrl = `${process.env.NEXT_PUBLIC_BGIPFS_ENDPOINT}/ipfs/unfurl.png`;
+  const imageUrl = `${baseUrl}${imageRelativePath}`;
 
   return {
+    metadataBase: new URL(baseUrl),
     title: {
       default: title,
       template: titleTemplate,
