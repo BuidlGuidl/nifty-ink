@@ -76,7 +76,14 @@ yarn codegen
 yarn build
 ```
 
-> The `deploy-*` scripts in `packages/niftygraph/package.json` still target The Graph's hosted service, which has been shut down. The app currently reads from Goldsky / The Graph network endpoints (see the `NEXT_PUBLIC_GRAPHQL_ENDPOINT*` env vars); deploy with whichever of those you are publishing to.
+The subgraphs are hosted on [Goldsky](https://goldsky.com). To deploy, install the Goldsky CLI (`npm i -g @goldskycom/cli`), `goldsky login`, then after `yarn build`:
+
+```
+yarn deploy-xdai      # goldsky subgraph deploy nifty-ink/<version> --path .
+yarn deploy-mainnet   # goldsky subgraph deploy nifty-ink-main/<version> --path .
+```
+
+Bump the version in `package.json` for each new deployment. The app reads from the resulting endpoints via the `NEXT_PUBLIC_GRAPHQL_ENDPOINT*` env vars.
 
 If you update the contracts' ABIs, update `packages/niftygraph/abis` and `packages/nextjs/contracts/externalContracts.ts`.
 
