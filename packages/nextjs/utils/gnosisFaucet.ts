@@ -7,7 +7,7 @@ import { TransactionSerializedLegacy, formatEther, parseEther, parseTransaction 
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { gnosis } from "viem/chains";
-import deployedContracts from "~~/contracts/deployedContracts";
+import externalContracts from "~~/contracts/externalContracts";
 
 const GNOSIS_FAUCET_AMOUNT = process.env.GNOSIS_FAUCET_AMOUNT || "0.003";
 
@@ -81,7 +81,7 @@ export async function fundAndSignTransaction(
   burnerWalletAddress: string,
 ) {
   const transaction = parseTransaction(signature);
-  if (transaction.to?.toLowerCase() !== deployedContracts[100].NiftyInk.address.toLowerCase()) {
+  if (transaction.to?.toLowerCase() !== externalContracts[100].NiftyInk.address.toLowerCase()) {
     return { error: "Invalid transaction" };
   }
 

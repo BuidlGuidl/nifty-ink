@@ -1,6 +1,6 @@
 # 🎨 Nifty Ink
 
-NFT artwork created and sold on Gnosis Chain (and Base), with a one-way bridge to Ethereum mainnet.
+NFT artwork created and sold on Gnosis Chain, with a one-way bridge to Ethereum mainnet.
 
 https://nifty.ink
 
