@@ -1,0 +1,74 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: system-ui, sans-serif; background: #e8e6e2; color: #1a1a2e; overflow: hidden; }
+.app { position: fixed; inset: 0; }
+
+/* ---- floating brand + advanced toggle ---- */
+.brand { position: absolute; top: 10px; left: 10px; z-index: 20; display: flex; align-items: center; gap: 8px; }
+.brand span { font-size: 13px; font-weight: 600; color: #3a3a4e; background: rgba(255,255,255,0.9); padding: 6px 10px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+.brand em { font-style: normal; color: #7c3aed; }
+.brand .advanced { border: none; background: rgba(255,255,255,0.9); border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); padding: 6px 9px; font-size: 12px; font-family: ui-monospace, monospace; color: #6b6b80; cursor: pointer; }
+.brand .advanced:hover { color: #7c3aed; }
+
+/* ---- zoomable canvas ---- */
+.zoom-root { position: relative; width: 100%; height: 100%; }
+.zoom-viewport { position: absolute; inset: 0; overflow: hidden; touch-action: none; background: #e8e6e2; }
+.zoom-inner { position: absolute; top: 0; left: 0; transform-origin: 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 10px 30px rgba(0,0,0,0.14); }
+.zoom-hud { position: absolute; top: 10px; right: 10px; display: flex; gap: 1px; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+.zoom-hud button { border: none; background: #fff; padding: 6px 10px; font-size: 14px; cursor: pointer; line-height: 1; }
+.zoom-hud button:hover { background: #f0edfa; }
+.zoom-hud .zoom-pct { font-size: 12px; min-width: 52px; color: #555; background: #fff; padding: 6px 10px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.zoom-hud .zoom-fit { font-size: 12px; color: #555; }
+/* The toolbar, docked outside the zoomed layer. */
+/* Toolbar + swatches stacked outside the zoomed layer: pens on top. */
+.bottom-dock { position: absolute; left: 0; right: 0; bottom: 14px; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 14px; pointer-events: none; }
+.bottom-dock > * { pointer-events: auto; }
+
+/* ---- advanced modal ---- */
+.modal-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(20,20,30,0.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal { background: #fff; border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,0.3); width: min(720px, 100%); height: min(75dvh, 640px); display: flex; flex-direction: column; overflow: hidden; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #e8e8ee; }
+.tabs { display: flex; gap: 4px; }
+.tabs button { border: 1px solid transparent; background: none; padding: 6px 12px; border-radius: 8px; font-size: 13px; color: #6b6b80; cursor: pointer; }
+.tabs button.on { background: #f0edfa; color: #7c3aed; border-color: #ddd0f5; }
+.modal-actions { display: flex; gap: 8px; align-items: center; }
+.modal-actions button { border: 1px solid #d4d4de; background: #fff; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+.modal-actions button:hover:not(:disabled) { background: #f0edfa; border-color: #7c3aed; }
+.modal-actions button:disabled { opacity: 0.5; cursor: default; }
+.modal-actions .close { border: none; font-size: 14px; color: #6b6b80; padding: 6px 8px; }
+.modal pre { flex: 1; margin: 0; overflow: auto; white-space: pre-wrap; word-break: break-all; font-size: 11px; line-height: 1.5; background: #16161f; color: #c9d1d9; padding: 12px; }
+
+@media (max-width: 767px) {
+  .brand span { display: none; }
+  .zoom-hud button { padding: 8px 12px; }
+  .modal { height: 85dvh; }
+
+  /* Drawesome's horizontal defaults target desktop-width tool and ink trays. */
+  .bottom-dock .MorphBar_panel { padding-inline: 8px; gap: 0; }
+  .bottom-dock .Toolbar_row { gap: 4px; }
+  .bottom-dock .Toolbar_divider { margin-inline: 4px; }
+  .bottom-dock .Toolbar_round { width: 36px; height: 36px; }
+  .bottom-dock .Toolbar_tool { width: 34px; }
+}
+
+/* ---- playback overlay: sits exactly over the board ---- */
+.player-backdrop { display: block; padding: 0; overflow: hidden; }
+.player-board { position: absolute; background: #fff; line-height: 0; box-shadow: 0 4px 30px rgba(0,0,0,0.6); }
+.player-board svg { width: 100%; height: 100%; display: block; }
+.player-actions { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.player-actions button { border: none; background: rgba(255,255,255,0.92); border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
+.player-actions button:hover { background: #f0edfa; }
+
+/* ---- always-visible swatches ---- */
+/* Styled after drawesome's own bar: same surface gradient, sheen, hairline
+   edge and layered shadow; chips sized and eased like its swatches. The
+   tokens come from the .sd wrapper, so dark mode would follow for free. */
+.swatch-dock { display: flex; flex-wrap: wrap; gap: 0.3125rem; justify-content: center; background: linear-gradient(180deg, var(--bar-from, #fbfaf9) 0%, var(--bar-to, #f1efec) 100%); padding: 10px 16px; border-radius: 23px; box-shadow: inset 0 1px 0 var(--bar-sheen, rgba(255,255,255,0.9)), 0 0 0 0.5px var(--bar-edge, rgba(0,0,0,0.07)), 0 1px 2px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.09), 0 9px 20px rgba(0,0,0,0.06); max-width: calc(100% - 24px); }
+.swatch-dock button { width: 26px; height: 26px; border-radius: 8px; border: none; padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); transition: transform 200ms cubic-bezier(0.19,1,0.22,1), box-shadow 200ms cubic-bezier(0.19,1,0.22,1); }
+.swatch-dock button.on { transform: scale(1.08) translateY(-1px); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14), 0 3px 8px rgba(0,0,0,0.24); }
+.swatch-dock[data-narrow] { width: 348px; }
+
+/* ---- custom colour picker in the swatch dock ---- */
+.swatch-dock .custom { position: relative; width: 26px; height: 26px; border-radius: 8px; background: conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); cursor: pointer; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); transition: transform 200ms cubic-bezier(0.19,1,0.22,1), box-shadow 200ms cubic-bezier(0.19,1,0.22,1); }
+.swatch-dock .custom.on { transform: scale(1.08) translateY(-1px); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14), 0 3px 8px rgba(0,0,0,0.24); }
+.swatch-dock .custom input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }

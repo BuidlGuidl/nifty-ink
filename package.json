@@ -5,12 +5,14 @@
   "workspaces": {
     "packages": [
       "packages/nextjs",
-      "packages/nifty-view"
+      "packages/nifty-view",
+      "packages/drawesome-app"
     ]
   },
   "scripts": {
     "start": "yarn workspace @se-2/nextjs dev",
     "start-nifty-view": "yarn workspace @se-2/nifty-view dev",
+    "start-draw": "yarn workspace @se-2/drawesome-app dev",
     "format": "yarn next:format",
     "next:lint": "yarn workspace @se-2/nextjs lint",
     "next:format": "yarn workspace @se-2/nextjs format",
