@@ -1,3 +1,4 @@
 {
-  "installCommand": "yarn install"
+  "installCommand": "yarn install",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ../../package.json ../../yarn.lock"
 }
