@@ -9,6 +9,7 @@ https://nifty.ink
 | Package | What it is |
 | --- | --- |
 | [`packages/nextjs`](packages/nextjs) | The nifty.ink app (Next.js 14, scaffold-eth 2 based). Deployed on Vercel. |
+| [`packages/nifty-sdk`](packages/nifty-sdk) | **Experimental**, unaudited v2 primitives; unstable API, not production-ready. See its README before use. |
 | [`packages/nifty-view`](packages/nifty-view) | Standalone canvas replayer – renders an ink's drawing from its IPFS CID. Deployed separately on Vercel. |
 | [`packages/niftygraph`](packages/niftygraph) | The subgraphs (Gnosis + mainnet) that the app reads from. |
 | [`packages/contracts`](packages/contracts) | Archival source of the deployed smart contracts. Not buildable – see its README. |

@@ -1,0 +1,59 @@
+{
+  "name": "nifty-sdk",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./drawing": {
+      "types": "./dist/drawing.d.ts",
+      "import": "./dist/drawing.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
+    },
+    "./artifacts": {
+      "types": "./dist/artifacts.d.mts",
+      "import": "./dist/artifacts.mjs"
+    },
+    "./uploads": {
+      "types": "./dist/uploads.d.ts",
+      "import": "./dist/uploads.js"
+    },
+    "./chain": {
+      "types": "./dist/chain.d.ts",
+      "import": "./dist/chain.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "yarn build && node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "blockstore-core": "7.0.1",
+    "drawesome": "^0.1.1",
+    "ipfs-unixfs-importer": "17.1.0",
+    "multiformats": "14.0.5"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "viem": "2.56.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^18.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.4.0",
+    "viem": "2.56.3"
+  },
+  "description": "Experimental Nifty Ink v2 primitives. Unstable API; not production-ready."
+}

@@ -1,0 +1,25 @@
+name: Experimental Nifty SDK
+
+on:
+  pull_request:
+    paths:
+      - 'packages/nifty-sdk/**'
+      - 'packages/drawesome-app/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - '.github/workflows/nifty-sdk.yml'
+
+jobs:
+  sdk-and-drawing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+      - run: corepack yarn install --immutable
+      - run: corepack yarn sdk:test
+      - run: corepack yarn workspace @se-2/drawesome-app build
+      - run: corepack yarn workspace @se-2/drawesome-app exec playwright install --with-deps chromium webkit
+      - run: corepack yarn workspace @se-2/drawesome-app test:e2e

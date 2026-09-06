@@ -6,7 +6,8 @@
     "packages": [
       "packages/nextjs",
       "packages/nifty-view",
-      "packages/drawesome-app"
+      "packages/drawesome-app",
+      "packages/nifty-sdk"
     ]
   },
   "scripts": {
@@ -25,7 +26,9 @@
     "postinstall": "husky install",
     "precommit": "lint-staged",
     "vercel": "yarn workspace @se-2/nextjs vercel",
-    "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo"
+    "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
+    "sdk:build": "yarn workspace nifty-sdk build",
+    "sdk:test": "yarn workspace nifty-sdk test"
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
