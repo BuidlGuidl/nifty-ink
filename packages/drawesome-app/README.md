@@ -35,7 +35,13 @@ There is no saving yet. The stroke data (JSON) is the format we would store late
 
 ## The vendored file
 
-`src/vendor/DrawSurface.tsx` is drawesome's own code with one change:
-a cancelled pointer now throws its stroke away instead of keeping it
-(drawesome issue #5). When drawesome fixes this, we can delete the file
-and import the surface from the library again.
+`src/vendor/DrawSurface.tsx` re-exports the shared surface from `nifty-sdk/react`.
+Its implementation is in `packages/nifty-sdk/src/DrawSurface.tsx`. Cancelled
+pointers discard the partial stroke (drawesome issue #5). Touch and captured
+drags also survive pointer-leave events instead of committing short marks;
+unexpected capture loss discards the partial stroke.
+
+Run `yarn workspace @se-2/drawesome-app test:e2e` from the repo root for touch
+regressions in Chromium and WebKit (install both Playwright browsers first).
+The boundary-event tests inject the interrupted event sequence; the trusted
+touch-drag test uses Chromium's CDP. Physical iPhone testing is still needed.
